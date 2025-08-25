@@ -1,18 +1,16 @@
 erDiagram
-    Sucursal{
+    Sucursal {
         str direccion FK, PK
-        str empleados FK
-        str supervisor FK
-        str supervisor_suplente FK
+        str descripcion
     }
-    Direccion{
-    str calle PK
-    str barrio PK
-    int numero PK
-    str ciudad PK
-    str pais PK
+    Direccion {
+        str calle PK
+        str barrio PK
+        int numero PK
+        str ciudad PK
+        str pais PK
     }
-    Empleado{
+    Empleado {
         str matricula_habilitante
         int numDoc PK
         str tipoDoc FK
@@ -22,17 +20,18 @@ erDiagram
         date fecha_nacimiento
         date fecha_ingreso
         str sucursal FK
+        boolean es_supervisor
+        boolean es_supervisor_suplente
     }
-    Tipo_Documento{
+    Tipo_Documento {
         str tipo PK
-        int numDoc FK
         str descripcion
     }
-    Cargo{
+    Cargo {
         str cargo PK
         str descripcion
     }
-    Raza{
+    Raza {
         str raza PK
         str denominacion
         str cuidados_especiales
@@ -45,24 +44,27 @@ erDiagram
         int peso_max_macho
         int peso_min_macho
     }
-    Perro{
+    Perro {
         int num_hist_clinica PK
         str sucursal FK, PK
         str raza FK
         str nombre
         date fecha_nacimiento
     }
-    PerroxDuenio{
+    PerroxDuenio {
         str perro FK, PK
         str duenio FK, PK
-        
-        }
-    Duenio{
+        date fecha_inicio
+        date fecha_fin
+        str estado FK
+    }
+    
+    Duenio {
         int telefono PK
         str nombre
         str apellido
     }
-    Calendario_Vacunas{
+    Calendario_Vacunas {
         str perro FK, PK
         str vacuna FK
         date fecha_programada_vacuna
@@ -70,13 +72,13 @@ erDiagram
         str empleado FK
         int dosis
     }
-    Vacuna{
+    Vacuna {
         str vacuna PK
         str laboratorio
         str descripcion
         float dosisxgramo
     }
-    Consultas{
+    Consultas {
         str perro FK, PK
         int num_consulta PK
         str sucursal FK, PK
@@ -86,38 +88,35 @@ erDiagram
         float peso_actual
         float altura_actual
         str sintomas_detectados FK
-        str descripcion_sintoma
         str diagnostico FK
-        str descripcion_diagnostico
         str medicamentos_recetados FK
         str estado FK
     }
-    Medicamentos_Recetados{
+    Medicamentos_Recetados {
         str medicamento FK, PK
         str consulta FK, PK
         float periodicidad
     }
-    Medicamentos{
+    Medicamentos {
         int id_med PK
         str nombre
         str laboratorio
         date fecha_ultima_compra
-        int cant_minima FK
+        int cant_minima 
         int dosis
     }
-    Stock{
+    Stock {
         int cod_stock PK
         str medicamento FK
+        str sucursal FK
         int cant_stock
         int cant_min_sucursal
     }
-
-
-    Diagnostico{
+    Diagnostico {
         str diagnostico PK
         str descripcion
     }
-    Sintomas{
+    Sintomas {
         str sintoma PK
         str descripcion
     }
@@ -125,66 +124,54 @@ erDiagram
         int cod_estado PK
         str estado
         str descripcion
-
     }
-    Historial_Consulta{
+    Historial_Consulta {
         int cod_hist_estado PK
         str historial
         str cod_estado FK
         date fecha_inicio
         date fecha_fin
     }
-
-    SintomasxConsulta{
+    SintomasxConsulta {
         str consulta FK, PK
         str sintoma FK, PK
+        str descripcion
     }
-    DiagnosticoxConsulta{
+    DiagnosticoxConsulta {
         str diagnostico FK, PK
-        str sintoma FK, PK
+        str consulta FK, PK
+        str descripcion
     }
-    Historial_Duenio{
-        str PerroxDuenio FK, PK
-        str perro FK, PK
-        str duenio FK ,PK
-        date fecha_inicio
-        date fecha_fin
-    }
+    
     Estado_Consulta {
         int cod_estado PK
         str estado
         str descripcion
     }
 
-
-
-
-Perro ||--|{ Calendario_Vacunas:tiene
-Calendario_Vacunas ||--|{ Vacuna:tiene
-Calendario_Vacunas }|--|| Empleado:tiene
-Empleado }|--|| Tipo_Documento:tiene
-Empleado }|--|| Cargo:tiene
-Sucursal ||--|{ Empleado:tiene
-
-
-Sucursal ||--|{ Stock:tiene
-
-Sucursal ||--|{ Direccion:tiene
-Perro ||--|{ Sucursal:"es atendido"
-Perro }|--|| Raza:tiene
-PerroxDuenio }|--|| Perro:tiene
-Perro ||--|{ Consultas:tiene
-Consultas }|--|| Sucursal:tiene
-Consultas }|--|| Empleado:tiene
-Consultas ||--|{ SintomasxConsulta:tiene
-SintomasxConsulta }|--|| Sintomas:tiene
-Consultas ||--|{ DiagnosticoxConsulta:tiene
-DiagnosticoxConsulta }|--|| Diagnostico:tiene
-Duenio ||--|{ PerroxDuenio:tiene
-PerroxDuenio ||--|{ Historial_Duenio:tiene
-Estado_Duenio ||--|{ Historial_Duenio: tiene
-Consultas }|--|| Medicamentos_Recetados:tiene
-Stock ||--|{ Medicamentos:tiene
-Medicamentos ||--|{ Medicamentos_Recetados:tiene
-Estado_Consulta ||--|{ Historial_Consulta:tiene
-Historial_Consulta }|--|| Consultas: tiene
+    Perro ||--o{ Calendario_Vacunas : "tiene"
+    Calendario_Vacunas ||--o{ Vacuna : "tiene"
+    Calendario_Vacunas }|--|| Empleado : "tiene"
+    Empleado }|--|| Tipo_Documento : "tiene"
+    Empleado }|--|| Cargo : "tiene"
+    Sucursal ||--o{ Empleado : "tiene"
+    Sucursal ||--o{ Stock : "tiene"
+    Sucursal ||--o{ Direccion : "tiene"
+    Perro ||--o{ Sucursal : "es atendido"
+    Perro }|--|| Raza : "tiene"
+    PerroxDuenio }|--|| Perro : "tiene"
+    Perro ||--o{ Consultas : "tiene"
+    Consultas }|--|| Sucursal : "tiene"
+    Consultas }|--|| Empleado : "tiene"
+    Consultas ||--o{ SintomasxConsulta : "tiene"
+    SintomasxConsulta }|--|| Sintomas : "tiene"
+    Consultas ||--o{ DiagnosticoxConsulta : "tiene"
+    DiagnosticoxConsulta }|--|| Diagnostico : "tiene"
+    Duenio ||--o{ PerroxDuenio : "tiene"
+    
+    Estado_Duenio ||--o{ PerroxDuenio : "tiene"
+    Consultas }|--|| Medicamentos_Recetados : "tiene"
+    Stock ||--o{ Medicamentos : "tiene"
+    Medicamentos ||--o{ Medicamentos_Recetados : "tiene"
+    Estado_Consulta ||--o{ Historial_Consulta : "tiene"
+    Historial_Consulta }|--|| Consultas : "tiene"
