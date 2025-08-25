@@ -133,6 +133,9 @@ class Perro(models.Model):
 class PerroxDuenio(models.Model):
     perro = models.ForeignKey(Perro, on_delete=models.CASCADE)
     duenio = models.ForeignKey(Duenio, on_delete=models.CASCADE)
+    fecha_inicio = models.DateField(default='2000-01-01')
+    fecha_fin = models.DateField( default='2000-01-01')
+    estado = models.ForeignKey('Estado_Duenio', on_delete=models.CASCADE, default='')
 
     class Meta:
         verbose_name = "Perro por Dueño"
@@ -236,9 +239,8 @@ class Consultas(models.Model):
     peso_actual = models.FloatField(validators=[MinValueValidator(0)])
     altura_actual = models.FloatField(validators=[MinValueValidator(0)])
     sintomas_detectados = models.TextField(blank=True)  
-    descripcion_sintoma = models.TextField(blank=True)
     diagnostico = models.CharField(max_length=100)
-    descripcion_diagnostico = models.TextField(blank=True)
+    med_recetados = models.ForeignKey('Medicamentos_Recetados', on_delete=models.CASCADE, blank=True, null=True)
     estado = models.CharField(max_length=100) 
 
     class Meta:
@@ -269,6 +271,7 @@ class Medicamentos_Recetados(models.Model):
 class SintomasxConsulta(models.Model):
     consulta = models.ForeignKey(Consultas, on_delete=models.CASCADE)
     sintoma = models.ForeignKey(Sintomas, on_delete=models.CASCADE)
+    descripcion = models.TextField(blank=True)
 
     class Meta:
         verbose_name = "Síntoma por Consulta"
@@ -283,6 +286,7 @@ class SintomasxConsulta(models.Model):
 class DiagnosticoxConsulta(models.Model):
     diagnostico = models.ForeignKey(Diagnostico, on_delete=models.CASCADE)
     consulta = models.ForeignKey(Consultas, on_delete=models.CASCADE)  
+    descripcion = models.TextField(blank=True)
 
     class Meta:
         verbose_name = "Diagnóstico por Consulta"
@@ -317,23 +321,6 @@ class Estado_Consulta(models.Model):
 
     def __str__(self):
         return self.estado
-
-class Historial_Duenio(models.Model):
-    perroxduenio = models.ForeignKey(PerroxDuenio, on_delete=models.CASCADE)
-    perro = models.ForeignKey(Perro, on_delete=models.CASCADE)
-    duenio = models.ForeignKey(Duenio, on_delete=models.CASCADE)
-    fecha_inicio = models.DateField()
-    fecha_fin = models.DateField(blank=True, null=True)
-
-    class Meta:
-        verbose_name = "Historial de Dueño"
-        verbose_name_plural = "Historiales de Dueño"
-        constraints = [
-            models.UniqueConstraint(fields=['perroxduenio', 'perro', 'duenio'], name='unique_historial_duenio')
-        ]
-
-    def __str__(self):
-        return f"Historial {self.perroxduenio}"
 
 class Historial_Consulta(models.Model):
     cod_hist_estado = models.AutoField(primary_key=True)
