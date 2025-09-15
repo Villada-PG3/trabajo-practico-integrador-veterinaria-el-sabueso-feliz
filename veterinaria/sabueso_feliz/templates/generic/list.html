@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 class="mb-4">Listado de {{ model_name_plural }}</h1>
+
+<a href="nuevo/" class="btn btn-success mb-3">+ Nuevo</a>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nombre</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for obj in object_list %}
+    <tr>
+      <td>{{ obj.pk }}</td>
+      <td>
+        {% if model_name_plural == 'Sucursales' %}
+          {{ obj.direccion }}
+        {% elif model_name_plural == 'Empleados' %}
+          {{ obj.nombre }} {{ obj.apellido }}
+        {% elif model_name_plural == 'Razas' %}
+          {{ obj.raza }}
+        {% elif model_name_plural == 'Dueños' %}
+          {{ obj.nombre }} {{ obj.apellido }}
+        {% elif model_name_plural == 'Perros' %}
+          {{ obj.nombre }}
+        {% elif model_name_plural == 'Vacunas' %}
+          {{ obj.vacuna }}
+        {% elif model_name_plural == 'Calendarios de Vacunas' %}
+          {{ obj.perro }} - {{ obj.vacuna }}
+        {% elif model_name_plural == 'Consultas' %}
+          Consulta {{ obj.num_consulta }} - {{ obj.perro }}
+        {% elif model_name_plural == 'Medicamentos' %}
+          {{ obj.nombre }}
+        {% elif model_name_plural == 'Stocks' %}
+          {{ obj.medicamento }} - {{ obj.sucursal }}
+        {% else %}
+          {{ obj }}
+        {% endif %}
+      </td>
+      <td>
+        <a href="{{ obj.pk }}/" class="btn btn-sm btn-primary">Ver</a>
+        <a href="{{ obj.pk }}/editar/" class="btn btn-sm btn-warning">Editar</a>
+        <a href="{{ obj.pk }}/eliminar/" class="btn btn-sm btn-danger">Eliminar</a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="3">No hay datos disponibles.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Eliminar {{ view.model._meta.verbose_name }}</h1>
+<p>¿Seguro que querés eliminar <strong>{{ object }}</strong>?</p>
+
+<form method="post">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-danger">Eliminar</button>
+  <a href="../" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

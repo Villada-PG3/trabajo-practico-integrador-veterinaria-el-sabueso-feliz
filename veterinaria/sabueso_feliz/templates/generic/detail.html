@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Detalle de {{ view.model._meta.verbose_name }}</h1>
+
+<div class="card p-3 mb-3 shadow-sm">
+  <h4>{{ object }}</h4>
+  <p><strong>ID:</strong> {{ object.pk }}</p>
+</div>
+
+<a href="../" class="btn btn-secondary">Volver</a>
+<a href="editar/" class="btn btn-warning">Editar</a>
+{% endblock %}
