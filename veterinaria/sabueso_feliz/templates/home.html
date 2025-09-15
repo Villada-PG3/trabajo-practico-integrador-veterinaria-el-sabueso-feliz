@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Bienvenidos a El Sabueso Feliz</h1>
+    <p class="text-center lead">Sistema de gestión para nuestra veterinaria. Administra sucursales, empleados, perros, consultas y más.</p>
+    
+    <div class="row mt-5">
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Sucursales</h5>
+                    <p class="card-text">Gestiona las sucursales de la veterinaria.</p>
+                    <a href="{% url 'sucursales_list' %}" class="btn btn-primary">Ver Sucursales</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Empleados</h5>
+                    <p class="card-text">Administra el personal de la veterinaria.</p>
+                    <a href="{% url 'empleados_list' %}" class="btn btn-primary">Ver Empleados</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Perros</h5>
+                    <p class="card-text">Registra y gestiona los perros atendidos.</p>
+                    <a href="{% url 'perros_list' %}" class="btn btn-primary">Ver Perros</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Dueños</h5>
+                    <p class="card-text">Administra la información de los dueños.</p>
+                    <a href="{% url 'duenios_list' %}" class="btn btn-primary">Ver Dueños</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Consultas</h5>
+                    <p class="card-text">Registra y sigue las consultas veterinarias.</p>
+                    <a href="{% url 'consultas_list' %}" class="btn btn-primary">Ver Consultas</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Vacunas</h5>
+                    <p class="card-text">Gestiona el calendario de vacunas.</p>
+                    <a href="{% url 'vacunas_list' %}" class="btn btn-primary">Ver Vacunas</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>{{ view.model._meta.verbose_name }}</h1>
+<h1>{{ model_name }}</h1>
 
 <form method="post" class="card p-4 shadow-sm">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit" class="btn btn-primary">Guardar</button>
-  <a href="../" class="btn btn-secondary">Cancelar</a>
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a href="../" class="btn btn-secondary">Cancelar</a>
 </form>
 {% endblock %}
