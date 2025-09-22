@@ -2,14 +2,14 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h1 class="text-center mb-4 fw-bold text-primary"> Bienvenidos a El Sabueso Feliz</h1>
+    <h1 class="text-center mb-4 fw-bold text-primary">Bienvenidos a El Sabueso Feliz</h1>
     <p class="text-center lead text-muted">
         Sistema de gestión integral para nuestra veterinaria. <br>
         Administra sucursales, empleados, dueños, perros, consultas y mucho más.
     </p>
     
     <div class="row mt-5 g-4">
-        <!-- Tarjeta -->
+        <!-- Tarjetas -->
         <div class="col-md-4">
             <div class="card shadow-lg border-0 rounded-4 h-100 hover-card">
                 <div class="card-body text-center">
@@ -78,103 +78,120 @@
     </div>
 </div>
 
-<style>
-    .hover-card {
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .hover-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-    }
-    .text-purple { color: #6f42c1; }
-</style>
-
+<!-- Contadores -->
 <section class="bg-light py-5 mt-5">
     <div class="container">
-      <div class="row text-center">
-        <div class="col-md-4">
-          <h2 class="fw-bold text-primary counter" data-target="2748">0</h2>
-          <p class="text-muted">Clientes satisfechos</p>
+        <div class="row text-center">
+            <div class="col-md-4">
+                <h2 class="fw-bold text-primary counter" data-target="2748">0</h2>
+                <p class="text-muted">Clientes satisfechos</p>
+            </div>
+            <div class="col-md-4">
+                <h2 class="fw-bold text-success counter" data-target="780">0</h2>
+                <p class="text-muted">Consultas atendidas por mes</p>
+            </div>
+            <div class="col-md-4">
+                <h2 class="fw-bold text-warning counter" data-target="15">0</h2>
+                <p class="text-muted">Sucursales activas</p>
+            </div>
         </div>
-        <div class="col-md-4">
-          <h2 class="fw-bold text-success counter" data-target="780">0</h2>
-          <p class="text-muted">Consultas atendidas por mes</p>
-        </div>
-        <div class="col-md-4">
-          <h2 class="fw-bold text-warning counter" data-target="15">0</h2>
-          <p class="text-muted">Sucursales activas</p>
-        </div>
-      </div>
     </div>
-  </section>
-  
-  <!-- Sección sobre nosotros -->
-  <section class="py-5" id="sobre-nosotros">
+</section>
+
+<!-- Testimonios -->
+<section class="py-5 bg-white" id="testimonios">
+    <div class="container">
+        <h2 class="fw-bold text-center mb-4">Lo que dicen nuestros clientes</h2>
+        <div id="carouselTestimonios" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner text-center">
+                <div class="carousel-item active">
+                    <p class="fs-5 text-muted">"¡Excelente atención! Mi perro siempre recibe el mejor cuidado en El Sabueso Feliz."</p>
+                    <small class="fw-bold text-primary">– Juan P.</small>
+                </div>
+                <div class="carousel-item">
+                    <p class="fs-5 text-muted">"Gracias al equipo profesional, mis consultas son rápidas y efectivas."</p>
+                    <small class="fw-bold text-success">– Laura M.</small>
+                </div>
+                <div class="carousel-item">
+                    <p class="fs-5 text-muted">"Me encanta la cantidad de sucursales y la facilidad para reservar citas."</p>
+                    <small class="fw-bold text-warning">– Carlos G.</small>
+                </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselTestimonios" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselTestimonios" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- Sobre Nosotros -->
+<section class="py-5" id="sobre-nosotros">
     <div class="container text-center">
-      <h2 class="fw-bold mb-4">Sobre Nosotros</h2>
-      <p class="text-muted fs-5">
-        En <strong>El Sabueso Feliz</strong> nos dedicamos a brindar la mejor atención 
-        a tus mascotas. Con un equipo de profesionales apasionados y modernas 
-        instalaciones, tu perro está siempre en buenas manos.
-      </p>
+        <h2 class="fw-bold mb-4">Sobre Nosotros</h2>
+        <p class="text-muted fs-5">
+            En <strong>El Sabueso Feliz</strong> nos dedicamos a brindar la mejor atención 
+            a tus mascotas. Con un equipo de profesionales apasionados y modernas 
+            instalaciones, tu perro está siempre en buenas manos.
+        </p>
     </div>
-  </section>
-  
-  <style>
-      .hover-card {
-          transition: transform 0.2s ease, box-shadow 0.2s ease;
-      }
-      .hover-card:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-      }
-      .text-purple { color: #6f42c1; }
-  
-      /* Animación de contador */
-      .counter {
-          font-size: 2.5rem;
-      }
-  
-      html {
-          scroll-behavior: smooth;
-      }
-  </style>
-  
-  <script>
-    // Animación de contadores al hacer scroll
-    document.addEventListener("DOMContentLoaded", () => {
-      const counters = document.querySelectorAll('.counter');
-      const speed = 200; 
-  
-      const animateCounters = () => {
+</section>
+
+<style>
+.hover-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.hover-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+.text-purple { color: #6f42c1; }
+
+/* Animación de contadores */
+.counter {
+    font-size: 2.5rem;
+}
+html {
+    scroll-behavior: smooth;
+}
+</style>
+
+<script>
+// Animación de contadores
+document.addEventListener("DOMContentLoaded", () => {
+    const counters = document.querySelectorAll('.counter');
+    const speed = 200; 
+
+    const animateCounters = () => {
         counters.forEach(counter => {
-          const updateCount = () => {
-            const target = +counter.getAttribute('data-target');
-            const count = +counter.innerText;
-            const increment = Math.ceil(target / speed);
-  
-            if (count < target) {
-              counter.innerText = count + increment;
-              setTimeout(updateCount, 30);
-            } else {
-              counter.innerText = target;
-            }
-          };
-          updateCount();
+            const updateCount = () => {
+                const target = +counter.getAttribute('data-target');
+                const count = +counter.innerText;
+                const increment = Math.ceil(target / speed);
+
+                if (count < target) {
+                    counter.innerText = count + increment;
+                    setTimeout(updateCount, 30);
+                } else {
+                    counter.innerText = target;
+                }
+            };
+            updateCount();
         });
-      };
-  
-      // Ejecutar animación cuando la sección sea visible
-      const observer = new IntersectionObserver(entries => {
+    };
+
+    const observer = new IntersectionObserver(entries => {
         entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            animateCounters();
-            observer.disconnect();
-          }
+            if (entry.isIntersecting) {
+                animateCounters();
+                observer.disconnect();
+            }
         });
-      }, { threshold: 0.5 });
-  
-      observer.observe(document.querySelector('.counter'));
-    });
-  </script>
+    }, { threshold: 0.5 });
+
+    observer.observe(document.querySelector('.counter'));
+});
+</script>
 {% endblock %}
