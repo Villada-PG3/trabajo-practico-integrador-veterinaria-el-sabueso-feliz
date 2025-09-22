@@ -1,96 +1,84 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Detalles de {{ model_name }}</h1>
+<div class="container mt-4">
+    <h1 class="text-center mb-4 fw-bold text-primary">
+        Detalles de {{ model_name }}
+    </h1>
 
-<div class="card p-3 mb-3 shadow-sm">
-    {% if model_name_plural == 'Sucursales' %}
-        <h4>{{ object.direccion }}</h4>
-        <p><strong>ID:</strong> {{ object.pk }}</p>
-        <p><strong>Descripción:</strong> {{ object.descripcion|default:"Sin descripción" }}</p>
-    {% elif model_name_plural == 'Empleados' %}
-        <h4>{{ object.nombre }} {{ object.apellido }}</h4>
-        <p><strong>ID:</strong> {{ object.numDoc }}</p>
-        <p><strong>Tipo de Documento:</strong> {{ object.tipoDoc }}</p>
-        <p><strong>Cargo:</strong> {{ object.cargo }}</p>
-        <p><strong>Sucursal:</strong> {{ object.sucursal }}</p>
-        <p><strong>Matrícula Habilitante:</strong> {{ object.matricula_habilitante|default:"No especificada" }}</p>
-        <p><strong>Fecha de Nacimiento:</strong> {{ object.fecha_nacimiento }}</p>
-        <p><strong>Fecha de Ingreso:</strong> {{ object.fecha_ingreso }}</p>
-        <p><strong>Es Supervisor:</strong> {{ object.es_supervisor }}</p>
-        <p><strong>Es Supervisor Suplente:</strong> {{ object.es_supervisor_suplente }}</p>
-    {% elif model_name_plural == 'Razas' %}
-        <h4>{{ object.raza }}</h4>
-        <p><strong>ID:</strong> {{ object.raza }}</p>
-        <p><strong>Denominación:</strong> {{ object.denominacion }}</p>
-        <p><strong>Cuidados Especiales:</strong> {{ object.cuidados_especiales|default:"Ninguno" }}</p>
-        <p><strong>Altura Máx. Hembra:</strong> {{ object.altura_max_hembra }} cm</p>
-        <p><strong>Altura Mín. Hembra:</strong> {{ object.altura_min_hembra }} cm</p>
-        <p><strong>Peso Máx. Hembra:</strong> {{ object.peso_max_hembra }} kg</p>
-        <p><strong>Peso Mín. Hembra:</strong> {{ object.peso_min_hembra }} kg</p>
-        <p><strong>Altura Máx. Macho:</strong> {{ object.altura_max_macho }} cm</p>
-        <p><strong>Altura Mín. Macho:</strong> {{ object.altura_min_macho }} cm</p>
-        <p><strong>Peso Máx. Macho:</strong> {{ object.peso_max_macho }} kg</p>
-        <p><strong>Peso Mín. Macho:</strong> {{ object.peso_min_macho }} kg</p>
-    {% elif model_name_plural == 'Dueños' %}
-        <h4>{{ object.nombre }} {{ object.apellido }}</h4>
-        <p><strong>ID:</strong> {{ object.telefono }}</p>
-        <p><strong>Teléfono:</strong> {{ object.telefono }}</p>
-    {% elif model_name_plural == 'Perros' %}
-        <h4>{{ object.nombre }}</h4>
-        <p><strong>ID:</strong> {{ object.pk }}</p>
-        <p><strong>Número de Historia Clínica:</strong> {{ object.num_hist_clinica }}</p>
-        <p><strong>Raza:</strong> {{ object.raza }}</p>
-        <p><strong>Sucursal:</strong> {{ object.sucursal }}</p>
-        <p><strong>Fecha de Nacimiento:</strong> {{ object.fecha_nacimiento }}</p>
-    {% elif model_name_plural == 'Vacunas' %}
-        <h4>{{ object.vacuna }}</h4>
-        <p><strong>ID:</strong> {{ object.vacuna }}</p>
-        <p><strong>Laboratorio:</strong> {{ object.laboratorio }}</p>
-        <p><strong>Dosis por gramo:</strong> {{ object.dosisxgramo }}</p>
-        <p><strong>Descripción:</strong> {{ object.descripcion|default:"Sin descripción" }}</p>
-    {% elif model_name_plural == 'Calendarios de Vacunas' %}
-        <h4>{{ object.perro }} - {{ object.vacuna }}</h4>
-        <p><strong>ID:</strong> {{ object.pk }}</p>
-        <p><strong>Perro:</strong> {{ object.perro }}</p>
-        <p><strong>Vacuna:</strong> {{ object.vacuna }}</p>
-        <p><strong>Fecha Programada:</strong> {{ object.fecha_programada_vacuna }}</p>
-        <p><strong>Fecha Real:</strong> {{ object.fecha_real_vacuna|default:"No aplicada" }}</p>
-        <p><strong>Empleado:</strong> {{ object.empleado }}</p>
-        <p><strong>Dosis:</strong> {{ object.dosis }}</p>
-    {% elif model_name_plural == 'Consultas' %}
-        <h4>Consulta {{ object.num_consulta }} - {{ object.perro }}</h4>
-        <p><strong>ID:</strong> {{ object.pk }}</p>
-        <p><strong>Perro:</strong> {{ object.perro }}</p>
-        <p><strong>Sucursal:</strong> {{ object.sucursal }}</p>
-        <p><strong>Fecha de Entrada:</strong> {{ object.fecha_entrada }}</p>
-        <p><strong>Fecha de Salida:</strong> {{ object.fecha_salida|default:"No definida" }}</p>
-        <p><strong>Empleado:</strong> {{ object.empleado }}</p>
-        <p><strong>Peso Actual:</strong> {{ object.peso_actual }} kg</p>
-        <p><strong>Altura Actual:</strong> {{ object.altura_actual }} cm</p>
-        <p><strong>Síntomas Detectados:</strong> {{ object.sintomas_detectados|default:"Ninguno" }}</p>
-        <p><strong>Diagnóstico:</strong> {{ object.diagnostico }}</p>
-        <p><strong>Estado:</strong> {{ object.estado }}</p>
-    {% elif model_name_plural == 'Medicamentos' %}
-        <h4>{{ object.nombre }}</h4>
-        <p><strong>ID:</strong> {{ object.id_med }}</p>
-        <p><strong>Laboratorio:</strong> {{ object.laboratorio }}</p>
-        <p><strong>Fecha Última Compra:</strong> {{ object.fecha_ultima_compra }}</p>
-        <p><strong>Cantidad Mínima:</strong> {{ object.cant_minima }}</p>
-        <p><strong>Dosis:</strong> {{ object.dosis }}</p>
-    {% elif model_name_plural == 'Stocks' %}
-        <h4>{{ object.medicamento }} - {{ object.sucursal }}</h4>
-        <p><strong>ID:</strong> {{ object.cod_stock }}</p>
-        <p><strong>Medicamento:</strong> {{ object.medicamento }}</p>
-        <p><strong>Sucursal:</strong> {{ object.sucursal }}</p>
-        <p><strong>Cantidad en Stock:</strong> {{ object.cant_stock }}</p>
-        <p><strong>Cantidad Mínima por Sucursal:</strong> {{ object.cant_min_sucursal }}</p>
-    {% else %}
-        <h4>{{ object }}</h4>
-        <p><strong>ID:</strong> {{ object.pk }}</p>
-    {% endif %}
-    <a href="../" class="btn btn-secondary">Volver</a>
-    <a href="editar/" class="btn btn-warning">Editar</a>
-    <a href="eliminar/" class="btn btn-danger">Eliminar</a>
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-body">
+            {% if model_name_plural == 'Sucursales' %}
+                <h4 class="fw-bold text-secondary">{{ object.direccion }}</h4>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><strong>ID:</strong> {{ object.pk }}</li>
+                    <li class="list-group-item"><strong>Descripción:</strong> {{ object.descripcion|default:"Sin descripción" }}</li>
+                </ul>
+
+            {% elif model_name_plural == 'Empleados' %}
+                <h4 class="fw-bold text-secondary">{{ object.nombre }} {{ object.apellido }}</h4>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><strong>ID:</strong> {{ object.numDoc }}</li>
+                    <li class="list-group-item"><strong>Tipo de Documento:</strong> {{ object.tipoDoc }}</li>
+                    <li class="list-group-item"><strong>Cargo:</strong> {{ object.cargo }}</li>
+                    <li class="list-group-item"><strong>Sucursal:</strong> {{ object.sucursal }}</li>
+                    <li class="list-group-item"><strong>Matrícula Habilitante:</strong> {{ object.matricula_habilitante|default:"No especificada" }}</li>
+                    <li class="list-group-item"><strong>Fecha de Nacimiento:</strong> {{ object.fecha_nacimiento }}</li>
+                    <li class="list-group-item"><strong>Fecha de Ingreso:</strong> {{ object.fecha_ingreso }}</li>
+                    <li class="list-group-item"><strong>Es Supervisor:</strong> {{ object.es_supervisor }}</li>
+                    <li class="list-group-item"><strong>Es Supervisor Suplente:</strong> {{ object.es_supervisor_suplente }}</li>
+                </ul>
+
+            {% elif model_name_plural == 'Razas' %}
+                <h4 class="fw-bold text-secondary">{{ object.raza }}</h4>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><strong>ID:</strong> {{ object.raza }}</li>
+                    <li class="list-group-item"><strong>Denominación:</strong> {{ object.denominacion }}</li>
+                    <li class="list-group-item"><strong>Cuidados Especiales:</strong> {{ object.cuidados_especiales|default:"Ninguno" }}</li>
+                    <li class="list-group-item"><strong>Altura Máx. Hembra:</strong> {{ object.altura_max_hembra }} cm</li>
+                    <li class="list-group-item"><strong>Peso Máx. Hembra:</strong> {{ object.peso_max_hembra }} kg</li>
+                    <li class="list-group-item"><strong>Altura Máx. Macho:</strong> {{ object.altura_max_macho }} cm</li>
+                    <li class="list-group-item"><strong>Peso Máx. Macho:</strong> {{ object.peso_max_macho }} kg</li>
+                </ul>
+
+            {% elif model_name_plural == 'Consultas' %}
+                <h4 class="fw-bold text-secondary">Consulta {{ object.num_consulta }} - {{ object.perro }}</h4>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><strong>ID:</strong> {{ object.pk }}</li>
+                    <li class="list-group-item"><strong>Perro:</strong> {{ object.perro }}</li>
+                    <li class="list-group-item"><strong>Sucursal:</strong> {{ object.sucursal }}</li>
+                    <li class="list-group-item"><strong>Fecha de Entrada:</strong> {{ object.fecha_entrada }}</li>
+                    <li class="list-group-item"><strong>Fecha de Salida:</strong> {{ object.fecha_salida|default:"No definida" }}</li>
+                    <li class="list-group-item"><strong>Empleado:</strong> {{ object.empleado }}</li>
+                    <li class="list-group-item"><strong>Peso Actual:</strong> {{ object.peso_actual }} kg</li>
+                    <li class="list-group-item"><strong>Altura Actual:</strong> {{ object.altura_actual }} cm</li>
+                    <li class="list-group-item"><strong>Síntomas Detectados:</strong> {{ object.sintomas_detectados|default:"Ninguno" }}</li>
+                    <li class="list-group-item"><strong>Diagnóstico:</strong> {{ object.diagnostico }}</li>
+                    <li class="list-group-item"><strong>Estado:</strong> {{ object.estado }}</li>
+                </ul>
+
+            {% else %}
+                <h4 class="fw-bold text-secondary">{{ object }}</h4>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><strong>ID:</strong> {{ object.pk }}</li>
+                </ul>
+            {% endif %}
+        </div>
+
+        <div class="card-footer bg-light d-flex justify-content-between">
+            <a href="../" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
+            <div>
+                <a href="editar/" class="btn btn-warning me-2"><i class="bi bi-pencil"></i> Editar</a>
+                <a href="eliminar/" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</a>
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+    .list-group-item {
+        border: none;
+        padding: 0.6rem 1rem;
+    }
+</style>
 {% endblock %}

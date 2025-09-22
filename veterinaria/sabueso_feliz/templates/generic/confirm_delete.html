@@ -1,39 +1,47 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Eliminar {{ model_name }}</h1>
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="fw-semibold text-danger">Eliminar {{ model_name }}</h2>
+</div>
 
-<div class="card p-4 shadow-sm">
-    <p>¿Estás seguro de que deseas eliminar este {{ model_name }}?</p>
-    <p>
-        {% if model_name_plural == 'Sucursales' %}
-            {{ object.direccion }}
-        {% elif model_name_plural == 'Empleados' %}
-            {{ object.nombre }} {{ object.apellido }}
-        {% elif model_name_plural == 'Razas' %}
-            {{ object.raza }}
-        {% elif model_name_plural == 'Dueños' %}
-            {{ object.nombre }} {{ object.apellido }}
-        {% elif model_name_plural == 'Perros' %}
-            {{ object.nombre }}
-        {% elif model_name_plural == 'Vacunas' %}
-            {{ object.vacuna }}
-        {% elif model_name_plural == 'Calendarios de Vacunas' %}
-            {{ object.perro }} - {{ object.vacuna }}
-        {% elif model_name_plural == 'Consultas' %}
-            Consulta {{ object.num_consulta }} - {{ object.perro }}
-        {% elif model_name_plural == 'Medicamentos' %}
-            {{ object.nombre }}
-        {% elif model_name_plural == 'Stocks' %}
-            {{ object.medicamento }} - {{ object.sucursal }}
-        {% else %}
-            {{ object }}
-        {% endif %}
+<div class="card border-0 shadow-sm">
+  <div class="card-body">
+    <p class="fs-5">
+      ⚠️ ¿Estás seguro de que deseas eliminar este <strong>{{ model_name }}</strong>?
     </p>
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Confirmar Eliminación</button>
-        <a href="../" class="btn btn-secondary">Cancelar</a>
+    <div class="alert alert-warning">
+      <strong>Elemento a eliminar:</strong><br>
+      {% if model_name_plural == 'Sucursales' %}
+          {{ object.direccion }}
+      {% elif model_name_plural == 'Empleados' %}
+          {{ object.nombre }} {{ object.apellido }}
+      {% elif model_name_plural == 'Razas' %}
+          {{ object.raza }}
+      {% elif model_name_plural == 'Dueños' %}
+          {{ object.nombre }} {{ object.apellido }}
+      {% elif model_name_plural == 'Perros' %}
+          {{ object.nombre }}
+      {% elif model_name_plural == 'Vacunas' %}
+          {{ object.vacuna }}
+      {% elif model_name_plural == 'Calendarios de Vacunas' %}
+          {{ object.perro }} - {{ object.vacuna }}
+      {% elif model_name_plural == 'Consultas' %}
+          Consulta {{ object.num_consulta }} - {{ object.perro }}
+      {% elif model_name_plural == 'Medicamentos' %}
+          {{ object.nombre }}
+      {% elif model_name_plural == 'Stocks' %}
+          {{ object.medicamento }} - {{ object.sucursal }}
+      {% else %}
+          {{ object }}
+      {% endif %}
+    </div>
+
+    <form method="post" class="d-flex justify-content-end gap-2 mt-3">
+      {% csrf_token %}
+      <a href="../" class="btn btn-outline-secondary">Cancelar</a>
+      <button type="submit" class="btn btn-danger">🗑️ Confirmar Eliminación</button>
     </form>
+  </div>
 </div>
 {% endblock %}
