@@ -2,64 +2,90 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h1 class="text-center mb-4">Bienvenidos a El Sabueso Feliz</h1>
-    <p class="text-center lead">Sistema de gestión para nuestra veterinaria. Administra sucursales, empleados, perros, consultas y más.</p>
+    <h1 class="text-center mb-4 fw-bold text-primary">🐾 Bienvenidos a El Sabueso Feliz</h1>
+    <p class="text-center lead text-muted">
+        Sistema de gestión integral para nuestra veterinaria. <br>
+        Administra sucursales, empleados, dueños, perros, consultas y mucho más.
+    </p>
     
-    <div class="row mt-5">
-        <div class="col-md-4 mb-3">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Sucursales</h5>
-                    <p class="card-text">Gestiona las sucursales de la veterinaria.</p>
-                    <a href="{% url 'sucursales_list' %}" class="btn btn-primary">Ver Sucursales</a>
+    <div class="row mt-5 g-4">
+        <!-- Tarjeta -->
+        <div class="col-md-4">
+            <div class="card shadow-lg border-0 rounded-4 h-100 hover-card">
+                <div class="card-body text-center">
+                    <i class="bi bi-shop fs-1 text-primary mb-3"></i>
+                    <h5 class="card-title fw-bold">Sucursales</h5>
+                    <p class="card-text text-muted">Gestiona las sucursales de la veterinaria.</p>
+                    <a href="{% url 'sucursales_list' %}" class="btn btn-outline-primary rounded-pill">Ver Sucursales</a>
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-3">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Empleados</h5>
-                    <p class="card-text">Administra el personal de la veterinaria.</p>
-                    <a href="{% url 'empleados_list' %}" class="btn btn-primary">Ver Empleados</a>
+        
+        <div class="col-md-4">
+            <div class="card shadow-lg border-0 rounded-4 h-100 hover-card">
+                <div class="card-body text-center">
+                    <i class="bi bi-people fs-1 text-success mb-3"></i>
+                    <h5 class="card-title fw-bold">Empleados</h5>
+                    <p class="card-text text-muted">Administra el personal de la veterinaria.</p>
+                    <a href="{% url 'empleados_list' %}" class="btn btn-outline-success rounded-pill">Ver Empleados</a>
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-3">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Perros</h5>
-                    <p class="card-text">Registra y gestiona los perros atendidos.</p>
-                    <a href="{% url 'perros_list' %}" class="btn btn-primary">Ver Perros</a>
+        
+        <div class="col-md-4">
+            <div class="card shadow-lg border-0 rounded-4 h-100 hover-card">
+                <div class="card-body text-center">
+                    <i class="bi bi-paw fs-1 text-warning mb-3"></i>
+                    <h5 class="card-title fw-bold">Perros</h5>
+                    <p class="card-text text-muted">Registra y gestiona los perros atendidos.</p>
+                    <a href="{% url 'perros_list' %}" class="btn btn-outline-warning rounded-pill">Ver Perros</a>
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-3">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Dueños</h5>
-                    <p class="card-text">Administra la información de los dueños.</p>
-                    <a href="{% url 'duenios_list' %}" class="btn btn-primary">Ver Dueños</a>
+
+        <div class="col-md-4">
+            <div class="card shadow-lg border-0 rounded-4 h-100 hover-card">
+                <div class="card-body text-center">
+                    <i class="bi bi-person-heart fs-1 text-danger mb-3"></i>
+                    <h5 class="card-title fw-bold">Dueños</h5>
+                    <p class="card-text text-muted">Administra la información de los dueños.</p>
+                    <a href="{% url 'duenios_list' %}" class="btn btn-outline-danger rounded-pill">Ver Dueños</a>
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-3">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Consultas</h5>
-                    <p class="card-text">Registra y sigue las consultas veterinarias.</p>
-                    <a href="{% url 'consultas_list' %}" class="btn btn-primary">Ver Consultas</a>
+
+        <div class="col-md-4">
+            <div class="card shadow-lg border-0 rounded-4 h-100 hover-card">
+                <div class="card-body text-center">
+                    <i class="bi bi-journal-medical fs-1 text-info mb-3"></i>
+                    <h5 class="card-title fw-bold">Consultas</h5>
+                    <p class="card-text text-muted">Registra y sigue las consultas veterinarias.</p>
+                    <a href="{% url 'consultas_list' %}" class="btn btn-outline-info rounded-pill">Ver Consultas</a>
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-3">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Vacunas</h5>
-                    <p class="card-text">Gestiona el calendario de vacunas.</p>
-                    <a href="{% url 'vacunas_list' %}" class="btn btn-primary">Ver Vacunas</a>
+
+        <div class="col-md-4">
+            <div class="card shadow-lg border-0 rounded-4 h-100 hover-card">
+                <div class="card-body text-center">
+                    <i class="bi bi-capsule fs-1 text-purple mb-3"></i>
+                    <h5 class="card-title fw-bold">Vacunas</h5>
+                    <p class="card-text text-muted">Gestiona el calendario de vacunas.</p>
+                    <a href="{% url 'vacunas_list' %}" class="btn btn-outline-dark rounded-pill">Ver Vacunas</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .hover-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .hover-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+    .text-purple { color: #6f42c1; }
+</style>
 {% endblock %}
