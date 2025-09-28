@@ -88,5 +88,7 @@ urlpatterns = [
     path('stock/nuevo/', views.StockCreateView.as_view(), name='stock_create'),
 
     # --- Login ---
-    path("register/", views.register, name="register"),
+    path('login/', views.iniciar_sesion, name='login'),
+    path('logout/', views.cerrar_sesion, name='logout'),
+    path('register/', views.registro, name='register'),
 ]

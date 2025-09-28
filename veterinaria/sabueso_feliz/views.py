@@ -1,14 +1,23 @@
 import os
 import csv
-from django.shortcuts import render
+# render = mostrar template, redirect = redirigir a otra vista
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+# sistema de mensajes de Django (para avisos en pantalla)
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
+# funciones de autenticación de Django
+from django.contrib.auth import authenticate, login, logout
+# formulario ya hecho para login
+from django.contrib.auth.forms import AuthenticationForm
+# tu formulario personalizado de registro
+from .forms import RegistroUsuarioForm
+
 
 from .models import (
     Sucursal, Empleado, Raza, Duenio, Perro,
@@ -327,36 +336,46 @@ class HomeView(TemplateView):
 # ─────────────────────────────
 
 
-def register(request):
-    if request.method == "GET":
-        # Mostramos el formulario
-        return render(request, "register.html")
+# 🏠 Vista de inicio de sesión
+def iniciar_sesion(request):
+    if request.method == 'POST':
+        # Si el usuario mandó un formulario (apretó "Iniciar sesión")
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            # Si los datos son correctos → el usuario existe
+            user = form.get_user()     # obtenemos al usuario validado
+            login(request, user)       # guardamos su sesión (queda "logueado")
+            messages.success(request, f"Bienvenido {user.username}!")
+            return redirect('home')    # lo mandamos a la página principal
+    else:
+        # Si entró por primera vez a la URL /login/
+        form = AuthenticationForm()   # se crea un formulario vacío
+    return render(request, 'login.html', {'form': form})
+    # Mostramos la plantilla login.html, pasándole el formulario
 
-    # Si es POST, procesamos el formulario
-    usuario = request.POST.get("usuario")
-    email = request.POST.get("email")
-    password = request.POST.get("password")
 
-    if not usuario or not email or not password:
-        return JsonResponse({"status": "error", "message": "Faltan datos en el formulario"})
+# 📝 Vista de registro
+def registro(request):
+    if request.method == 'POST':
+        # Si el usuario mandó datos (apretó "Registrarse")
+        form = RegistroUsuarioForm(request.POST)
+        if form.is_valid():
+            # Si todo está bien (contraseñas coinciden, usuario no existe, etc.)
+            form.save()   # creamos el nuevo usuario en la base de datos
+            messages.success(
+                request, "Cuenta creada con éxito. Ahora puedes iniciar sesión.")
+            return redirect('login')  # lo mandamos a la página de login
+    else:
+        # Si entró por primera vez a la URL /register/
+        form = RegistroUsuarioForm()  # creamos un formulario vacío
+    return render(request, 'register.html', {'form': form})
+    # ⚠️ antes apuntaba a login.html → ahora apunta a register.html ✅
 
-    try:
-        validate_email(email)
-    except ValidationError:
-        return JsonResponse({"status": "error", "message": "Formato de email inválido"})
 
-    file_path = os.path.join(os.path.dirname(__file__), "usuarios.csv")
-    file_exists = os.path.isfile(file_path)
-
-    with open(file_path, "a", newline="") as csvfile:
-        writer = csv.writer(csvfile)
-        if not file_exists:
-            writer.writerow(["usuario", "email", "password"])
-        writer.writerow([usuario, email, password])
-
-    return JsonResponse({
-        "status": "success",
-        "message": "Usuario registrado correctamente",
-        "usuario": usuario,
-        "email": email
-    })
+# 🚪 Vista para cerrar sesión
+def cerrar_sesion(request):
+    logout(request)  # borramos la sesión del usuario
+    messages.info(request, "Sesión cerrada correctamente.")
+    return redirect("login")
+    # ⚠️ antes intentaba renderizar login.html con un form que no existía →
+    # mejor redirigir directo a la vista de login ✅
