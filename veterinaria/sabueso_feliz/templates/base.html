@@ -33,47 +33,57 @@
         .header-shadow {    
             box-shadow: 0 3px 6px rgba(0,0,0,0.15);
         }
+        .welcome-text {
+            color: #fff;
+            font-weight: 500;
+            margin-right: 1rem;
+        }
     </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark header-shadow">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'home' %}">   El Sabueso Feliz</a>
+            <a class="navbar-brand" href="{% url 'home' %}">El Sabueso Feliz</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <!-- Links directos -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'sucursales_list' %}">Sucursales</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'empleados_list' %}">Empleados</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'perros_list' %}">Perros</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'consultas_list' %}">Consultas</a>
-                    </li>
-                    
-                    <!-- Dropdown -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" 
-                           data-bs-toggle="dropdown" aria-expanded="false">
-                            Más
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="{% url 'duenios_list' %}">Dueños</a></li>
-                            <li><a class="dropdown-item" href="{% url 'vacunas_list' %}">Vacunas</a></li>
-                            <li><a class="dropdown-item" href="{% url 'calendario_list' %}">Calendario de Vacunas</a></li>
-                            <li><a class="dropdown-item" href="{% url 'medicamentos_list' %}">Medicamentos</a></li>
-                            <li><a class="dropdown-item" href="{% url 'stock_list' %}">Stock</a></li>
-                        </ul>
-                    </li>
+                <ul class="navbar-nav ms-auto align-items-center">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <span class="welcome-text">Bienvenido, {{ user.username }}</span>
+                        </li>
+                        <!-- Dropdown con todo el contenido -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" 
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                Menú
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="{% url 'sucursales_list' %}">Sucursales</a></li>
+                                <li><a class="dropdown-item" href="{% url 'empleados_list' %}">Empleados</a></li>
+                                <li><a class="dropdown-item" href="{% url 'perros_list' %}">Perros</a></li>
+                                <li><a class="dropdown-item" href="{% url 'consultas_list' %}">Consultas</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'duenios_list' %}">Dueños</a></li>
+                                <li><a class="dropdown-item" href="{% url 'vacunas_list' %}">Vacunas</a></li>
+                                <li><a class="dropdown-item" href="{% url 'calendario_list' %}">Calendario de Vacunas</a></li>
+                                <li><a class="dropdown-item" href="{% url 'medicamentos_list' %}">Medicamentos</a></li>
+                                <li><a class="dropdown-item" href="{% url 'stock_list' %}">Stock</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="{% url 'logout' %}">Cerrar sesión</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">Iniciar sesión</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'registro' %}">Registrarse</a>
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
