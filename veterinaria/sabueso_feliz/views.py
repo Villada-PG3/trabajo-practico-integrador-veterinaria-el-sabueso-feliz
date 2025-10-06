@@ -379,3 +379,82 @@ def cerrar_sesion(request):
     return redirect("login")
     # ⚠️ antes intentaba renderizar login.html con un form que no existía →
     # mejor redirigir directo a la vista de login ✅
+
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import authenticate, login, logout
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.urls import reverse_lazy
+from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
+from .forms import RegistroUsuarioForm, SucursalForm, EmpleadoForm, RazaForm, DuenioForm, PerroForm, VacunaForm, CalendarioVacunasForm, ConsultaForm, MedicamentoForm, StockForm
+from .models import Sucursal, Empleado, Raza, Duenio, Perro, Vacuna, Calendario_Vacunas, Consultas, Medicamentos, Stock
+
+# ─────────────────────────────
+# BASE
+# ─────────────────────────────
+class BaseGenericView(LoginRequiredMixin):
+    login_url = 'login'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['model_name'] = self.model._meta.verbose_name
+        context['model_name_plural'] = self.model._meta.verbose_name_plural
+        return context
+
+
+class BaseListView(BaseGenericView, ListView): pass
+class BaseDetailView(BaseGenericView, DetailView): pass
+class BaseCreateView(BaseGenericView, CreateView): pass
+class BaseUpdateView(BaseGenericView, UpdateView): pass
+class BaseDeleteView(BaseGenericView, DeleteView): pass
+
+# ─────────────────────────────
+# HOME
+# ─────────────────────────────
+class HomeView(LoginRequiredMixin, TemplateView):
+    template_name = 'home.html'
+    login_url = 'login'
+
+# ─────────────────────────────
+# LOGIN / REGISTER / LOGOUT
+# ─────────────────────────────
+def iniciar_sesion(request):
+    # Si ya está logueado → al home
+    if request.user.is_authenticated:
+        return redirect('home')
+
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            messages.success(request, f"Bienvenido {user.username}!")
+            return redirect('home')
+        else:
+            messages.error(request, "Usuario o contraseña incorrectos.")
+    else:
+        form = AuthenticationForm()
+    return render(request, 'login.html', {'form': form})
+
+
+def registro(request):
+    # Si ya está logueado → al home
+    if request.user.is_authenticated:
+        return redirect('home')
+
+    if request.method == 'POST':
+        form = RegistroUsuarioForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Cuenta creada con éxito. Ahora puedes iniciar sesión.")
+            return redirect('login')
+    else:
+        form = RegistroUsuarioForm()
+    return render(request, 'register.html', {'form': form})
+
+
+def cerrar_sesion(request):
+    logout(request)
+    messages.info(request, "Sesión cerrada correctamente.")
+    return redirect("login")

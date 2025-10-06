@@ -3,7 +3,12 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # --- home ---
+    # --- Login / Registro (primero) ---
+    path('login/', views.iniciar_sesion, name='login'),
+    path('logout/', views.cerrar_sesion, name='logout'),
+    path('register/', views.registro, name='register'),
+
+    # --- Home ---
     path('', views.HomeView.as_view(), name='home'),
 
     # --- Sucursales ---
@@ -86,9 +91,4 @@ urlpatterns = [
     # --- Stock ---
     path('stock/', views.StockListView.as_view(), name='stock_list'),
     path('stock/nuevo/', views.StockCreateView.as_view(), name='stock_create'),
-
-    # --- Login ---
-    path('login/', views.iniciar_sesion, name='login'),
-    path('logout/', views.cerrar_sesion, name='logout'),
-    path('register/', views.registro, name='register'),
 ]
