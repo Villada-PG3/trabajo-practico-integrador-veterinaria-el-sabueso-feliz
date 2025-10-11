@@ -1,0 +1,25 @@
+<h2>Listado de citas (Administrador)</h2>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Mascota</th>
+        <th>Propietario</th>
+        <th>Veterinario</th>
+        <th>Fecha y hora</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+    </tr>
+    {% for c in citas %}
+    <tr>
+        <td>{{ c.id }}</td>
+        <td>{{ c.paciente.nombre }}</td>
+        <td>{{ c.paciente.propietario.user.get_full_name }}</td>
+        <td>{% if c.veterinario %}{{ c.veterinario.get_full_name }}{% else %}Sin asignar{% endif %}</td>
+        <td>{{ c.fecha_hora }}</td>
+        <td>{{ c.estado }}</td>
+        <td>
+            <a href="{% url 'asignar_veterinario' c.id %}">Asignar Veterinario</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>

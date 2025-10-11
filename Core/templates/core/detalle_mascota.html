@@ -1,0 +1,140 @@
+{% extends "core/dashboard.html" %}
+{% block content %}
+<div class="container mx-auto px-4 py-6 max-w-6xl">
+
+    <!-- Pet Profile Header -->
+    <div class="d-flex flex-column flex-md-row align-items-center gap-4 mb-5">
+        <div class="d-flex align-items-center justify-content-center bg-light rounded-circle" style="width:100px; height:100px; font-size:2.5rem;">
+            🐕
+        </div>
+        <div class="text-center text-md-start">
+            <h1 class="text-dark fw-bold mb-2">{{ paciente.nombre }}</h1>
+            <p class="text-dark opacity-75 mb-1">{{ paciente.especie }} • {{ paciente.raza }}</p>
+            <div class="d-flex flex-wrap gap-3 text-muted">
+                <span>Sexo: {{ paciente.sexo }}</span>
+                <span>•</span>
+                <span>Nacimiento: {{ paciente.fecha_nacimiento }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="row g-4">
+        <!-- Left Column - Pet Info & Actions -->
+        <div class="col-lg-4">
+
+            <!-- Basic Info Card -->
+            <div class="card shadow-sm mb-4 rounded-4">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width:40px; height:40px;">
+                            ❤️
+                        </div>
+                        <h5 class="mb-0 text-dark fw-semibold">Información Básica</h5>
+                    </div>
+                    <ul class="list-unstyled text-dark mb-0">
+                        <li class="d-flex justify-content-between mb-1"><span>Especie:</span> <span class="fw-medium">{{ paciente.especie }}</span></li>
+                        <li class="d-flex justify-content-between mb-1"><span>Raza:</span> <span class="fw-medium">{{ paciente.raza }}</span></li>
+                        <li class="d-flex justify-content-between mb-1"><span>Sexo:</span> <span class="fw-medium">{{ paciente.sexo }}</span></li>
+                        <li class="d-flex justify-content-between"><span>Fecha de Nacimiento:</span> <span class="fw-medium">{{ paciente.fecha_nacimiento }}</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            {% if request.user.rol == "VET" %}
+            <div class="card shadow-sm mb-4 rounded-4">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width:40px; height:40px;">
+                            🏥
+                        </div>
+                        <h5 class="mb-0 text-dark fw-semibold">Acciones Rápidas</h5>
+                    </div>
+                    <a href="{% url 'registrar_historial' paciente.id %}" 
+                       class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2">
+                        📝 Registrar Historial Médico
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+
+        <!-- Right Column - Medical History & Appointments -->
+        <div class="col-lg-8">
+
+            <!-- Medical History Section -->
+            <div class="card shadow-sm mb-4 rounded-4">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="bg-info text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width:40px; height:40px;">
+                            📋
+                        </div>
+                        <h5 class="mb-0 text-dark fw-semibold">Historial Médico</h5>
+                    </div>
+
+                    {% if historiales %}
+                        <div class="list-group list-group-flush">
+                            {% for hist in historiales %}
+                            <div class="list-group-item mb-2 rounded-3 border shadow-sm">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="text-primary small">{{ hist.fecha }}</span>
+                                    <span class="badge bg-success">{{ hist.estado|default:"Completado" }}</span>
+                                </div>
+                                <h6 class="text-dark fw-semibold mb-1">{{ hist.diagnostico|truncatechars:80 }}</h6>
+                                <p class="text-muted mb-0">{{ hist.tratamiento|truncatechars:100 }}</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5 text-muted">
+                            <div class="fs-1 mb-3">📝</div>
+                            <p class="h6 mb-1">No hay historiales médicos</p>
+                            <p class="small">Los registros médicos aparecerán aquí una vez que sean creados</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Appointments Section -->
+            <div class="card shadow-sm mb-4 rounded-4">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width:40px; height:40px;">
+                            📅
+                        </div>
+                        <h5 class="mb-0 text-dark fw-semibold">Citas</h5>
+                    </div>
+
+                    {% if citas %}
+                        <div class="list-group list-group-flush">
+                            {% for cita in citas %}
+                            <div class="list-group-item mb-2 rounded-3 border shadow-sm">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="text-primary small">{{ cita.fecha_hora }}</span>
+                                    <span class="badge {% if cita.estado == 'programada' %}bg-warning{% elif cita.estado == 'atendida' %}bg-success{% else %}bg-secondary{% endif %}">
+                                        {{ cita.estado }}
+                                    </span>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <span class="small text-muted">Veterinario:</span>
+                                    <span class="fw-medium text-dark">Dr. {{ cita.veterinario.username }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5 text-muted">
+                            <div class="fs-1 mb-3">📅</div>
+                            <p class="h6 mb-1">No hay citas registradas</p>
+                            <p class="small">Las citas programadas aparecerán aquí</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

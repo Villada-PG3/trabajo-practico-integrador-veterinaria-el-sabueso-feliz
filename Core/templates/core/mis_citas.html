@@ -1,0 +1,12 @@
+<!-- core/mis_citas.html -->
+{% extends "core/dashboard.html" %}
+{% block content %}
+<h3>Mis Citas</h3>
+<ul class="list-group">
+    {% for cita in citas %}
+        <li class="list-group-item">{{ cita.fecha_hora }} - {{ cita.paciente.nombre }} - {{ cita.veterinario.username }} - {{ cita.estado }}</li>
+    {% empty %}
+        <li class="list-group-item">No tienes citas programadas</li>
+    {% endfor %}
+</ul>
+{% endblock %}

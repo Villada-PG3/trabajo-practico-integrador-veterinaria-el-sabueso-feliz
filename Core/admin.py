@@ -1,0 +1,79 @@
+from django.contrib import admin
+from .models import User, Propietario, Paciente, Cita, HistorialMedico
+
+# ----------------------------
+# Admin de User
+# ----------------------------
+@admin.register(User)
+class UserAdmin(admin.ModelAdmin):
+    list_display = ("username", "rol", "email", "is_active", "especialidad")
+    list_filter = ("rol", "is_active")
+    search_fields = ("username", "email", "rol")
+    readonly_fields = ("last_login", "date_joined")
+    fieldsets = (
+        ("Datos de usuario", {"fields": ("username", "password", "rol", "email", "telefono", "direccion", "activo", "avatar", "especialidad")}),
+        ("Fechas importantes", {"fields": ("last_login", "date_joined")}),
+        ("Permisos", {"fields": ("is_staff", "is_superuser")}),
+    )
+
+# ----------------------------
+# Admin de Propietario
+# ----------------------------
+@admin.register(Propietario)
+class PropietarioAdmin(admin.ModelAdmin):
+    list_display = ("user", "telefono", "ciudad")
+    search_fields = ("user__username", "user__email", "ciudad")
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        # Si el usuario logueado es propietario, ve solo su registro
+        if request.user.rol == "OWNER":
+            return qs.filter(user=request.user)
+        return qs
+
+# ----------------------------
+# Admin de Paciente
+# ----------------------------
+@admin.register(Paciente)
+class PacienteAdmin(admin.ModelAdmin):
+    list_display = ("nombre", "especie", "raza", "propietario")
+    search_fields = ("nombre", "especie", "raza", "propietario__user__username")
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.rol == "OWNER":
+            return qs.filter(propietario__user=request.user)
+        return qs
+
+# ----------------------------
+# Admin de Cita
+# ----------------------------
+@admin.register(Cita)
+class CitaAdmin(admin.ModelAdmin):
+    list_display = ("paciente", "veterinario", "fecha_hora", "tipo", "estado")
+    list_filter = ("estado", "tipo")
+    search_fields = ("paciente__nombre", "veterinario__username")
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.rol == "VET":
+            return qs.filter(veterinario=request.user)
+        elif request.user.rol == "OWNER":
+            return qs.filter(paciente__propietario__user=request.user)
+        return qs
+
+# ----------------------------
+# Admin de Historial Médico
+# ----------------------------
+@admin.register(HistorialMedico)
+class HistorialMedicoAdmin(admin.ModelAdmin):
+    list_display = ("paciente", "veterinario", "fecha", "diagnostico")
+    search_fields = ("paciente__nombre", "veterinario__username", "diagnostico")
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.rol == "VET":
+            return qs.filter(veterinario=request.user)
+        elif request.user.rol == "OWNER":
+            return qs.filter(paciente__propietario__user=request.user)
+        return qs

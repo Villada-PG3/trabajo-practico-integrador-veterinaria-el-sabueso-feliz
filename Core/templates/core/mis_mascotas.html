@@ -1,0 +1,14 @@
+<!-- core/mis_mascotas.html -->
+{% extends "core/dashboard.html" %}
+{% block content %}
+<h3>Mis Mascotas</h3>
+<ul class="list-group">
+    {% for mascota in mascotas %}
+        <li class="list-group-item">
+            <a href="{% url 'detalle_mascota' mascota.id %}">{{ mascota.nombre }} ({{ mascota.especie }})</a>
+        </li>
+    {% empty %}
+        <li class="list-group-item">No tienes mascotas registradas</li>
+    {% endfor %}
+</ul>
+{% endblock %}
