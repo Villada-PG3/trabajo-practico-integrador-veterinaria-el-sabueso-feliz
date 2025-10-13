@@ -179,7 +179,14 @@ def detalle_mascota(request, paciente_id):
         return redirect("dashboard")
 
     historiales = HistorialMedico.objects.filter(paciente=paciente).order_by("-fecha")
+
     citas = Cita.objects.filter(paciente=paciente).order_by("-fecha_hora")
+    ahora = timezone.now()
+    citas_futuras = citas.filter(fecha_hora__gte=ahora).order_by("fecha_hora")
+    citas_pasadas = citas.filter(fecha_hora__lt=ahora)
+
+    ultima_consulta = historiales.first()
+    proxima_cita = citas_futuras.first()
 
     template = (
         "core/detalle_mascota_admin.html"
@@ -189,7 +196,15 @@ def detalle_mascota(request, paciente_id):
     return render(
         request,
         template,
-        {"paciente": paciente, "historiales": historiales, "citas": citas},
+        {
+            "paciente": paciente,
+            "historiales": historiales,
+            "citas": citas,
+            "citas_futuras": citas_futuras,
+            "citas_pasadas": citas_pasadas,
+            "ultima_consulta": ultima_consulta,
+            "proxima_cita": proxima_cita,
+        },
     )
 
 

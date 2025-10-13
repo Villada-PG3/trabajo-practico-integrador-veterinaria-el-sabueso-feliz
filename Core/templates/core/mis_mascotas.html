@@ -1,14 +1,61 @@
-<!-- core/mis_mascotas.html -->
-{% extends "core/dashboard.html" %}
+{% extends "core/base.html" %}
+
+{% block title %}Mis Mascotas{% endblock %}
+
 {% block content %}
-<h3>Mis Mascotas</h3>
-<ul class="list-group">
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-1">Mis Mascotas</h1>
+        <p class="text-muted mb-0">Accede al detalle clínico y agenda nuevas consultas</p>
+    </div>
+    <a href="{% url 'registrar_mascota' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-2"></i>Registrar nueva mascota
+    </a>
+</div>
+
+<div class="row g-4">
     {% for mascota in mascotas %}
-        <li class="list-group-item">
-            <a href="{% url 'detalle_mascota' mascota.id %}">{{ mascota.nombre }} ({{ mascota.especie }})</a>
-        </li>
+    <div class="col-md-6 col-xl-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="rounded-circle bg-primary-subtle text-primary-emphasis d-flex align-items-center justify-content-center"
+                         style="width: 56px; height: 56px; font-size: 1.75rem;">
+                        {% if mascota.especie|lower == "gato" %}🐱{% elif mascota.especie|lower == "ave" %}🦜{% else %}🐾{% endif %}
+                    </div>
+                    <div>
+                        <h2 class="h5 mb-0">{{ mascota.nombre }}</h2>
+                        <span class="text-muted small">{{ mascota.especie }}{% if mascota.raza %} • {{ mascota.raza }}{% endif %}</span>
+                    </div>
+                </div>
+
+                <ul class="list-unstyled small text-muted mb-4">
+                    <li class="mb-1"><i class="bi bi-gender-ambiguous me-2"></i>{{ mascota.sexo }}</li>
+                    <li><i class="bi bi-cake me-2"></i>{{ mascota.fecha_nacimiento|date:"d/m/Y" }}</li>
+                </ul>
+
+                <div class="mt-auto d-grid gap-2">
+                    <a href="{% url 'detalle_mascota' mascota.id %}" class="btn btn-outline-primary">
+                        <i class="bi bi-search me-2"></i>Ver ficha completa
+                    </a>
+                    <a href="{% url 'agendar_cita' %}?paciente={{ mascota.id }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-calendar-plus me-2"></i>Agendar cita
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
     {% empty %}
-        <li class="list-group-item">No tienes mascotas registradas</li>
+    <div class="col-12">
+        <div class="text-center py-5 bg-light rounded-4">
+            <i class="bi bi-emoji-frown display-5 d-block mb-3"></i>
+            <h3 class="h5">No tienes mascotas registradas</h3>
+            <p class="text-muted">Registra tu primera mascota para comenzar a administrar sus citas e historiales.</p>
+            <a href="{% url 'registrar_mascota' %}" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-2"></i>Registrar mascota
+            </a>
+        </div>
+    </div>
     {% endfor %}
-</ul>
+</div>
 {% endblock %}
