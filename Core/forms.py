@@ -18,4 +18,3 @@ class ProductoForm(forms.ModelForm):
         self.fields["precio"].widget.attrs.update({"class": "form-control", "step": "0.01", "min": "0"})
         self.fields["imagen"].widget.attrs.update({"class": "form-control"})
         self.fields["disponible"].widget.attrs.update({"class": "form-check-input"})
-*** End ***
