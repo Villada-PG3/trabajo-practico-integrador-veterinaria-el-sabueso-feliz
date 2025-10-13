@@ -1,14 +1,13 @@
 from datetime import datetime
 
-from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .models import User, Propietario, Paciente, Cita, HistorialMedico
+from django.db.models import Count
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from django.contrib import messages
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from .models import User, Paciente, Cita
+
+from .models import Cita, HistorialMedico, Paciente, Propietario, User
 # ----------------------------
 # DASHBOARD
 # ----------------------------
@@ -22,6 +21,18 @@ def dashboard(request):
         context['total_pacientes'] = Paciente.objects.count()
         context['total_citas'] = Cita.objects.count()
         context['total_historiales'] = HistorialMedico.objects.count()
+        resumen = {estado: 0 for estado, _ in Cita.ESTADOS}
+        for item in Cita.objects.values('estado').annotate(total=Count('id')):
+            resumen[item['estado']] = item['total']
+        context['resumen_citas'] = resumen
+        context['todas_citas'] = (
+            Cita.objects.select_related('paciente', 'paciente__propietario__user', 'veterinario')
+            .order_by('-fecha_hora')[:20]
+        )
+        context['todos_pacientes'] = (
+            Paciente.objects.select_related('propietario__user')
+            .order_by('nombre')[:20]
+        )
     elif user.rol == "VET":
         context['mis_citas'] = Cita.objects.filter(veterinario=user).order_by('-fecha_hora')
         context['mis_historiales'] = HistorialMedico.objects.filter(veterinario=user).order_by('-fecha')
@@ -124,11 +135,6 @@ def mis_citas(request):
 
     return render(request, "core/mis_citas.html", {'citas': citas})
 
-
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login, logout
-from django.contrib import messages
-from .models import User, Propietario
 
 # ----------------------------
 # LOGIN
@@ -258,6 +264,7 @@ def agendar_cita(request, paciente_id=None):
 
     propietario = get_object_or_404(Propietario, user=request.user)
     mascotas = Paciente.objects.filter(propietario=propietario)
+    paciente_seleccionado = None
 
     if request.method == "POST":
         paciente_id_form = request.POST.get("paciente")
@@ -265,36 +272,43 @@ def agendar_cita(request, paciente_id=None):
         notas = request.POST.get("notas", "").strip()
 
         paciente = get_object_or_404(Paciente, id=paciente_id_form, propietario=propietario)
+        paciente_seleccionado = paciente
 
         if not fecha_hora_raw:
             messages.error(request, "Debes seleccionar una fecha y hora válidas para la cita.")
-            paciente_seleccionado = paciente
         else:
             try:
                 fecha_hora_dt = datetime.fromisoformat(fecha_hora_raw)
             except ValueError:
                 messages.error(request, "El formato de la fecha y hora no es válido.")
-                paciente_seleccionado = paciente
             else:
                 if timezone.is_naive(fecha_hora_dt):
-                    fecha_hora_dt = timezone.make_aware(fecha_hora_dt, timezone.get_current_timezone())
+                    fecha_hora_dt = timezone.make_aware(
+                        fecha_hora_dt, timezone.get_current_timezone()
+                    )
 
-                Cita.objects.create(
-                    paciente=paciente,
-                    fecha_hora=fecha_hora_dt,
-                    notas=notas,
-                    estado="programada",
-                )
-                messages.success(
-                    request,
-                    f"Cita agendada correctamente para {paciente.nombre}. El administrador asignará un veterinario próximamente ✅",
-                )
-                return redirect('mis_citas')
+                if fecha_hora_dt < timezone.now():
+                    messages.error(
+                        request,
+                        "La fecha y hora seleccionadas ya pasaron. Elige un horario futuro.",
+                    )
+                else:
+                    Cita.objects.create(
+                        paciente=paciente,
+                        fecha_hora=fecha_hora_dt,
+                        notas=notas,
+                        estado="pendiente",
+                    )
+                    messages.success(
+                        request,
+                        f"Solicitud registrada para {paciente.nombre}. Un administrador asignará un veterinario pronto.",
+                    )
+                    return redirect('mis_citas')
 
-    # Si viene un paciente_id por GET (opcional)
-    paciente_seleccionado = None
-    if paciente_id:
-        paciente_seleccionado = get_object_or_404(Paciente, id=paciente_id, propietario=propietario)
+    if paciente_id and paciente_seleccionado is None:
+        paciente_seleccionado = get_object_or_404(
+            Paciente, id=paciente_id, propietario=propietario
+        )
 
     return render(request, "core/agendar_cita.html", {
         'mascotas': mascotas,
@@ -308,7 +322,7 @@ def asignar_veterinario_cita(request, cita_id):
         return redirect('dashboard')
 
     cita = get_object_or_404(Cita, id=cita_id)
-    veterinarios = User.objects.filter(rol="VET", activo=True)
+    veterinarios = User.objects.filter(rol="VET", activo=True).order_by('first_name', 'last_name')
 
     if request.method == "POST":
         vet_id = request.POST.get("veterinario")
@@ -317,7 +331,8 @@ def asignar_veterinario_cita(request, cita_id):
         else:
             veterinario = get_object_or_404(User, id=vet_id, rol="VET")
             cita.veterinario = veterinario
-            cita.save(update_fields=["veterinario"])
+            cita.estado = "programada"
+            cita.save(update_fields=["veterinario", "estado"])
             nombre_vet = veterinario.get_full_name() or veterinario.username
             messages.success(request, f"Veterinario {nombre_vet} asignado correctamente a la cita ✅")
             return redirect('listar_citas_admin')
@@ -334,18 +349,37 @@ def listar_citas_admin(request):
         messages.error(request, "No tienes permiso para ver esta página.")
         return redirect('dashboard')
 
-    citas_pendientes = Cita.objects.filter(
-        estado="programada", veterinario__isnull=True
-    ).order_by("fecha_hora")
-    citas_programadas = Cita.objects.filter(
-        estado="programada", veterinario__isnull=False
-    ).order_by("fecha_hora")
-    citas_atendidas = Cita.objects.filter(estado="atendida").order_by("-fecha_hora")
+    citas_pendientes = (
+        Cita.objects.select_related('paciente', 'paciente__propietario__user')
+        .filter(estado="pendiente")
+        .order_by("fecha_hora")
+    )
+    citas_programadas = (
+        Cita.objects.select_related('paciente', 'paciente__propietario__user', 'veterinario')
+        .filter(estado="programada")
+        .order_by("fecha_hora")
+    )
+    citas_atendidas = (
+        Cita.objects.select_related('paciente', 'paciente__propietario__user', 'veterinario')
+        .filter(estado="atendida")
+        .order_by("-fecha_hora")
+    )
+
+    conteo_pendientes = citas_pendientes.count()
+    conteo_programadas = citas_programadas.count()
+    conteo_atendidas = citas_atendidas.count()
+    conteo_canceladas = Cita.objects.filter(estado="cancelada").count()
 
     contexto = {
         "citas_pendientes": citas_pendientes,
         "citas_programadas": citas_programadas,
         "citas_atendidas": citas_atendidas,
+        "conteo_estados": {
+            "pendiente": conteo_pendientes,
+            "programada": conteo_programadas,
+            "atendida": conteo_atendidas,
+            "cancelada": conteo_canceladas,
+        },
     }
 
     return render(request, "core/citas_admin.html", contexto)
@@ -358,7 +392,11 @@ def asignar_veterinario_citas(request):
         return redirect('dashboard')
 
     veterinarios = User.objects.filter(rol="VET", activo=True).order_by('first_name', 'last_name')
-    citas_pendientes = Cita.objects.filter(veterinario__isnull=True).order_by('fecha_hora')
+    citas_pendientes = (
+        Cita.objects.select_related('paciente', 'paciente__propietario__user')
+        .filter(estado="pendiente")
+        .order_by('fecha_hora')
+    )
 
     if request.method == "POST":
         cita_id = request.POST.get("cita")
@@ -367,10 +405,11 @@ def asignar_veterinario_citas(request):
         if not cita_id or not vet_id:
             messages.error(request, "Selecciona una cita y un veterinario válidos.")
         else:
-            cita = get_object_or_404(Cita, id=cita_id)
+            cita = get_object_or_404(Cita, id=cita_id, estado__in=["pendiente", "programada"])
             veterinario = get_object_or_404(User, id=vet_id, rol="VET")
             cita.veterinario = veterinario
-            cita.save(update_fields=["veterinario"])
+            cita.estado = "programada"
+            cita.save(update_fields=["veterinario", "estado"])
             nombre_vet = veterinario.get_full_name() or veterinario.username
             messages.success(request, f"Veterinario {nombre_vet} asignado correctamente a la cita de {cita.paciente.nombre} ✅")
             return redirect('asignar_veterinario_citas')
@@ -463,21 +502,38 @@ def agendar_cita_admin(request):
     if request.method == "POST":
         paciente_id = request.POST.get("paciente")
         veterinario_id = request.POST.get("veterinario")
-        fecha_hora = request.POST.get("fecha_hora")
-        notas = request.POST.get("notas", "")
+        fecha_hora_raw = request.POST.get("fecha_hora")
+        notas = request.POST.get("notas", "").strip()
 
         paciente = get_object_or_404(Paciente, id=paciente_id)
-        veterinario = get_object_or_404(User, id=veterinario_id)
+        veterinario = get_object_or_404(User, id=veterinario_id, rol="VET")
 
-        Cita.objects.create(
-            paciente=paciente,
-            veterinario=veterinario,
-            fecha_hora=fecha_hora,
-            notas=notas,
-            estado="programada"
-        )
-        messages.success(request, f"Cita para {paciente.nombre} asignada a {veterinario.get_full_name} ✅")
-        return redirect('dashboard')
+        try:
+            fecha_hora_dt = datetime.fromisoformat(fecha_hora_raw)
+        except (TypeError, ValueError):
+            messages.error(request, "Selecciona una fecha y hora válidas.")
+        else:
+            if timezone.is_naive(fecha_hora_dt):
+                fecha_hora_dt = timezone.make_aware(
+                    fecha_hora_dt, timezone.get_current_timezone()
+                )
+
+            if fecha_hora_dt < timezone.now():
+                messages.error(request, "No puedes programar una cita en el pasado.")
+            else:
+                Cita.objects.create(
+                    paciente=paciente,
+                    veterinario=veterinario,
+                    fecha_hora=fecha_hora_dt,
+                    notas=notas,
+                    estado="programada"
+                )
+                nombre_vet = veterinario.get_full_name() or veterinario.username
+                messages.success(
+                    request,
+                    f"Cita para {paciente.nombre} asignada a {nombre_vet} ✅",
+                )
+                return redirect('dashboard')
 
     return render(request, "core/agendar_cita_admin.html", {
         'mascotas': mascotas,

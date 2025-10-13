@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils import timezone
 
 # ----------------------------
 # Usuario con rol propio
@@ -56,6 +57,7 @@ class Paciente(models.Model):
 # ----------------------------
 class Cita(models.Model):
     ESTADOS = (
+        ("pendiente", "Pendiente"),
         ("programada", "Programada"),
         ("atendida", "Atendida"),
         ("cancelada", "Cancelada"),
@@ -70,14 +72,17 @@ class Cita(models.Model):
     fecha_hora = models.DateTimeField()
     duracion = models.IntegerField(default=30)  # duración en minutos
     tipo = models.CharField(max_length=50, choices=TIPOS, default="consulta")
-    estado = models.CharField(max_length=20, choices=ESTADOS, default="programada")
+    estado = models.CharField(max_length=20, choices=ESTADOS, default="pendiente")
     notas = models.TextField(blank=True)
 
     def __str__(self):
         veterinario_nombre = self.veterinario.username if self.veterinario else "Sin asignar"
+        fecha_local = self.fecha_hora
+        if timezone.is_aware(self.fecha_hora):
+            fecha_local = timezone.localtime(self.fecha_hora)
         return (
-            f"Cita: {self.paciente.nombre} con {veterinario_nombre} - "
-            f"{self.fecha_hora.strftime('%d/%m/%Y %H:%M')}"
+            f"Cita: {self.paciente.nombre} ({self.get_estado_display()}) con {veterinario_nombre} - "
+            f"{fecha_local.strftime('%d/%m/%Y %H:%M')}"
         )
 
 # ----------------------------
