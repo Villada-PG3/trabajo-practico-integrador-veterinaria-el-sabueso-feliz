@@ -1,0 +1,177 @@
+erDiagram
+    Sucursal {
+        str direccion FK, PK
+        str descripcion
+    }
+    Direccion {
+        str calle PK
+        str barrio PK
+        int numero PK
+        str ciudad PK
+        str pais PK
+    }
+    Empleado {
+        str matricula_habilitante
+        int numDoc PK
+        str tipoDoc FK
+        str cargo FK
+        str nombre
+        str apellido
+        date fecha_nacimiento
+        date fecha_ingreso
+        str sucursal FK
+        boolean es_supervisor
+        boolean es_supervisor_suplente
+    }
+    Tipo_Documento {
+        str tipo PK
+        str descripcion
+    }
+    Cargo {
+        str cargo PK
+        str descripcion
+    }
+    Raza {
+        str raza PK
+        str denominacion
+        str cuidados_especiales
+        int altura_max_hembra
+        int altura_min_hembra
+        int peso_max_hembra
+        int peso_min_hembra        
+        int altura_max_macho
+        int altura_min_macho
+        int peso_max_macho
+        int peso_min_macho
+    }
+    Perro {
+        int num_hist_clinica PK
+        str sucursal FK, PK
+        str raza FK
+        str nombre
+        date fecha_nacimiento
+    }
+    PerroxDuenio {
+        str perro FK, PK
+        str duenio FK, PK
+        date fecha_inicio
+        date fecha_fin
+        str estado FK
+    }
+    
+    Duenio {
+        int telefono PK
+        str nombre
+        str apellido
+    }
+    Calendario_Vacunas {
+        str perro FK, PK
+        str vacuna FK
+        date fecha_programada_vacuna
+        date fecha_real_vacuna
+        str empleado FK
+        int dosis
+    }
+    Vacuna {
+        str vacuna PK
+        str laboratorio
+        str descripcion
+        float dosisxgramo
+    }
+    Consultas {
+        str perro FK, PK
+        int num_consulta PK
+        str sucursal FK, PK
+        date fecha_entrada
+        str empleado FK
+        date fecha_salida
+        float peso_actual
+        float altura_actual
+        str sintomas_detectados FK
+        str diagnostico FK
+        str medicamentos_recetados FK
+        str estado FK
+    }
+    Medicamentos_Recetados {
+        str medicamento FK, PK
+        str consulta FK, PK
+        float periodicidad
+    }
+    Medicamentos {
+        int id_med PK
+        str nombre
+        str laboratorio
+        date fecha_ultima_compra
+        int cant_minima 
+        int dosis
+    }
+    Stock {
+        int cod_stock PK
+        str medicamento FK
+        str sucursal FK
+        int cant_stock
+        int cant_min_sucursal
+    }
+    Diagnostico {
+        str diagnostico PK
+        str descripcion
+    }
+    Sintomas {
+        str sintoma PK
+        str descripcion
+    }
+    Estado_Duenio {
+        int cod_estado PK
+        str estado
+        str descripcion
+    }
+    Historial_Consulta {
+        int cod_hist_estado PK
+        str historial
+        str cod_estado FK
+        date fecha_inicio
+        date fecha_fin
+    }
+    SintomasxConsulta {
+        str consulta FK, PK
+        str sintoma FK, PK
+        str descripcion
+    }
+    DiagnosticoxConsulta {
+        str diagnostico FK, PK
+        str consulta FK, PK
+        str descripcion
+    }
+    
+    Estado_Consulta {
+        int cod_estado PK
+        str estado
+        str descripcion
+    }
+
+    Perro ||--o{ Calendario_Vacunas : "tiene"
+    Calendario_Vacunas ||--o{ Vacuna : "tiene"
+    Calendario_Vacunas }|--|| Empleado : "tiene"
+    Empleado }|--|| Tipo_Documento : "tiene"
+    Empleado }|--|| Cargo : "tiene"
+    Sucursal ||--o{ Empleado : "tiene"
+    Sucursal ||--o{ Stock : "tiene"
+    Sucursal ||--o{ Direccion : "tiene"
+    Perro ||--o{ Sucursal : "es atendido"
+    Perro }|--|| Raza : "tiene"
+    PerroxDuenio }|--|| Perro : "tiene"
+    Perro ||--o{ Consultas : "tiene"
+    Consultas }|--|| Sucursal : "tiene"
+    Consultas }|--|| Empleado : "tiene"
+    Consultas ||--o{ SintomasxConsulta : "tiene"
+    SintomasxConsulta }|--|| Sintomas : "tiene"
+    Consultas ||--o{ DiagnosticoxConsulta : "tiene"
+    DiagnosticoxConsulta }|--|| Diagnostico : "tiene"
+    Duenio ||--o{ PerroxDuenio : "tiene"
+    
+    Estado_Duenio ||--o{ PerroxDuenio : "tiene"
+    Consultas }|--|| Medicamentos_Recetados : "tiene"
+    Stock ||--o{ Medicamentos : "tiene"
+    Medicamentos ||--o{ Medicamentos_Recetados : "tiene"
+    Estado_Consulta ||--o{ Historial_Consulta : "tiene"
+    Historial_Consulta }|--|| Consultas : "tiene"
