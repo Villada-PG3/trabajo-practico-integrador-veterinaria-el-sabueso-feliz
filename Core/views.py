@@ -1,5 +1,4 @@
-from datetime import datetime, timedelta
-from urllib.parse import urlencode
+from datetime import datetime
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -55,74 +54,6 @@ def _normalizar_especie_mascota(especie: str) -> str:
     return ""
 
 
-def _build_vacunas_context(paciente, tablas_disponibles=None):
-    """Return a unified vaccination summary for a given patient."""
-
-    resultado = {
-        "vacunas_disponibles": False,
-        "vacunas_info": [],
-        "vacunas_completadas": 0,
-        "vacunas_pendientes": 0,
-        "total_vacunas": 0,
-        "porcentaje_avance": 0,
-        "especie_normalizada": "",
-    }
-
-    if paciente is None:
-        return resultado
-
-    if tablas_disponibles is None:
-        tablas_disponibles = _vacunas_tables_available()
-
-    resultado["vacunas_disponibles"] = tablas_disponibles
-
-    if not tablas_disponibles:
-        return resultado
-
-    especie_normalizada = _normalizar_especie_mascota(paciente.especie)
-    resultado["especie_normalizada"] = especie_normalizada
-
-    if not especie_normalizada:
-        return resultado
-
-    vacunas_recomendadas = list(
-        VacunaRecomendada.objects.filter(especie=especie_normalizada).order_by(
-            "orden", "nombre"
-        )
-    )
-
-    registros_por_vacuna = {
-        registro.vacuna_id: registro
-        for registro in VacunaRegistro.objects.filter(
-            paciente=paciente, vacuna__in=vacunas_recomendadas
-        )
-    }
-
-    total_vacunas = len(vacunas_recomendadas)
-    completadas = sum(1 for vacuna in vacunas_recomendadas if vacuna.id in registros_por_vacuna)
-    pendientes = max(total_vacunas - completadas, 0)
-    porcentaje = round((completadas / total_vacunas) * 100, 2) if total_vacunas else 0
-
-    resultado.update(
-        {
-            "vacunas_info": [
-                {
-                    "vacuna": vacuna,
-                    "registro": registros_por_vacuna.get(vacuna.id),
-                }
-                for vacuna in vacunas_recomendadas
-            ],
-            "vacunas_completadas": completadas,
-            "vacunas_pendientes": pendientes,
-            "total_vacunas": total_vacunas,
-            "porcentaje_avance": porcentaje,
-        }
-    )
-
-    return resultado
-
-
-# ----------------------------
 # ----------------------------
 # Sitio público
 # ----------------------------
@@ -201,44 +132,6 @@ def detalle_producto(request, producto_id):
     )
 
 
-def contacto(request):
-    """Página pública con la información de contacto de la veterinaria."""
-
-    telefono_mostrado = "351 530 1904"
-    whatsapp_numero = "543515301904"
-    whatsapp_texto = "Hola! Me gustaría obtener más información sobre la Veterinaria Sabueso Feliz."
-    whatsapp_link = f"https://wa.me/{whatsapp_numero}?{urlencode({'text': whatsapp_texto})}"
-
-    latitud = -31.4201
-    longitud = -64.1888
-    delta_lat = 0.003
-    delta_lon = 0.005
-    bbox = f"{longitud - delta_lon}%2C{latitud - delta_lat}%2C{longitud + delta_lon}%2C{latitud + delta_lat}"
-    mapa_embed = (
-        "https://www.openstreetmap.org/export/embed.html?"
-        f"bbox={bbox}&layer=mapnik&marker={latitud}%2C{longitud}"
-    )
-
-    return render(
-        request,
-        "core/contacto.html",
-        {
-            "direccion": "Av. de la Veterinaria 123, Córdoba, Argentina",
-            "telefono": telefono_mostrado,
-            "telefono_link": "+543515301904",
-            "whatsapp_link": whatsapp_link,
-            "horarios": [
-                {"dia": "Lunes a Viernes", "horario": "09:00 a 20:00"},
-                {"dia": "Sábados", "horario": "09:00 a 14:00"},
-                {"dia": "Emergencias", "horario": "24/7 - Línea prioritaria"},
-            ],
-            "email": "contacto@sabuesofeliz.com",
-            "mapa_embed": mapa_embed,
-            "mapa_link": f"https://www.openstreetmap.org/?mlat={latitud}&mlon={longitud}#map=17/{latitud}/{longitud}",
-        },
-    )
-
-
 # ----------------------------
 # Dashboard y estadísticas
 # ----------------------------
@@ -274,134 +167,12 @@ def dashboard(request):
             else Producto.objects.none()
         )
     elif user.rol == "VET":
-        citas_queryset = (
-            Cita.objects.filter(veterinario=user)
-            .select_related("paciente", "paciente__propietario__user")
-            .order_by("fecha_hora")
+        context["mis_citas"] = Cita.objects.filter(veterinario=user).order_by(
+            "-fecha_hora"
         )
-        historiales_queryset = (
-            HistorialMedico.objects.filter(veterinario=user)
-            .select_related("paciente", "paciente__propietario__user")
-            .order_by("-fecha")
-        )
-
-        ahora = timezone.now()
-        hoy = timezone.localdate()
-
-        citas_hoy = list(citas_queryset.filter(fecha_hora__date=hoy).order_by("fecha_hora"))
-        citas_proximas = list(
-            citas_queryset.filter(fecha_hora__gt=ahora).order_by("fecha_hora")[:8]
-        )
-        citas_recientes = list(
-            citas_queryset.filter(fecha_hora__lt=ahora).order_by("-fecha_hora")[:8]
-        )
-        historiales_recientes = list(historiales_queryset[:8])
-
-        pacientes_ids_ordenados = list(
-            dict.fromkeys(
-                [c.paciente_id for c in citas_hoy]
-                + [c.paciente_id for c in citas_proximas]
-                + [c.paciente_id for c in citas_recientes]
-                + [h.paciente_id for h in historiales_recientes]
-            )
-        )
-
-        pacientes_qs = (
-            Paciente.objects.select_related("propietario__user")
-            .filter(id__in=pacientes_ids_ordenados)
-        )
-        pacientes_dict = {paciente.id: paciente for paciente in pacientes_qs}
-        pacientes_insights = []
-
-        vacunas_disponibles = _vacunas_tables_available()
-        vacunas_alertas = []
-
-        for paciente_id in pacientes_ids_ordenados[:6]:
-            paciente = pacientes_dict.get(paciente_id)
-            if not paciente:
-                continue
-
-            proxima_cita = next(
-                (cita for cita in citas_hoy if cita.paciente_id == paciente_id),
-                None,
-            )
-            if not proxima_cita:
-                proxima_cita = next(
-                    (cita for cita in citas_proximas if cita.paciente_id == paciente_id),
-                    None,
-                )
-
-            ultima_cita = next(
-                (cita for cita in citas_recientes if cita.paciente_id == paciente_id),
-                None,
-            )
-            ultimo_historial = next(
-                (hist for hist in historiales_recientes if hist.paciente_id == paciente_id),
-                None,
-            )
-
-            vacuna_resumen = None
-            if vacunas_disponibles:
-                resumen_vacunas = _build_vacunas_context(
-                    paciente, tablas_disponibles=vacunas_disponibles
-                )
-                vacuna_pendiente = next(
-                    (item for item in resumen_vacunas["vacunas_info"] if not item["registro"]),
-                    None,
-                )
-                vacuna_resumen = {
-                    "porcentaje": resumen_vacunas["porcentaje_avance"],
-                    "completadas": resumen_vacunas["vacunas_completadas"],
-                    "total": resumen_vacunas["total_vacunas"],
-                    "vacuna_pendiente": vacuna_pendiente["vacuna"] if vacuna_pendiente else None,
-                }
-                if vacuna_pendiente and len(vacunas_alertas) < 5:
-                    vacunas_alertas.append(
-                        {
-                            "paciente": paciente,
-                            "vacuna": vacuna_pendiente["vacuna"],
-                            "porcentaje": resumen_vacunas["porcentaje_avance"],
-                        }
-                    )
-
-            pacientes_insights.append(
-                {
-                    "paciente": paciente,
-                    "proxima_cita": proxima_cita,
-                    "ultima_cita": ultima_cita,
-                    "ultimo_historial": ultimo_historial,
-                    "vacuna_resumen": vacuna_resumen,
-                }
-            )
-
-        context.update(
-            {
-                "mis_citas": citas_queryset.order_by("-fecha_hora"),
-                "mis_historiales": historiales_queryset,
-                "agenda_hoy": citas_hoy,
-                "agenda_proximas": citas_proximas,
-                "citas_recientes": citas_recientes,
-                "historiales_recientes_vet": historiales_recientes,
-                "pacientes_insights": pacientes_insights,
-                "vet_vacunas_disponibles": vacunas_disponibles,
-                "vacunas_alertas": vacunas_alertas,
-                "vet_overview": {
-                    "total_citas": citas_queryset.count(),
-                    "citas_programadas": citas_queryset.filter(estado="programada").count(),
-                    "citas_hoy": len(citas_hoy),
-                    "pacientes_unicos": citas_queryset.values("paciente_id").distinct().count(),
-                    "pendientes_48h": citas_queryset.filter(
-                        estado="programada",
-                        fecha_hora__range=(ahora, ahora + timedelta(hours=48)),
-                    ).count(),
-                    "historiales_total": historiales_queryset.count(),
-                },
-                "primer_paciente_vacunas": pacientes_insights[0]["paciente"].id
-                if pacientes_insights
-                else None,
-                "hoy": hoy,
-            }
-        )
+        context["mis_historiales"] = HistorialMedico.objects.filter(
+            veterinario=user
+        ).order_by("-fecha")
     elif user.rol == "OWNER":
         propietario = get_object_or_404(Propietario, user=user)
 
@@ -600,9 +371,40 @@ def calendario_vacunas(request):
             messages.error(request, errors)
         return redirect(redirect_actual)
 
-    resumen_vacunas = _build_vacunas_context(
-        mascota_seleccionada, tablas_disponibles=vacunas_disponibles
+    especie_normalizada = (
+        _normalizar_especie_mascota(mascota_seleccionada.especie)
+        if mascota_seleccionada
+        else ""
     )
+
+    vacunas_recomendadas = []
+    registros_por_vacuna = {}
+
+    if vacunas_disponibles and mascota_seleccionada and especie_normalizada:
+        vacunas_recomendadas = list(
+            VacunaRecomendada.objects.filter(especie=especie_normalizada).order_by(
+                "orden", "nombre"
+            )
+        )
+        registros_por_vacuna = {
+            registro.vacuna_id: registro
+            for registro in VacunaRegistro.objects.filter(
+                paciente=mascota_seleccionada,
+                vacuna__in=vacunas_recomendadas,
+            )
+        }
+
+    vacunas_info = [
+        {
+            "vacuna": vacuna,
+            "registro": registros_por_vacuna.get(vacuna.id),
+        }
+        for vacuna in vacunas_recomendadas
+    ]
+
+    total_vacunas = len(vacunas_recomendadas)
+    completadas = sum(1 for item in vacunas_info if item["registro"])
+    porcentaje_avance = int((completadas / total_vacunas) * 100) if total_vacunas else 0
 
     return render(
         request,
@@ -610,188 +412,14 @@ def calendario_vacunas(request):
         {
             "mascotas": mascotas,
             "mascota_seleccionada": mascota_seleccionada,
-            "vacunas_info": resumen_vacunas["vacunas_info"],
-            "especie_normalizada": resumen_vacunas["especie_normalizada"],
+            "vacunas_info": vacunas_info,
+            "especie_normalizada": especie_normalizada,
             "vacunas_disponibles": vacunas_disponibles,
-            "total_vacunas": resumen_vacunas["total_vacunas"],
-            "vacunas_completadas": resumen_vacunas["vacunas_completadas"],
-            "vacunas_pendientes": resumen_vacunas["vacunas_pendientes"],
-            "porcentaje_avance": resumen_vacunas["porcentaje_avance"],
+            "total_vacunas": total_vacunas,
+            "vacunas_completadas": completadas,
+            "vacunas_pendientes": max(total_vacunas - completadas, 0),
+            "porcentaje_avance": porcentaje_avance,
             "hoy": timezone.localdate(),
-        },
-    )
-
-
-@login_required
-def calendario_vacunas_veterinario(request):
-    if request.user.rol not in {"VET", "ADMIN"}:
-        messages.error(request, "Acceso exclusivo para veterinarios.")
-        return redirect("dashboard")
-
-    busqueda = request.GET.get("q", "").strip()
-
-    mascotas_queryset = (
-        Paciente.objects.select_related("propietario__user").order_by("nombre")
-    )
-
-    if busqueda:
-        mascotas_queryset = mascotas_queryset.filter(
-            Q(nombre__icontains=busqueda)
-            | Q(propietario__user__first_name__icontains=busqueda)
-            | Q(propietario__user__last_name__icontains=busqueda)
-            | Q(propietario__user__username__icontains=busqueda)
-        )
-
-    mascotas = list(mascotas_queryset[:100])
-
-    paciente_param = request.POST.get("paciente_id") or request.GET.get("paciente")
-    mascota_seleccionada = None
-
-    if paciente_param:
-        try:
-            mascota_seleccionada = Paciente.objects.select_related(
-                "propietario__user"
-            ).get(id=int(paciente_param))
-        except (ValueError, Paciente.DoesNotExist):
-            mascota_seleccionada = None
-
-    if not mascota_seleccionada and mascotas:
-        mascota_seleccionada = mascotas[0]
-
-    if mascota_seleccionada and all(
-        mascota.id != mascota_seleccionada.id for mascota in mascotas
-    ):
-        mascotas.insert(0, mascota_seleccionada)
-
-    vacunas_disponibles = _vacunas_tables_available()
-    hoy = timezone.localdate()
-
-    if request.method == "POST":
-        form = VacunaRegistroForm(request.POST)
-        accion = request.POST.get("accion")
-
-        redirect_params = {}
-        if busqueda:
-            redirect_params["q"] = busqueda
-        if mascota_seleccionada:
-            redirect_params["paciente"] = mascota_seleccionada.id
-
-        if not vacunas_disponibles:
-            messages.error(
-                request,
-                "El módulo de vacunas no está disponible. Ejecuta las migraciones pendientes para activarlo.",
-            )
-            redirect_url = reverse("calendario_vacunas_vet")
-            if redirect_params:
-                redirect_url = f"{redirect_url}?{urlencode(redirect_params)}"
-            return redirect(redirect_url)
-
-        if form.is_valid():
-            paciente_id = form.cleaned_data["paciente_id"]
-            vacuna_id = form.cleaned_data["vacuna_id"]
-            fecha = form.cleaned_data.get("fecha_aplicacion") or hoy
-            notas = form.cleaned_data.get("notas", "").strip()
-
-            paciente_obj = get_object_or_404(
-                Paciente.objects.select_related("propietario__user"),
-                id=paciente_id,
-            )
-
-            redirect_params["paciente"] = paciente_obj.id
-
-            vacuna_obj = get_object_or_404(VacunaRecomendada, id=vacuna_id)
-
-            especie_paciente = _normalizar_especie_mascota(paciente_obj.especie)
-            if not especie_paciente:
-                messages.error(
-                    request,
-                    "La especie de la mascota no cuenta con un calendario configurado.",
-                )
-            elif vacuna_obj.especie != especie_paciente:
-                messages.error(
-                    request,
-                    "La vacuna seleccionada no corresponde a la especie de la mascota.",
-                )
-            else:
-                if accion == "marcar":
-                    registro, creado = VacunaRegistro.objects.update_or_create(
-                        paciente=paciente_obj,
-                        vacuna=vacuna_obj,
-                        defaults={
-                            "fecha_aplicacion": fecha,
-                            "notas": notas,
-                        },
-                    )
-                    mensaje = (
-                        f"Se registró la aplicación de {vacuna_obj.nombre} para {paciente_obj.nombre}."
-                        if creado
-                        else f"Se actualizó la aplicación de {vacuna_obj.nombre} para {paciente_obj.nombre}."
-                    )
-                    messages.success(request, mensaje)
-                elif accion == "desmarcar":
-                    eliminados, _ = VacunaRegistro.objects.filter(
-                        paciente=paciente_obj, vacuna=vacuna_obj
-                    ).delete()
-                    if eliminados:
-                        messages.info(
-                            request,
-                            f"Se eliminó el registro de {vacuna_obj.nombre} para {paciente_obj.nombre}.",
-                        )
-                    else:
-                        messages.warning(
-                            request,
-                            "No se encontró un registro previo para eliminar.",
-                        )
-                else:
-                    messages.error(request, "Acción no reconocida.")
-        else:
-            errors = ", ".join(
-                [str(error) for error_list in form.errors.values() for error in error_list]
-            )
-            if errors:
-                messages.error(request, errors)
-
-        redirect_url = reverse("calendario_vacunas_vet")
-        if redirect_params:
-            redirect_url = f"{redirect_url}?{urlencode(redirect_params)}"
-        return redirect(redirect_url)
-
-    resumen_vacunas = _build_vacunas_context(
-        mascota_seleccionada, tablas_disponibles=vacunas_disponibles
-    )
-
-    citas_recientes = []
-    historiales_recientes = []
-
-    if mascota_seleccionada:
-        citas_recientes = list(
-            Cita.objects.filter(paciente=mascota_seleccionada)
-            .select_related("veterinario")
-            .order_by("-fecha_hora")[:5]
-        )
-        historiales_recientes = list(
-            HistorialMedico.objects.filter(paciente=mascota_seleccionada)
-            .select_related("veterinario")
-            .order_by("-fecha")[:5]
-        )
-
-    return render(
-        request,
-        "core/calendario_vacunas_vet.html",
-        {
-            "mascotas": mascotas,
-            "mascota_seleccionada": mascota_seleccionada,
-            "vacunas_info": resumen_vacunas["vacunas_info"],
-            "especie_normalizada": resumen_vacunas["especie_normalizada"],
-            "vacunas_disponibles": vacunas_disponibles,
-            "total_vacunas": resumen_vacunas["total_vacunas"],
-            "vacunas_completadas": resumen_vacunas["vacunas_completadas"],
-            "vacunas_pendientes": resumen_vacunas["vacunas_pendientes"],
-            "porcentaje_avance": resumen_vacunas["porcentaje_avance"],
-            "hoy": hoy,
-            "busqueda": busqueda,
-            "citas_recientes": citas_recientes,
-            "historiales_recientes": historiales_recientes,
         },
     )
 
@@ -1174,14 +802,7 @@ def asignar_veterinario_citas(request):
 
 @login_required
 def atender_cita(request, cita_id):
-    cita = get_object_or_404(
-        Cita.objects.select_related(
-            "paciente",
-            "paciente__propietario__user",
-            "veterinario",
-        ),
-        id=cita_id,
-    )
+    cita = get_object_or_404(Cita, id=cita_id)
 
     if request.user.rol != "VET":
         messages.error(request, "No tienes permiso para atender esta cita.")
@@ -1209,52 +830,14 @@ def atender_cita(request, cita_id):
         )
 
         cita.estado = "atendida"
-        cita.veterinario = request.user
-        cita.save(update_fields=["estado", "veterinario"])
+        cita.save(update_fields=["estado"])
 
         messages.success(
             request, f"Cita de {cita.paciente.nombre} atendida correctamente ✅"
         )
         return redirect("detalle_cita", cita_id=cita.id)
 
-    vacunas_disponibles = _vacunas_tables_available()
-    vacunas_resumen = _build_vacunas_context(
-        cita.paciente, tablas_disponibles=vacunas_disponibles
-    )
-
-    citas_previas = list(
-        Cita.objects.filter(
-            paciente=cita.paciente, fecha_hora__lt=cita.fecha_hora
-        )
-        .select_related("veterinario")
-        .order_by("-fecha_hora")[:5]
-    )
-
-    historiales_previos = list(
-        HistorialMedico.objects.filter(paciente=cita.paciente)
-        .select_related("veterinario")
-        .order_by("-fecha")[:5]
-    )
-
-    calendario_vacunas_url = reverse("calendario_vacunas_vet")
-    if vacunas_disponibles:
-        calendario_vacunas_url = f"{calendario_vacunas_url}?{urlencode({'paciente': cita.paciente.id})}"
-    else:
-        calendario_vacunas_url = f"{calendario_vacunas_url}?paciente={cita.paciente.id}"
-
-    return render(
-        request,
-        "core/atender_cita.html",
-        {
-            "cita": cita,
-            "citas_previas": citas_previas,
-            "historiales_previos": historiales_previos,
-            "vacunas_resumen": vacunas_resumen,
-            "vacunas_disponibles": vacunas_disponibles,
-            "calendario_vacunas_url": calendario_vacunas_url,
-            "hoy": timezone.localdate(),
-        },
-    )
+    return render(request, "core/atender_cita.html", {"cita": cita})
 
 
 @login_required

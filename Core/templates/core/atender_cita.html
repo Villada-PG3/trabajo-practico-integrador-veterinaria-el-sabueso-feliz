@@ -2,152 +2,40 @@
 {% block title %}Atender Cita{% endblock %}
 
 {% block content %}
-<div class="row gy-4">
-    <div class="col-12">
-        <div class="card border-0 shadow-sm bg-gradient" style="background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);">
-            <div class="card-body text-white p-4 p-lg-5 d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-4">
-                <div>
-                    <p class="text-uppercase small fw-semibold text-white-50 mb-1">Cita programada</p>
-                    <h1 class="h3 fw-bold mb-2">{{ cita.paciente.nombre }}</h1>
-                    <p class="mb-0" style="color: rgba(255,255,255,0.75);">
-                        {% if cita.paciente.propietario %}
-                            Propietario: {{ cita.paciente.propietario.user.get_full_name|default:cita.paciente.propietario.user.username }}
-                            {% if cita.paciente.propietario.telefono %} • <i class="bi bi-telephone-outbound me-1"></i>{{ cita.paciente.propietario.telefono }}{% endif %}
-                        {% endif %}
-                    </p>
-                    <p class="mb-0" style="color: rgba(255,255,255,0.75);">
-                        <i class="bi bi-calendar-week me-1"></i>{{ cita.fecha_hora|date:"d \d\e F, H:i" }} hs · {{ cita.get_tipo_display }}
-                    </p>
-                </div>
-                <div class="d-flex flex-wrap gap-2">
-                    <a href="{% url 'detalle_cita' cita.id %}" class="btn btn-light text-primary">
-                        <i class="bi bi-eye me-1"></i>Ver detalle
-                    </a>
-                    <a href="{{ calendario_vacunas_url }}" class="btn btn-outline-light">
-                        <i class="bi bi-syringe me-1"></i>Calendario de vacunas
-                    </a>
-                </div>
-            </div>
+<div class="container mt-4">
+    <h3>Atender cita de {{ cita.paciente.nombre }}</h3>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="diagnostico" class="form-label">Diagnóstico</label>
+            <textarea name="diagnostico" id="diagnostico" class="form-control" required></textarea>
         </div>
-    </div>
-
-    <div class="col-lg-7">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body p-4">
-                <h2 class="h5 fw-semibold mb-4">Registrar evolución clínica</h2>
-                <form method="POST" class="row g-4">
-                    {% csrf_token %}
-                    <div class="col-12">
-                        <label for="diagnostico" class="form-label fw-semibold">Diagnóstico</label>
-                        <textarea name="diagnostico" id="diagnostico" class="form-control" rows="3" required></textarea>
-                    </div>
-                    <div class="col-12 col-md-6">
-                        <label for="tratamiento" class="form-label fw-semibold">Tratamiento indicado</label>
-                        <textarea name="tratamiento" id="tratamiento" class="form-control" rows="3"></textarea>
-                    </div>
-                    <div class="col-12 col-md-6">
-                        <label for="notas" class="form-label fw-semibold">Notas complementarias</label>
-                        <textarea name="notas" id="notas" class="form-control" rows="3" placeholder="Reacciones, recomendaciones, recordatorios"></textarea>
-                    </div>
-                    <div class="col-12 col-md-6">
-                        <label for="peso" class="form-label fw-semibold">Peso (kg)</label>
-                        <input type="number" step="0.1" name="peso" id="peso" class="form-control" placeholder="Ej: 8.4">
-                    </div>
-                    <div class="col-12 col-md-6">
-                        <label for="temperatura" class="form-label fw-semibold">Temperatura (°C)</label>
-                        <input type="number" step="0.1" name="temperatura" id="temperatura" class="form-control" placeholder="Ej: 38.2">
-                    </div>
-                    <div class="col-12">
-                        <label for="examenes" class="form-label fw-semibold">Exámenes realizados</label>
-                        <textarea name="examenes" id="examenes" class="form-control" rows="2" placeholder="Laboratorio, estudios complementarios"></textarea>
-                    </div>
-                    <div class="col-12 col-md-6">
-                        <label for="proximo_control" class="form-label fw-semibold">Próximo control</label>
-                        <input type="date" name="proximo_control" id="proximo_control" class="form-control" min="{{ hoy|date:'Y-m-d' }}">
-                    </div>
-                    <div class="col-12 d-flex gap-2">
-                        <button type="submit" class="btn btn-success px-4">
-                            <i class="bi bi-check-circle me-1"></i>Guardar y completar cita
-                        </button>
-                        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary px-4">Cancelar</a>
-                    </div>
-                </form>
-            </div>
+        <div class="mb-3">
+            <label for="tratamiento" class="form-label">Tratamiento</label>
+            <textarea name="tratamiento" id="tratamiento" class="form-control"></textarea>
         </div>
-    </div>
-
-    <div class="col-lg-5">
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-body p-4">
-                <h2 class="h6 fw-semibold text-uppercase text-muted mb-3">Resumen del paciente</h2>
-                <div class="d-flex align-items-center gap-3 mb-3">
-                    <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center" style="width: 52px; height: 52px;">
-                        <i class="bi bi-heart-pulse fs-4"></i>
-                    </div>
-                    <div>
-                        <p class="mb-1 fw-semibold">{{ cita.paciente.nombre }}</p>
-                        <p class="mb-0 text-muted text-capitalize">{{ cita.paciente.especie|default:"Especie no definida" }}</p>
-                    </div>
-                </div>
-                <ul class="list-unstyled small text-muted mb-0">
-                    {% for cita_pasada in citas_previas %}
-                        <li class="mb-2"><i class="bi bi-arrow-repeat text-primary me-2"></i>{{ cita_pasada.fecha_hora|date:"d/m/Y H:i" }} · {{ cita_pasada.get_tipo_display }}</li>
-                    {% empty %}
-                        <li class="text-muted">Sin citas previas registradas.</li>
-                    {% endfor %}
-                </ul>
-            </div>
+        <div class="mb-3">
+            <label for="notas" class="form-label">Notas</label>
+            <textarea name="notas" id="notas" class="form-control"></textarea>
         </div>
-
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-body p-4">
-                <h2 class="h6 fw-semibold text-uppercase text-muted mb-3">Informes previos</h2>
-                <div class="list-group list-group-flush">
-                    {% for hist in historiales_previos %}
-                        <div class="list-group-item px-0">
-                            <p class="mb-1 fw-semibold">{{ hist.fecha|date:"d/m/Y" }} · {{ hist.veterinario.get_full_name|default:hist.veterinario.username }}</p>
-                            <p class="mb-0 text-muted small">{{ hist.diagnostico|truncatechars:120 }}</p>
-                        </div>
-                    {% empty %}
-                        <div class="text-muted small">Sin informes previos.</div>
-                    {% endfor %}
-                </div>
-            </div>
+        <div class="mb-3">
+            <label for="peso" class="form-label">Peso (kg)</label>
+            <input type="number" step="0.1" name="peso" id="peso" class="form-control">
         </div>
-
-        <div class="card border-0 shadow-sm">
-            <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h2 class="h6 fw-semibold text-uppercase text-muted mb-0">Plan de vacunas</h2>
-                    {% if vacunas_disponibles %}
-                        <span class="badge bg-primary-subtle text-primary">{{ vacunas_resumen.porcentaje_avance|default:0 }}% completado</span>
-                    {% endif %}
-                </div>
-                {% if not vacunas_disponibles %}
-                    <p class="text-muted small mb-0">Activá el módulo de vacunas para visualizar y actualizar el plan de este paciente.</p>
-                {% elif not vacunas_resumen.especie_normalizada %}
-                    <p class="text-muted small mb-0">Actualizá la especie del paciente para vincularlo a un calendario oficial.</p>
-                {% else %}
-                    <div class="mb-3">
-                        <div class="progress" style="height: 10px;">
-                            <div class="progress-bar" role="progressbar" style="width: {{ vacunas_resumen.porcentaje_avance }}%; background: linear-gradient(90deg, #0ea5e9 0%, #6366f1 100%);"></div>
-                        </div>
-                        <p class="text-muted small mt-2 mb-0">{{ vacunas_resumen.vacunas_completadas }} de {{ vacunas_resumen.total_vacunas }} dosis registradas.</p>
-                    </div>
-                    {% with proxima=item %}
-                        {% for item in vacunas_resumen.vacunas_info %}
-                            {% if not item.registro %}
-                                <p class="mb-2 small text-muted">Próxima vacuna sugerida: <strong>{{ item.vacuna.nombre }}</strong></p>
-                                {% break %}
-                            {% endif %}
-                        {% endfor %}
-                    {% endwith %}
-                    <a href="{{ calendario_vacunas_url }}" class="btn btn-outline-primary btn-sm w-100">
-                        <i class="bi bi-pencil-square me-1"></i>Actualizar plan completo
-                    </a>
-                {% endif %}
-            </div>
+        <div class="mb-3">
+            <label for="temperatura" class="form-label">Temperatura (°C)</label>
+            <input type="number" step="0.1" name="temperatura" id="temperatura" class="form-control">
         </div>
-    </div>
+        <div class="mb-3">
+            <label for="examenes" class="form-label">Exámenes realizados</label>
+            <textarea name="examenes" id="examenes" class="form-control"></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="proximo_control" class="form-label">Próximo control</label>
+            <input type="date" name="proximo_control" id="proximo_control" class="form-control">
+        </div>
+        <button type="submit" class="btn btn-success">Guardar</button>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
 </div>
 {% endblock %}

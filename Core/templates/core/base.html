@@ -77,7 +77,6 @@
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item"><a class="nav-link" href="{% url 'landing' %}">Inicio</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'tienda' %}">Tienda</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'contacto' %}">Contacto</a></li>
                     {% if request.user.is_authenticated %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Panel</a></li>
                         {% if request.user.rol == "ADMIN" or request.user.rol == "ADMIN_OP" %}
@@ -89,9 +88,7 @@
                             {% endif %}
                         {% elif request.user.rol == "VET" %}
                             <li class="nav-item"><a class="nav-link" href="{% url 'mis_citas' %}">Mis Citas</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{% url 'calendario_vacunas_vet' %}">Calendario de vacunas</a></li>
                             <li class="nav-item"><a class="nav-link" href="{% url 'mis_historiales' %}">Mis Historiales</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{% url 'historial_medico_vet' %}">Buscador clínico</a></li>
                         {% elif request.user.rol == "OWNER" %}
                             <li class="nav-item"><a class="nav-link" href="{% url 'mis_mascotas' %}">Mis Mascotas</a></li>
                             <li class="nav-item"><a class="nav-link" href="{% url 'calendario_vacunas' %}">Calendario de vacunas</a></li>
