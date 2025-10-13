@@ -144,13 +144,55 @@ def dashboard(request):
         ).order_by("-fecha")
     elif user.rol == "OWNER":
         propietario = get_object_or_404(Propietario, user=user)
-        context["mis_mascotas"] = Paciente.objects.filter(propietario=propietario)
-        context["mis_citas"] = Cita.objects.filter(
-            paciente__propietario=propietario
-        ).order_by("-fecha_hora")
-        context["mis_historiales"] = HistorialMedico.objects.filter(
-            paciente__propietario=propietario
-        ).order_by("-fecha")
+
+        mascotas = list(
+            Paciente.objects.filter(propietario=propietario).order_by("nombre")
+        )
+        citas_queryset = (
+            Cita.objects.filter(paciente__propietario=propietario)
+            .select_related("paciente", "veterinario")
+            .order_by("fecha_hora")
+        )
+        citas = list(citas_queryset)
+        historiales_queryset = (
+            HistorialMedico.objects.filter(paciente__propietario=propietario)
+            .select_related("paciente", "veterinario")
+            .order_by("-fecha")
+        )
+        historiales = list(historiales_queryset)
+
+        ahora = timezone.now()
+        citas_proximas = [c for c in citas if c.fecha_hora >= ahora]
+        citas_pasadas = [c for c in citas if c.fecha_hora < ahora]
+        citas_pasadas.sort(key=lambda cita: cita.fecha_hora, reverse=True)
+
+        context.update(
+            {
+                "mis_mascotas": mascotas,
+                "mis_citas": list(reversed(citas)),
+                "mis_historiales": historiales,
+                "proxima_cita": citas_proximas[0] if citas_proximas else None,
+                "citas_proximas": citas_proximas[:5],
+                "citas_recientes": citas_pasadas[:5],
+                "historiales_recientes": historiales[:5],
+                "estadisticas_propietario": {
+                    "mascotas": len(mascotas),
+                    "citas_activas": len(citas_proximas),
+                    "informes": len(historiales),
+                    "profesionales": len(
+                        {c.veterinario_id for c in citas if c.veterinario_id}
+                    ),
+                },
+            }
+        )
+
+        productos_disponibles = _producto_table_available()
+        context["productos_sugeridos"] = (
+            Producto.objects.filter(disponible=True)
+            .order_by("-actualizado")[:3]
+            if productos_disponibles
+            else Producto.objects.none()
+        )
     elif user.rol == "ADMIN_OP":
         context["todas_citas"] = Cita.objects.all().order_by("-fecha_hora")
         context["todos_pacientes"] = Paciente.objects.all()
