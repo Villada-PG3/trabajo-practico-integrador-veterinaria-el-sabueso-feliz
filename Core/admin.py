@@ -1,5 +1,14 @@
 from django.contrib import admin
-from .models import Cita, HistorialMedico, Paciente, Producto, Propietario, User
+from .models import (
+    Cita,
+    HistorialMedico,
+    Paciente,
+    Producto,
+    Propietario,
+    User,
+    VacunaRecomendada,
+    VacunaRegistro,
+)
 
 # ----------------------------
 # Admin de User
@@ -84,3 +93,23 @@ class ProductoAdmin(admin.ModelAdmin):
     list_display = ("nombre", "categoria", "precio", "disponible", "actualizado")
     list_filter = ("categoria", "disponible")
     search_fields = ("nombre", "descripcion")
+
+
+@admin.register(VacunaRecomendada)
+class VacunaRecomendadaAdmin(admin.ModelAdmin):
+    list_display = ("nombre", "especie", "edad_recomendada_display", "refuerzo", "orden")
+    list_filter = ("especie",)
+    search_fields = ("nombre", "descripcion", "refuerzo")
+    ordering = ("especie", "orden", "nombre")
+
+    @staticmethod
+    def edad_recomendada_display(obj):
+        return obj.edad_legible()
+
+
+@admin.register(VacunaRegistro)
+class VacunaRegistroAdmin(admin.ModelAdmin):
+    list_display = ("paciente", "vacuna", "fecha_aplicacion", "actualizado")
+    list_filter = ("vacuna__especie", "fecha_aplicacion")
+    search_fields = ("paciente__nombre", "vacuna__nombre")
+    autocomplete_fields = ("paciente", "vacuna")

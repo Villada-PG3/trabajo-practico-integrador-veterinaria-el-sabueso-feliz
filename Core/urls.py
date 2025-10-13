@@ -25,6 +25,7 @@ urlpatterns = [
     # MASCOTAS (Propietario)
     # ----------------------------
     path('mis-mascotas/', views.mis_mascotas, name='mis_mascotas'),
+    path('calendario-vacunas/', views.calendario_vacunas, name='calendario_vacunas'),
     path('mis-mascotas/registrar/', views.registrar_mascota, name='registrar_mascota'),
     path('mascota/<int:paciente_id>/', views.detalle_mascota, name='detalle_mascota'),
 

@@ -133,3 +133,62 @@ class Producto(models.Model):
 
     def __str__(self):
         return self.nombre
+
+
+class VacunaRecomendada(models.Model):
+    ESPECIES = (
+        ("canino", "Canino"),
+        ("felino", "Felino"),
+    )
+
+    UNIDADES_TIEMPO = (
+        ("semanas", "Semanas"),
+        ("meses", "Meses"),
+        ("anios", "Años"),
+    )
+
+    nombre = models.CharField(max_length=150)
+    especie = models.CharField(max_length=20, choices=ESPECIES)
+    descripcion = models.TextField(blank=True)
+    edad_recomendada = models.PositiveIntegerField()
+    unidad_tiempo = models.CharField(max_length=10, choices=UNIDADES_TIEMPO)
+    refuerzo = models.CharField(max_length=150, blank=True)
+    orden = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["especie", "orden", "nombre"]
+        unique_together = ("especie", "nombre")
+
+    def __str__(self):
+        return f"{self.nombre} ({self.get_especie_display()})"
+
+    def edad_legible(self) -> str:
+        unidad = self.get_unidad_tiempo_display().lower()
+        valor = self.edad_recomendada
+        if valor == 1 and unidad.endswith("s"):
+            unidad = unidad[:-1]
+        return f"{valor} {unidad}"
+
+
+class VacunaRegistro(models.Model):
+    paciente = models.ForeignKey(
+        Paciente,
+        on_delete=models.CASCADE,
+        related_name="registros_vacunas",
+    )
+    vacuna = models.ForeignKey(
+        VacunaRecomendada,
+        on_delete=models.CASCADE,
+        related_name="registros",
+    )
+    fecha_aplicacion = models.DateField()
+    notas = models.TextField(blank=True)
+    creado = models.DateTimeField(auto_now_add=True)
+    actualizado = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-fecha_aplicacion", "-actualizado"]
+        unique_together = ("paciente", "vacuna")
+
+    def __str__(self):
+        return f"{self.vacuna.nombre} - {self.paciente.nombre} ({self.fecha_aplicacion:%d/%m/%Y})"

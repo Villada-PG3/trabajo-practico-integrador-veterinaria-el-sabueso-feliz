@@ -3,14 +3,19 @@
 {% block title %}Mis Mascotas{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
     <div>
         <h1 class="h3 mb-1">Mis Mascotas</h1>
-        <p class="text-muted mb-0">Accede al detalle clínico y agenda nuevas consultas</p>
+        <p class="text-muted mb-0">Accede al detalle clínico, su calendario de vacunas y agenda nuevas consultas</p>
     </div>
-    <a href="{% url 'registrar_mascota' %}" class="btn btn-primary">
-        <i class="bi bi-plus-lg me-2"></i>Registrar nueva mascota
-    </a>
+    <div class="d-flex gap-2">
+        <a href="{% url 'calendario_vacunas' %}" class="btn btn-outline-primary">
+            <i class="bi bi-calendar2-check me-2"></i>Calendario de vacunas
+        </a>
+        <a href="{% url 'registrar_mascota' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-2"></i>Registrar nueva mascota
+        </a>
+    </div>
 </div>
 
 <div class="row g-4">

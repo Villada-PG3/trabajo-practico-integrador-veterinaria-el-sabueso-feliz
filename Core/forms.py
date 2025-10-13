@@ -1,4 +1,5 @@
 from django import forms
+from django.utils import timezone
 
 from .models import Producto
 
@@ -18,3 +19,30 @@ class ProductoForm(forms.ModelForm):
         self.fields["precio"].widget.attrs.update({"class": "form-control", "step": "0.01", "min": "0"})
         self.fields["imagen"].widget.attrs.update({"class": "form-control"})
         self.fields["disponible"].widget.attrs.update({"class": "form-check-input"})
+
+
+class VacunaRegistroForm(forms.Form):
+    paciente_id = forms.IntegerField(widget=forms.HiddenInput)
+    vacuna_id = forms.IntegerField(widget=forms.HiddenInput)
+    fecha_aplicacion = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={"type": "date", "class": "form-control", "max": "9999-12-31"}),
+    )
+    notas = forms.CharField(
+        required=False,
+        widget=forms.Textarea(
+            attrs={
+                "rows": 2,
+                "class": "form-control",
+                "placeholder": "Observaciones opcionales",
+            }
+        ),
+    )
+
+    def clean_fecha_aplicacion(self):
+        fecha = self.cleaned_data.get("fecha_aplicacion")
+        if fecha and fecha > timezone.localdate():
+            raise forms.ValidationError(
+                "La fecha de aplicación no puede ser posterior a hoy."
+            )
+        return fecha

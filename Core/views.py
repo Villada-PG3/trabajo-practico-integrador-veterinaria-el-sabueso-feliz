@@ -7,10 +7,20 @@ from django.db import connection
 from django.db.models import Count, Q
 from django.db.utils import OperationalError, ProgrammingError
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 
-from .forms import ProductoForm
-from .models import Cita, HistorialMedico, Paciente, Producto, Propietario, User
+from .forms import ProductoForm, VacunaRegistroForm
+from .models import (
+    Cita,
+    HistorialMedico,
+    Paciente,
+    Producto,
+    Propietario,
+    User,
+    VacunaRecomendada,
+    VacunaRegistro,
+)
 
 
 def _producto_table_available() -> bool:
@@ -21,6 +31,27 @@ def _producto_table_available() -> bool:
         return table_name in connection.introspection.table_names()
     except (OperationalError, ProgrammingError):
         return False
+
+
+def _vacunas_tables_available() -> bool:
+    required_tables = {
+        VacunaRecomendada._meta.db_table,
+        VacunaRegistro._meta.db_table,
+    }
+    try:
+        tables = set(connection.introspection.table_names())
+    except (OperationalError, ProgrammingError):
+        return False
+    return required_tables.issubset(tables)
+
+
+def _normalizar_especie_mascota(especie: str) -> str:
+    valor = (especie or "").strip().lower()
+    if valor.startswith("perr") or valor.startswith("can"):
+        return "canino"
+    if valor.startswith("gat") or valor.startswith("fel"):
+        return "felino"
+    return ""
 
 
 # ----------------------------
@@ -203,6 +234,194 @@ def dashboard(request):
 # ----------------------------
 # Mascotas y propietarios
 # ----------------------------
+
+
+@login_required
+def calendario_vacunas(request):
+    if request.user.rol != "OWNER":
+        messages.error(request, "Acceso exclusivo para propietarios.")
+        return redirect("dashboard")
+
+    propietario = get_object_or_404(Propietario, user=request.user)
+    mascotas = list(
+        Paciente.objects.filter(propietario=propietario).order_by("nombre")
+    )
+
+    vacunas_disponibles = _vacunas_tables_available()
+    mascota_seleccionada = None
+    mascota_id = request.POST.get("paciente_id") or request.GET.get("paciente")
+
+    if mascotas:
+        try:
+            mascota_id_int = int(mascota_id) if mascota_id else None
+        except (TypeError, ValueError):
+            mascota_id_int = None
+
+        for mascota in mascotas:
+            if mascota_id_int is not None and mascota.id == mascota_id_int:
+                mascota_seleccionada = mascota
+                break
+        if mascota_seleccionada is None:
+            mascota_seleccionada = mascotas[0]
+            mascota_id_int = mascota_seleccionada.id
+    else:
+        mascota_id_int = None
+
+    if request.method == "POST":
+        if not mascotas:
+            messages.error(
+                request,
+                "Registra una mascota para comenzar a gestionar su calendario de vacunas.",
+            )
+            return redirect("registrar_mascota")
+
+        if not vacunas_disponibles:
+            messages.error(
+                request,
+                "El módulo de vacunas todavía no está disponible. Ejecuta las migraciones pendientes para activarlo.",
+            )
+            return redirect("calendario_vacunas")
+
+        form = VacunaRegistroForm(request.POST)
+        accion = request.POST.get("accion")
+        redirect_base = reverse("calendario_vacunas")
+        redirect_actual = (
+            f"{redirect_base}?paciente={mascota_seleccionada.id}"
+            if mascota_seleccionada
+            else redirect_base
+        )
+
+        if form.is_valid():
+            paciente_id = form.cleaned_data["paciente_id"]
+            vacuna_id = form.cleaned_data["vacuna_id"]
+            fecha = form.cleaned_data.get("fecha_aplicacion") or timezone.localdate()
+            notas = form.cleaned_data.get("notas", "").strip()
+
+            paciente_obj = next(
+                (m for m in mascotas if m.id == paciente_id),
+                None,
+            )
+            if paciente_obj is None:
+                messages.error(request, "La mascota seleccionada no es válida.")
+                return redirect(redirect_actual)
+
+            redirect_url = f"{redirect_base}?paciente={paciente_obj.id}"
+
+            vacuna_obj = VacunaRecomendada.objects.filter(id=vacuna_id).first()
+            if vacuna_obj is None:
+                messages.error(request, "La vacuna indicada no existe.")
+                return redirect(redirect_url)
+
+            especie_paciente = _normalizar_especie_mascota(paciente_obj.especie)
+            if not especie_paciente:
+                messages.error(
+                    request,
+                    "La especie de la mascota no cuenta con un calendario configurado.",
+                )
+                return redirect(redirect_url)
+
+            if vacuna_obj.especie != especie_paciente:
+                messages.error(
+                    request,
+                    "La vacuna seleccionada no corresponde a la especie de la mascota.",
+                )
+                return redirect(redirect_url)
+
+            if accion == "marcar":
+                registro, creado = VacunaRegistro.objects.update_or_create(
+                    paciente=paciente_obj,
+                    vacuna=vacuna_obj,
+                    defaults={
+                        "fecha_aplicacion": fecha,
+                        "notas": notas,
+                    },
+                )
+                if creado:
+                    messages.success(
+                        request,
+                        f"Se registró la aplicación de {vacuna_obj.nombre} para {paciente_obj.nombre}.",
+                    )
+                else:
+                    messages.success(
+                        request,
+                        f"Se actualizó la aplicación de {vacuna_obj.nombre} para {paciente_obj.nombre}.",
+                    )
+            elif accion == "desmarcar":
+                eliminados, _ = VacunaRegistro.objects.filter(
+                    paciente=paciente_obj, vacuna=vacuna_obj
+                ).delete()
+                if eliminados:
+                    messages.info(
+                        request,
+                        f"Se eliminó el registro de {vacuna_obj.nombre} para {paciente_obj.nombre}.",
+                    )
+                else:
+                    messages.warning(
+                        request,
+                        "No se encontró un registro previo para eliminar.",
+                    )
+            else:
+                messages.error(request, "Acción no reconocida.")
+            return redirect(redirect_url)
+
+        errors = ", ".join(
+            [str(error) for error_list in form.errors.values() for error in error_list]
+        )
+        if errors:
+            messages.error(request, errors)
+        return redirect(redirect_actual)
+
+    especie_normalizada = (
+        _normalizar_especie_mascota(mascota_seleccionada.especie)
+        if mascota_seleccionada
+        else ""
+    )
+
+    vacunas_recomendadas = []
+    registros_por_vacuna = {}
+
+    if vacunas_disponibles and mascota_seleccionada and especie_normalizada:
+        vacunas_recomendadas = list(
+            VacunaRecomendada.objects.filter(especie=especie_normalizada).order_by(
+                "orden", "nombre"
+            )
+        )
+        registros_por_vacuna = {
+            registro.vacuna_id: registro
+            for registro in VacunaRegistro.objects.filter(
+                paciente=mascota_seleccionada,
+                vacuna__in=vacunas_recomendadas,
+            )
+        }
+
+    vacunas_info = [
+        {
+            "vacuna": vacuna,
+            "registro": registros_por_vacuna.get(vacuna.id),
+        }
+        for vacuna in vacunas_recomendadas
+    ]
+
+    total_vacunas = len(vacunas_recomendadas)
+    completadas = sum(1 for item in vacunas_info if item["registro"])
+    porcentaje_avance = int((completadas / total_vacunas) * 100) if total_vacunas else 0
+
+    return render(
+        request,
+        "core/calendario_vacunas.html",
+        {
+            "mascotas": mascotas,
+            "mascota_seleccionada": mascota_seleccionada,
+            "vacunas_info": vacunas_info,
+            "especie_normalizada": especie_normalizada,
+            "vacunas_disponibles": vacunas_disponibles,
+            "total_vacunas": total_vacunas,
+            "vacunas_completadas": completadas,
+            "vacunas_pendientes": max(total_vacunas - completadas, 0),
+            "porcentaje_avance": porcentaje_avance,
+            "hoy": timezone.localdate(),
+        },
+    )
 
 
 @login_required

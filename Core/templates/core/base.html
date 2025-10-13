@@ -91,6 +91,7 @@
                             <li class="nav-item"><a class="nav-link" href="{% url 'mis_historiales' %}">Mis Historiales</a></li>
                         {% elif request.user.rol == "OWNER" %}
                             <li class="nav-item"><a class="nav-link" href="{% url 'mis_mascotas' %}">Mis Mascotas</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{% url 'calendario_vacunas' %}">Calendario de vacunas</a></li>
                             <li class="nav-item"><a class="nav-link" href="{% url 'mis_citas' %}">Mis Citas</a></li>
                             <li class="nav-item"><a class="nav-link" href="{% url 'agendar_cita' %}">Agendar Cita</a></li>
                         {% endif %}
