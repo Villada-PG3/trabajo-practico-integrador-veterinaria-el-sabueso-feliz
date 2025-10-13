@@ -9,6 +9,11 @@
 <body class="bg-light">
 <div class="container mt-4">
     <h2>Asignar Veterinario a Cita: {{ cita.paciente.nombre }} - {{ cita.fecha_hora }}</h2>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-warning{% endif %} mt-3">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
     <form method="POST">
         {% csrf_token %}
         <div class="mb-3">

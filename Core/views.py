@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from .models import User, Propietario, Paciente, Cita, HistorialMedico
@@ -259,64 +261,76 @@ def agendar_cita(request, paciente_id=None):
 
     if request.method == "POST":
         paciente_id_form = request.POST.get("paciente")
-        veterinario_id = request.POST.get("veterinario")
-        fecha_hora = request.POST.get("fecha_hora")
-        notas = request.POST.get("notas", "")
+        fecha_hora_raw = request.POST.get("fecha_hora")
+        notas = request.POST.get("notas", "").strip()
 
         paciente = get_object_or_404(Paciente, id=paciente_id_form, propietario=propietario)
-        veterinario = get_object_or_404(User, id=veterinario_id, rol="VET")
 
-        Cita.objects.create(
-            paciente=paciente,
-            veterinario=veterinario,
-            fecha_hora=fecha_hora,
-            notas=notas
-        )
-        messages.success(request, f"Cita agendada correctamente para {paciente.nombre} ✅")
-        return redirect('mis_citas')
+        if not fecha_hora_raw:
+            messages.error(request, "Debes seleccionar una fecha y hora válidas para la cita.")
+            paciente_seleccionado = paciente
+        else:
+            try:
+                fecha_hora_dt = datetime.fromisoformat(fecha_hora_raw)
+            except ValueError:
+                messages.error(request, "El formato de la fecha y hora no es válido.")
+                paciente_seleccionado = paciente
+            else:
+                if timezone.is_naive(fecha_hora_dt):
+                    fecha_hora_dt = timezone.make_aware(fecha_hora_dt, timezone.get_current_timezone())
+
+                Cita.objects.create(
+                    paciente=paciente,
+                    fecha_hora=fecha_hora_dt,
+                    notas=notas,
+                    estado="programada",
+                )
+                messages.success(
+                    request,
+                    f"Cita agendada correctamente para {paciente.nombre}. El administrador asignará un veterinario próximamente ✅",
+                )
+                return redirect('mis_citas')
 
     # Si viene un paciente_id por GET (opcional)
     paciente_seleccionado = None
     if paciente_id:
         paciente_seleccionado = get_object_or_404(Paciente, id=paciente_id, propietario=propietario)
 
-    # Traemos todos los veterinarios
-    veterinarios = User.objects.filter(rol="VET")
-
     return render(request, "core/agendar_cita.html", {
         'mascotas': mascotas,
-        'veterinarios': veterinarios,
         'paciente_seleccionado': paciente_seleccionado
     })
 
-
-
-# views.py
 @login_required
-def asignar_veterinario(request, cita_id):
-    if request.user.rol != "ADMIN":
-        messages.error(request, "No tienes permiso para asignar veterinario.")
+def asignar_veterinario_cita(request, cita_id):
+    if request.user.rol not in ("ADMIN", "ADMIN_OP"):
+        messages.error(request, "No tienes permiso para asignar veterinarios a las citas.")
         return redirect('dashboard')
 
     cita = get_object_or_404(Cita, id=cita_id)
-    veterinarios = User.objects.filter(rol="VET")
+    veterinarios = User.objects.filter(rol="VET", activo=True)
 
     if request.method == "POST":
         vet_id = request.POST.get("veterinario")
-        veterinario = get_object_or_404(User, id=vet_id, rol="VET")
-        cita.veterinario = veterinario
-        cita.save()
-        messages.success(request, f"Veterinario {veterinario.username} asignado correctamente.")
-        return redirect('dashboard')
+        if not vet_id:
+            messages.error(request, "Debes seleccionar un veterinario para asignar la cita.")
+        else:
+            veterinario = get_object_or_404(User, id=vet_id, rol="VET")
+            cita.veterinario = veterinario
+            cita.save(update_fields=["veterinario"])
+            nombre_vet = veterinario.get_full_name() or veterinario.username
+            messages.success(request, f"Veterinario {nombre_vet} asignado correctamente a la cita ✅")
+            return redirect('listar_citas_admin')
 
     return render(request, "core/asignar_veterinario.html", {
         'cita': cita,
         'veterinarios': veterinarios
     })
 
+
 @login_required
 def listar_citas_admin(request):
-    if request.user.rol != "ADMIN":
+    if request.user.rol not in ("ADMIN", "ADMIN_OP"):
         messages.error(request, "No tienes permiso para ver esta página.")
         return redirect('dashboard')
 
@@ -324,26 +338,32 @@ def listar_citas_admin(request):
     return render(request, "core/citas_admin.html", {'citas': citas})
 
 
-
 @login_required
-def asignar_veterinario(request, cita_id):
-    if request.user.rol != "ADMIN":
-        messages.error(request, "No tienes permiso para realizar esta acción.")
+def asignar_veterinario_citas(request):
+    if request.user.rol not in ("ADMIN", "ADMIN_OP"):
+        messages.error(request, "No tienes permiso para gestionar estas citas.")
         return redirect('dashboard')
 
-    cita = get_object_or_404(Cita, id=cita_id)
-    veterinarios = User.objects.filter(rol="VET")
+    veterinarios = User.objects.filter(rol="VET", activo=True).order_by('first_name', 'last_name')
+    citas_pendientes = Cita.objects.filter(veterinario__isnull=True).order_by('fecha_hora')
 
     if request.method == "POST":
+        cita_id = request.POST.get("cita")
         vet_id = request.POST.get("veterinario")
-        if vet_id:
-            cita.veterinario = User.objects.get(id=vet_id)
-            cita.save()
-            messages.success(request, "Veterinario asignado correctamente ✅")
-            return redirect('dashboard')
 
-    return render(request, "core/asignar_veterinario.html", {
-        'cita': cita,
+        if not cita_id or not vet_id:
+            messages.error(request, "Selecciona una cita y un veterinario válidos.")
+        else:
+            cita = get_object_or_404(Cita, id=cita_id)
+            veterinario = get_object_or_404(User, id=vet_id, rol="VET")
+            cita.veterinario = veterinario
+            cita.save(update_fields=["veterinario"])
+            nombre_vet = veterinario.get_full_name() or veterinario.username
+            messages.success(request, f"Veterinario {nombre_vet} asignado correctamente a la cita de {cita.paciente.nombre} ✅")
+            return redirect('asignar_veterinario_citas')
+
+    return render(request, "core/asignar_veterinario_citas.html", {
+        'citas_pendientes': citas_pendientes,
         'veterinarios': veterinarios
     })
 
@@ -583,7 +603,13 @@ from django.contrib import messages
 
 User = get_user_model()
 
-def asignar_veterinario(request):
+
+@login_required
+def gestionar_veterinarios(request):
+    if request.user.rol != "ADMIN":
+        messages.error(request, "No tienes permiso para gestionar veterinarios.")
+        return redirect('dashboard')
+
     # Traer usuarios que NO son veterinarios
     usuarios_no_vet = User.objects.exclude(rol="VET")
 
@@ -593,7 +619,7 @@ def asignar_veterinario(request):
         usuario.rol = "VET"
         usuario.save()
         messages.success(request, f"{usuario.get_full_name()} ahora es Veterinario ✅")
-        return redirect("asignar_veterinario")
+        return redirect("gestionar_veterinarios")
 
     return render(request, "core/asignar_veterinario_admin.html", {
         "usuarios": usuarios_no_vet

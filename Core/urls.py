@@ -41,7 +41,8 @@ urlpatterns = [
 
     # ADMIN - citas
     path('administrador/citas/', views.listar_citas_admin, name='listar_citas_admin'),
-    path('cita/<int:cita_id>/asignar-vet/', views.asignar_veterinario, name='asignar_veterinario'),
+    path('administrador/citas/pendientes/', views.asignar_veterinario_citas, name='asignar_veterinario_citas'),
+    path('cita/<int:cita_id>/asignar-vet/', views.asignar_veterinario_cita, name='asignar_veterinario_cita'),
     path('atender_cita/<int:cita_id>/', views.atender_cita, name='atender_cita'),
     path('mis_historiales/', views.mis_historiales, name='mis_historiales'),
 
@@ -52,7 +53,7 @@ urlpatterns = [
     path('buscar_propietarios/', views.buscar_propietarios, name='buscar_propietarios'),
     path('propietario/<int:propietario_id>/', views.detalle_propietario, name='detalle_propietario'),
     path('detalle_mascota/<int:paciente_id>/', views.detalle_mascota, name='detalle_mascota'),
-    path('asignar_veterinario/', views.asignar_veterinario, name="asignar_veterinario"),
+    path('asignar_veterinario/', views.gestionar_veterinarios, name="gestionar_veterinarios"),
     path("dashboard/veterinarios/", views.dashboard_veterinarios, name="dashboard_veterinarios"),
     path('vet/historial-medico/', views.historial_medico_vet, name='historial_medico_vet'),
     path('vet/historial-medico/<int:historial_id>/', views.detalle_historial, name='detalle_historial'),

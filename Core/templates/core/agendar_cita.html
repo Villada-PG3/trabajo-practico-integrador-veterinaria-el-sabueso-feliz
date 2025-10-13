@@ -97,6 +97,15 @@
 
 <div class="container">
     <h2>Agendar cita</h2>
+    {% if messages %}
+        <div class="mt-4 space-y-2">
+            {% for message in messages %}
+                <div class="p-3 rounded-lg text-sm {% if message.tags == 'success' %}bg-green-50 text-green-700 border border-green-200{% else %}bg-red-50 text-red-700 border border-red-200{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
     <form method="post">
         {% csrf_token %}
 
@@ -111,13 +120,8 @@
             </select>
         </div>
 
-        <div>
-            <label for="veterinario">Veterinario</label>
-            <select name="veterinario" id="veterinario" required>
-                {% for v in veterinarios %}
-                    <option value="{{ v.id }}">{{ v.get_full_name }}</option>
-                {% endfor %}
-            </select>
+        <div class="rounded-md bg-indigo-50 border border-indigo-200 p-3 text-sm text-indigo-700">
+            El equipo administrativo asignará al veterinario disponible una vez que registres la cita.
         </div>
 
         <div>

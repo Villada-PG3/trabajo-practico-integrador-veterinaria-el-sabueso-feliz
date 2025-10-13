@@ -151,6 +151,10 @@
                             <i class="fas fa-calendar-plus mr-2"></i>
                             Agendar Cita
                         </a>
+                        <a href="{% url 'asignar_veterinario_citas' %}" class="inline-flex items-center px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors">
+                            <i class="fas fa-user-md mr-2"></i>
+                            Asignar Veterinarios a Citas
+                        </a>
                         <a href="{% url 'dashboard_veterinarios' %}" class="inline-flex items-center px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
                             <i class="fas fa-chart-bar mr-2"></i>
                             Stats Veterinarios
@@ -217,7 +221,7 @@
                                         </span>
                                     </div>
                                     {% if not cita.veterinario %}
-                                        <a href="{% url 'asignar_veterinario' cita.id %}" class="px-3 py-1 bg-yellow-500 text-white rounded-lg text-sm hover:bg-yellow-600 transition-colors">
+                                        <a href="{% url 'asignar_veterinario_cita' cita.id %}" class="px-3 py-1 bg-yellow-500 text-white rounded-lg text-sm hover:bg-yellow-600 transition-colors">
                                             <i class="fas fa-user-plus mr-1"></i>
                                             Asignar
                                         </a>
