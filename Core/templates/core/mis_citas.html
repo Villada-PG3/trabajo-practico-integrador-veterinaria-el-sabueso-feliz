@@ -4,7 +4,15 @@
 <h3>Mis Citas</h3>
 <ul class="list-group">
     {% for cita in citas %}
-        <li class="list-group-item">{{ cita.fecha_hora }} - {{ cita.paciente.nombre }} - {{ cita.veterinario.username }} - {{ cita.estado }}</li>
+        <li class="list-group-item">
+            {{ cita.fecha_hora }} - {{ cita.paciente.nombre }} -
+            {% if cita.veterinario %}
+                {{ cita.veterinario.username }}
+            {% else %}
+                <span class="fst-italic text-muted">Sin asignar</span>
+            {% endif %}
+            - {{ cita.estado }}
+        </li>
     {% empty %}
         <li class="list-group-item">No tienes citas programadas</li>
     {% endfor %}

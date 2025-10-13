@@ -74,7 +74,11 @@ class Cita(models.Model):
     notas = models.TextField(blank=True)
 
     def __str__(self):
-        return f"Cita: {self.paciente.nombre} con {self.veterinario.username} - {self.fecha_hora.strftime('%d/%m/%Y %H:%M')}"
+        veterinario_nombre = self.veterinario.username if self.veterinario else "Sin asignar"
+        return (
+            f"Cita: {self.paciente.nombre} con {veterinario_nombre} - "
+            f"{self.fecha_hora.strftime('%d/%m/%Y %H:%M')}"
+        )
 
 # ----------------------------
 # Historial Médico

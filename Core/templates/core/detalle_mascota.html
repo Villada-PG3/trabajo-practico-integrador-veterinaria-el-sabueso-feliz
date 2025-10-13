@@ -119,7 +119,11 @@
                                 </div>
                                 <div class="d-flex gap-2">
                                     <span class="small text-muted">Veterinario:</span>
-                                    <span class="fw-medium text-dark">Dr. {{ cita.veterinario.username }}</span>
+                                    {% if cita.veterinario %}
+                                        <span class="fw-medium text-dark">Dr. {{ cita.veterinario.username }}</span>
+                                    {% else %}
+                                        <span class="fw-medium text-muted fst-italic">Sin asignar</span>
+                                    {% endif %}
                                 </div>
                             </div>
                             {% endfor %}
