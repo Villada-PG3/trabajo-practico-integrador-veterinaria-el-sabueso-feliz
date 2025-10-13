@@ -5,6 +5,7 @@ urlpatterns = [
     # ----------------------------
     # LOGIN / LOGOUT / REGISTRO
     # ----------------------------
+    path('', views.landing, name='landing'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('registro/', views.registro_propietario, name='registro_propietario'),
@@ -12,7 +13,7 @@ urlpatterns = [
     # ----------------------------
     # DASHBOARD
     # ----------------------------
-    path('', views.dashboard, name='dashboard'),
+    path('dashboard/', views.dashboard, name='dashboard'),
 
     # ----------------------------
     # USUARIOS Y PACIENTES (ADMIN / ADMIN_OP)
@@ -26,6 +27,15 @@ urlpatterns = [
     path('mis-mascotas/', views.mis_mascotas, name='mis_mascotas'),
     path('mis-mascotas/registrar/', views.registrar_mascota, name='registrar_mascota'),
     path('mascota/<int:paciente_id>/', views.detalle_mascota, name='detalle_mascota'),
+
+    # ----------------------------
+    # TIENDA
+    # ----------------------------
+    path('tienda/', views.tienda, name='tienda'),
+    path('tienda/<int:producto_id>/', views.detalle_producto, name='detalle_producto'),
+    path('administrador/productos/', views.admin_productos_list, name='admin_productos_list'),
+    path('administrador/productos/nuevo/', views.admin_producto_crear, name='admin_producto_crear'),
+    path('administrador/productos/<int:producto_id>/editar/', views.admin_producto_editar, name='admin_producto_editar'),
 
     # ----------------------------
     # CITAS
@@ -52,7 +62,6 @@ urlpatterns = [
     path('crear_mascota_admin/', views.crear_mascota_admin, name='crear_mascota_admin'),
     path('buscar_propietarios/', views.buscar_propietarios, name='buscar_propietarios'),
     path('propietario/<int:propietario_id>/', views.detalle_propietario, name='detalle_propietario'),
-    path('detalle_mascota/<int:paciente_id>/', views.detalle_mascota, name='detalle_mascota'),
     path('asignar_veterinario/', views.gestionar_veterinarios, name="gestionar_veterinarios"),
     path("dashboard/veterinarios/", views.dashboard_veterinarios, name="dashboard_veterinarios"),
     path('vet/historial-medico/', views.historial_medico_vet, name='historial_medico_vet'),

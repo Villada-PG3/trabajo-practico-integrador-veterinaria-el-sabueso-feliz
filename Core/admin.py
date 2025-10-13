@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Propietario, Paciente, Cita, HistorialMedico
+from .models import Cita, HistorialMedico, Paciente, Producto, Propietario, User
 
 # ----------------------------
 # Admin de User
@@ -77,3 +77,10 @@ class HistorialMedicoAdmin(admin.ModelAdmin):
         elif request.user.rol == "OWNER":
             return qs.filter(paciente__propietario__user=request.user)
         return qs
+
+
+@admin.register(Producto)
+class ProductoAdmin(admin.ModelAdmin):
+    list_display = ("nombre", "categoria", "precio", "disponible", "actualizado")
+    list_filter = ("categoria", "disponible")
+    search_fields = ("nombre", "descripcion")
