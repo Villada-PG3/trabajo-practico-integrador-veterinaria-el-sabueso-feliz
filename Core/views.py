@@ -178,15 +178,38 @@ def detalle_mascota(request, paciente_id):
         messages.error(request, "No tienes permiso para ver esta mascota.")
         return redirect("dashboard")
 
-    historiales = HistorialMedico.objects.filter(paciente=paciente).order_by("-fecha")
+    historiales_qs = HistorialMedico.objects.filter(paciente=paciente).order_by("-fecha")
+    historiales = list(historiales_qs)
 
-    citas = Cita.objects.filter(paciente=paciente).order_by("-fecha_hora")
+    citas_qs = (
+        Cita.objects.filter(paciente=paciente)
+        .select_related("veterinario")
+        .order_by("-fecha_hora")
+    )
+    citas = list(citas_qs)
+
+    historiales_por_fecha = {}
+    for historial in historiales:
+        fecha_hist = historial.fecha
+        if timezone.is_aware(fecha_hist):
+            fecha_hist = timezone.localtime(fecha_hist)
+        historiales_por_fecha.setdefault(fecha_hist.date(), historial)
+
+    for cita in citas:
+        fecha_cita = cita.fecha_hora
+        if timezone.is_aware(fecha_cita):
+            fecha_cita = timezone.localtime(fecha_cita)
+        cita.historial_relacionado = historiales_por_fecha.get(fecha_cita.date())
+
     ahora = timezone.now()
-    citas_futuras = citas.filter(fecha_hora__gte=ahora).order_by("fecha_hora")
-    citas_pasadas = citas.filter(fecha_hora__lt=ahora)
+    citas_futuras = sorted(
+        (cita for cita in citas if cita.fecha_hora >= ahora),
+        key=lambda c: c.fecha_hora,
+    )
+    citas_pasadas = [cita for cita in citas if cita.fecha_hora < ahora]
 
-    ultima_consulta = historiales.first()
-    proxima_cita = citas_futuras.first()
+    ultima_consulta = historiales[0] if historiales else None
+    proxima_cita = citas_futuras[0] if citas_futuras else None
 
     template = (
         "core/detalle_mascota_admin.html"
@@ -576,11 +599,24 @@ def detalle_cita(request, cita_id):
         messages.error(request, "No tienes permiso para ver esta cita.")
         return redirect("dashboard")
 
+    fecha_cita = cita.fecha_hora
+    if timezone.is_aware(fecha_cita):
+        fecha_cita = timezone.localtime(fecha_cita)
+
     historial = (
-        HistorialMedico.objects.filter(paciente=cita.paciente)
+        HistorialMedico.objects.filter(
+            paciente=cita.paciente, fecha__date=fecha_cita.date()
+        )
         .order_by("-fecha")
         .first()
     )
+
+    if not historial:
+        historial = (
+            HistorialMedico.objects.filter(paciente=cita.paciente)
+            .order_by("-fecha")
+            .first()
+        )
 
     return render(request, "core/detalle_cita.html", {"cita": cita, "historial": historial})
 
