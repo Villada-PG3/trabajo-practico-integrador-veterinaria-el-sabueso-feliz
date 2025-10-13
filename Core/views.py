@@ -334,8 +334,21 @@ def listar_citas_admin(request):
         messages.error(request, "No tienes permiso para ver esta página.")
         return redirect('dashboard')
 
-    citas = Cita.objects.all().order_by('-fecha_hora')
-    return render(request, "core/citas_admin.html", {'citas': citas})
+    citas_pendientes = Cita.objects.filter(
+        estado="programada", veterinario__isnull=True
+    ).order_by("fecha_hora")
+    citas_programadas = Cita.objects.filter(
+        estado="programada", veterinario__isnull=False
+    ).order_by("fecha_hora")
+    citas_atendidas = Cita.objects.filter(estado="atendida").order_by("-fecha_hora")
+
+    contexto = {
+        "citas_pendientes": citas_pendientes,
+        "citas_programadas": citas_programadas,
+        "citas_atendidas": citas_atendidas,
+    }
+
+    return render(request, "core/citas_admin.html", contexto)
 
 
 @login_required

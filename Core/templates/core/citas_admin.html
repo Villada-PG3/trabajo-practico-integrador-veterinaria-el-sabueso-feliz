@@ -1,25 +1,115 @@
-<h2>Listado de citas (Administrador)</h2>
-<table>
-    <tr>
-        <th>ID</th>
-        <th>Mascota</th>
-        <th>Propietario</th>
-        <th>Veterinario</th>
-        <th>Fecha y hora</th>
-        <th>Estado</th>
-        <th>Acciones</th>
-    </tr>
-    {% for c in citas %}
-    <tr>
-        <td>{{ c.id }}</td>
-        <td>{{ c.paciente.nombre }}</td>
-        <td>{{ c.paciente.propietario.user.get_full_name }}</td>
-        <td>{% if c.veterinario %}{{ c.veterinario.get_full_name }}{% else %}Sin asignar{% endif %}</td>
-        <td>{{ c.fecha_hora }}</td>
-        <td>{{ c.estado }}</td>
-        <td>
-            <a href="{% url 'asignar_veterinario_cita' c.id %}">Asignar Veterinario</a>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+<h2>Gestión de citas</h2>
+
+<section>
+    <h3>Citas pendientes</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Mascota</th>
+                <th>Propietario</th>
+                <th>Fecha y hora</th>
+                <th>Notas</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cita in citas_pendientes %}
+            <tr>
+                <td>{{ cita.id }}</td>
+                <td>{{ cita.paciente.nombre }}</td>
+                <td>{{ cita.paciente.propietario.user.get_full_name }}</td>
+                <td>{{ cita.fecha_hora }}</td>
+                <td>{{ cita.notas|default:"-" }}</td>
+                <td>
+                    <a href="{% url 'asignar_veterinario_cita' cita.id %}">Asignar veterinario</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6">No hay citas pendientes.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+<section>
+    <h3>Citas programadas</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Mascota</th>
+                <th>Propietario</th>
+                <th>Veterinario</th>
+                <th>Fecha y hora</th>
+                <th>Notas</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cita in citas_programadas %}
+            <tr>
+                <td>{{ cita.id }}</td>
+                <td>{{ cita.paciente.nombre }}</td>
+                <td>{{ cita.paciente.propietario.user.get_full_name }}</td>
+                <td>
+                    {% if cita.veterinario.get_full_name %}
+                        {{ cita.veterinario.get_full_name }}
+                    {% else %}
+                        {{ cita.veterinario.username }}
+                    {% endif %}
+                </td>
+                <td>{{ cita.fecha_hora }}</td>
+                <td>{{ cita.notas|default:"-" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6">No hay citas programadas con veterinario asignado.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+<section>
+    <h3>Citas atendidas</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Mascota</th>
+                <th>Propietario</th>
+                <th>Veterinario</th>
+                <th>Fecha y hora</th>
+                <th>Notas</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cita in citas_atendidas %}
+            <tr>
+                <td>{{ cita.id }}</td>
+                <td>{{ cita.paciente.nombre }}</td>
+                <td>{{ cita.paciente.propietario.user.get_full_name }}</td>
+                <td>
+                    {% if cita.veterinario %}
+                        {% if cita.veterinario.get_full_name %}
+                            {{ cita.veterinario.get_full_name }}
+                        {% else %}
+                            {{ cita.veterinario.username }}
+                        {% endif %}
+                    {% else %}
+                        Sin asignar
+                    {% endif %}
+                </td>
+                <td>{{ cita.fecha_hora }}</td>
+                <td>{{ cita.notas|default:"-" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6">No hay citas atendidas.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
