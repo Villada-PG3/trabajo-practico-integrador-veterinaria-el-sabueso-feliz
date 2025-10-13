@@ -3,26 +3,61 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h3>Crear nueva mascota</h3>
-    <form method="POST">
-        {% csrf_token %}
-        <label>Nombre:</label><input type="text" name="nombre" required><br>
-        <label>Especie:</label><input type="text" name="especie" required><br>
-        <label>Raza:</label><input type="text" name="raza"><br>
-        <label>Sexo:</label>
-        <select name="sexo">
-            <option value="M">Macho</option>
-            <option value="F">Hembra</option>
-        </select><br>
-        <label>Fecha de nacimiento:</label><input type="date" name="fecha_nacimiento"><br>
-        <label>Propietario (opcional):</label>
-        <select name="propietario">
-            <option value="">Sin propietario</option>
-            {% for p in propietarios %}
-                <option value="{{ p.id }}">{{ p.user.get_full_name }}</option>
-            {% endfor %}
-        </select><br><br>
-        <button type="submit" class="btn btn-success">Crear Mascota</button>
-    </form>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="bi bi-plus-circle me-2"></i>Crear Nueva Mascota</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label class="form-label">Nombre</label>
+                    <input type="text" name="nombre" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Especie</label>
+                    <input type="text" name="especie" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Raza</label>
+                    <input type="text" name="raza" class="form-control">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Sexo</label>
+                    <select name="sexo" class="form-select">
+                        <option value="M">Macho</option>
+                        <option value="F">Hembra</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Fecha de nacimiento</label>
+                    <input type="date" name="fecha_nacimiento" class="form-control">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Propietario (opcional)</label>
+                    <select name="propietario" class="form-select">
+                        <option value="">Sin propietario</option>
+                        {% for p in propietarios %}
+                            <option value="{{ p.id }}">{{ p.user.get_full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-success px-4">
+                        <i class="bi bi-check-circle me-1"></i>Guardar Mascota
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 </div>
 {% endblock %}
