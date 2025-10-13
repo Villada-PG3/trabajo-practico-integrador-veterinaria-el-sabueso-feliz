@@ -26,6 +26,7 @@ urlpatterns = [
     # ----------------------------
     path('mis-mascotas/', views.mis_mascotas, name='mis_mascotas'),
     path('calendario-vacunas/', views.calendario_vacunas, name='calendario_vacunas'),
+    path('vet/calendario-vacunas/', views.calendario_vacunas_veterinario, name='calendario_vacunas_vet'),
     path('mis-mascotas/registrar/', views.registrar_mascota, name='registrar_mascota'),
     path('mascota/<int:paciente_id>/', views.detalle_mascota, name='detalle_mascota'),
 
