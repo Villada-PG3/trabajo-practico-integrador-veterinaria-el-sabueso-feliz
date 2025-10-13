@@ -3,7 +3,9 @@ from datetime import datetime
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.db import connection
 from django.db.models import Count, Q
+from django.db.utils import OperationalError, ProgrammingError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
@@ -11,13 +13,29 @@ from .forms import ProductoForm
 from .models import Cita, HistorialMedico, Paciente, Producto, Propietario, User
 
 
+def _producto_table_available() -> bool:
+    """Return True if the Producto table exists in the configured database."""
+
+    table_name = Producto._meta.db_table
+    try:
+        return table_name in connection.introspection.table_names()
+    except (OperationalError, ProgrammingError):
+        return False
+
+
 # ----------------------------
 # Sitio público
 # ----------------------------
 
 def landing(request):
-    productos_destacados = Producto.objects.filter(disponible=True)[:6]
-    total_productos = Producto.objects.filter(disponible=True).count()
+    productos_destacados = Producto.objects.none()
+    total_productos = 0
+    productos_disponibles = _producto_table_available()
+
+    if productos_disponibles:
+        productos_destacados = Producto.objects.filter(disponible=True)[:6]
+        total_productos = Producto.objects.filter(disponible=True).count()
+
     return render(
         request,
         "core/landing.html",
@@ -32,15 +50,20 @@ def tienda(request):
     categoria = request.GET.get("categoria")
     busqueda = request.GET.get("q", "").strip()
 
-    productos = Producto.objects.filter(disponible=True)
-    if categoria in dict(Producto.CATEGORIAS):
-        productos = productos.filter(categoria=categoria)
-    if busqueda:
-        productos = productos.filter(
-            Q(nombre__icontains=busqueda) | Q(descripcion__icontains=busqueda)
-        )
+    productos = Producto.objects.none()
 
-    productos = productos.order_by("nombre")
+    productos_disponibles = _producto_table_available()
+
+    if productos_disponibles:
+        productos = Producto.objects.filter(disponible=True)
+        if categoria in dict(Producto.CATEGORIAS):
+            productos = productos.filter(categoria=categoria)
+        if busqueda:
+            productos = productos.filter(
+                Q(nombre__icontains=busqueda) | Q(descripcion__icontains=busqueda)
+            )
+
+        productos = productos.order_by("nombre")
 
     return render(
         request,
@@ -55,6 +78,13 @@ def tienda(request):
 
 
 def detalle_producto(request, producto_id):
+    if not _producto_table_available():
+        messages.error(
+            request,
+            "La tienda aún no está configurada. Ejecuta las migraciones pendientes para administrar productos.",
+        )
+        return redirect("landing")
+
     queryset = Producto.objects.filter(disponible=True)
     if request.user.is_authenticated and request.user.rol == "ADMIN":
         queryset = Producto.objects.all()
@@ -86,7 +116,8 @@ def dashboard(request):
         context["total_pacientes"] = Paciente.objects.count()
         context["total_citas"] = Cita.objects.count()
         context["total_historiales"] = HistorialMedico.objects.count()
-        context["total_productos"] = Producto.objects.count()
+        productos_disponibles = _producto_table_available()
+        context["total_productos"] = Producto.objects.count() if productos_disponibles else 0
         resumen = {estado: 0 for estado, _ in Cita.ESTADOS}
         for item in Cita.objects.values("estado").annotate(total=Count("id")):
             resumen[item["estado"]] = item["total"]
@@ -99,7 +130,11 @@ def dashboard(request):
         context["todos_pacientes"] = (
             Paciente.objects.select_related("propietario__user").order_by("nombre")[:20]
         )
-        context["productos_recientes"] = Producto.objects.order_by("-actualizado")[:6]
+        context["productos_recientes"] = (
+            Producto.objects.order_by("-actualizado")[:6]
+            if productos_disponibles
+            else Producto.objects.none()
+        )
     elif user.rol == "VET":
         context["mis_citas"] = Cita.objects.filter(veterinario=user).order_by(
             "-fecha_hora"
@@ -844,7 +879,14 @@ def admin_productos_list(request):
         messages.error(request, "No tienes permiso para gestionar la tienda.")
         return redirect("dashboard")
 
-    productos = Producto.objects.all().order_by("-actualizado")
+    if not _producto_table_available():
+        messages.warning(
+            request,
+            "La tienda aún no está lista. Ejecuta las migraciones para crear la tabla de productos.",
+        )
+        productos = Producto.objects.none()
+    else:
+        productos = Producto.objects.all().order_by("-actualizado")
     return render(request, "core/admin_productos_list.html", {"productos": productos})
 
 
@@ -853,6 +895,13 @@ def admin_producto_crear(request):
     if request.user.rol != "ADMIN":
         messages.error(request, "No tienes permiso para gestionar la tienda.")
         return redirect("dashboard")
+
+    if not _producto_table_available():
+        messages.error(
+            request,
+            "Debes ejecutar las migraciones antes de crear productos en la tienda.",
+        )
+        return redirect("admin_productos_list")
 
     if request.method == "POST":
         form = ProductoForm(request.POST, request.FILES)
@@ -877,6 +926,13 @@ def admin_producto_editar(request, producto_id):
     if request.user.rol != "ADMIN":
         messages.error(request, "No tienes permiso para gestionar la tienda.")
         return redirect("dashboard")
+
+    if not _producto_table_available():
+        messages.error(
+            request,
+            "Debes ejecutar las migraciones antes de editar productos en la tienda.",
+        )
+        return redirect("admin_productos_list")
 
     producto = get_object_or_404(Producto, id=producto_id)
 
