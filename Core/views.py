@@ -201,6 +201,44 @@ def detalle_producto(request, producto_id):
     )
 
 
+def contacto(request):
+    """Página pública con la información de contacto de la veterinaria."""
+
+    telefono_mostrado = "351 530 1904"
+    whatsapp_numero = "543515301904"
+    whatsapp_texto = "Hola! Me gustaría obtener más información sobre la Veterinaria Sabueso Feliz."
+    whatsapp_link = f"https://wa.me/{whatsapp_numero}?{urlencode({'text': whatsapp_texto})}"
+
+    latitud = -31.4201
+    longitud = -64.1888
+    delta_lat = 0.003
+    delta_lon = 0.005
+    bbox = f"{longitud - delta_lon}%2C{latitud - delta_lat}%2C{longitud + delta_lon}%2C{latitud + delta_lat}"
+    mapa_embed = (
+        "https://www.openstreetmap.org/export/embed.html?"
+        f"bbox={bbox}&layer=mapnik&marker={latitud}%2C{longitud}"
+    )
+
+    return render(
+        request,
+        "core/contacto.html",
+        {
+            "direccion": "Av. de la Veterinaria 123, Córdoba, Argentina",
+            "telefono": telefono_mostrado,
+            "telefono_link": "+543515301904",
+            "whatsapp_link": whatsapp_link,
+            "horarios": [
+                {"dia": "Lunes a Viernes", "horario": "09:00 a 20:00"},
+                {"dia": "Sábados", "horario": "09:00 a 14:00"},
+                {"dia": "Emergencias", "horario": "24/7 - Línea prioritaria"},
+            ],
+            "email": "contacto@sabuesofeliz.com",
+            "mapa_embed": mapa_embed,
+            "mapa_link": f"https://www.openstreetmap.org/?mlat={latitud}&mlon={longitud}#map=17/{latitud}/{longitud}",
+        },
+    )
+
+
 # ----------------------------
 # Dashboard y estadísticas
 # ----------------------------
