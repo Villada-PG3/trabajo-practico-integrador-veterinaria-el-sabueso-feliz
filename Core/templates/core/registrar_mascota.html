@@ -1,48 +1,13 @@
-{% extends "core/base.html" %}
-{% block title %}Registrar nueva mascota{% endblock %}
-
-{% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card shadow-sm p-4">
-            <h2 class="text-center mb-4">Registrar nueva mascota</h2>
-            <form method="post">
-                {% csrf_token %}
-                
-                <div class="mb-3">
-                    <label class="form-label">Nombre:</label>
-                    <input type="text" name="nombre" class="form-control" placeholder="Nombre de tu mascota" required>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Especie:</label>
-                    <input type="text" name="especie" class="form-control" placeholder="Perro, Gato, etc." required>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Raza:</label>
-                    <input type="text" name="raza" class="form-control" placeholder="Raza (opcional)">
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Sexo:</label>
-                    <select name="sexo" class="form-select" required>
-                        <option value="" disabled selected>Selecciona el sexo</option>
-                        <option value="Macho">Macho</option>
-                        <option value="Hembra">Hembra</option>
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Fecha de nacimiento:</label>
-                    <input type="date" name="fecha_nacimiento" class="form-control" required>
-                </div>
-
-                <div class="d-grid">
-                    <button type="submit" class="btn btn-primary btn-lg">Registrar mascota</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-{% endblock %}
+<h2>Registrar nueva mascota</h2>
+<form method="post">{% csrf_token %}
+    <label>Nombre:</label><input type="text" name="nombre" required><br>
+    <label>Especie:</label><input type="text" name="especie" required><br>
+    <label>Raza:</label><input type="text" name="raza"><br>
+    <label>Sexo:</label>
+    <select name="sexo" required>
+        <option value="Macho">Macho</option>
+        <option value="Hembra">Hembra</option>
+    </select><br>
+    <label>Fecha de nacimiento:</label><input type="date" name="fecha_nacimiento" required><br>
+    <button type="submit">Registrar mascota</button>
+</form>
