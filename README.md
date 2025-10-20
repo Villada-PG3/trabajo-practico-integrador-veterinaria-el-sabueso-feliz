@@ -42,6 +42,31 @@ como parte del Proyecto Integrador 2025.
 
 ---
 
+## Instalación y Configuración
+
+1. Requisitos Previos: 
+  -   Python 3.11 o superior
+  -   pip (gestor de paquetes de Python)
+  -   virtualenv
+2. Clonar el Repositorio: 
+  -   git clone https://github.com/Villada-PG3/trabajo-practico-integrador-veterinaria-el-sabueso-feliz.git
+  -   cd trabajo-practico-integrador-veterinaria-el-sabueso-feliz-main
+3. Crear Entorno Virtual: 
+  -   python -m venv venv
+  -   source venv/bin/activate # En Windows: venv\Scripts\activate
+4. Instalar Dependencias:
+  -   pip install -r requirements.txt
+6. Ejecutar Migraciones: 
+  -   python manage.py makemigrations
+  -   python manage.py migrate
+  -   python manage.py createsuperuser
+7. Iniciar Servidor: 
+  -   python manage.py runserver
+8. Acceder a: http://localhost:8000
+
+---
+
 ## Licencia
 Proyecto de uso educativo y académico.  
 © 2025 Sabueso Feliz – Todos los derechos reservados.
+
