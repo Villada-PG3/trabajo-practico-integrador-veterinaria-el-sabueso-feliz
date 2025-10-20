@@ -2,95 +2,89 @@
 {% block title %}Contacto - Veterinaria Sabueso Feliz{% endblock %}
 
 {% block content %}
-<div class="row align-items-center mb-5">
-    <div class="col-lg-6">
-        <span class="badge rounded-pill mb-3" style="background: linear-gradient(90deg, #4e54c8, #8f94fb);">Estamos para ayudarte</span>
-        <h1 class="display-6 fw-bold text-primary mb-3">Contacto y ubicación</h1>
-        <p class="lead text-muted">Comunícate con nuestro equipo para coordinar turnos, solicitar asesoramiento o conocer más sobre los servicios de Sabueso Feliz.</p>
-        <div class="d-flex flex-wrap gap-3 mt-4">
-            <a href="tel:{{ telefono_link }}" class="btn btn-primary btn-lg px-4"><i class="bi bi-telephone-outbound me-2"></i>Llamar ahora</a>
-            <a href="{{ whatsapp_link }}" target="_blank" rel="noopener" class="btn btn-success btn-lg px-4"><i class="bi bi-whatsapp me-2"></i>Escribir por WhatsApp</a>
+<section class="mb-5">
+    <div class="row g-4 align-items-center">
+        <div class="col-lg-6">
+            <div class="bg-primary text-white rounded-4 p-5 shadow-lg h-100">
+                <span class="badge bg-white text-primary fw-semibold text-uppercase mb-3">Estamos para ayudarte</span>
+                <h1 class="display-5 fw-bold mb-3">Contacta a Sabueso Feliz</h1>
+                <p class="lead mb-4 opacity-75">
+                    Coordina turnos, solicita información sobre tratamientos o conoce más sobre nuestros planes de bienestar.
+                    Nuestro equipo responderá a la brevedad por el canal que prefieras.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="{{ whatsapp_url }}" class="btn btn-light btn-lg px-4 text-primary fw-semibold" target="_blank" rel="noopener">
+                        <i class="bi bi-whatsapp me-2"></i>Escribir por WhatsApp
+                    </a>
+                    <a href="{{ telefono_link }}" class="btn btn-outline-light btn-lg px-4">
+                        <i class="bi bi-telephone-outbound me-2"></i>Llamar ahora
+                    </a>
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="col-lg-6 text-center">
-        <div class="card border-0 shadow-lg">
-            <div class="card-body p-4">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="rounded-circle bg-primary bg-opacity-10 text-primary p-3 me-3">
-                        <i class="bi bi-geo-alt fs-4"></i>
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-lg h-100">
+                <div class="card-body p-4 p-lg-5">
+                    <h2 class="h3 fw-bold mb-4">Información de contacto</h2>
+                    <div class="d-flex align-items-start gap-3 mb-4">
+                        <span class="badge rounded-pill bg-primary-subtle text-primary p-3"><i class="bi bi-geo-alt"></i></span>
+                        <div>
+                            <p class="fw-semibold mb-1">Ubicación</p>
+                            <p class="text-muted mb-0">{{ direccion }}</p>
+                        </div>
                     </div>
-                    <div>
-                        <h5 class="mb-1">Visítanos</h5>
-                        <p class="text-muted mb-0">{{ direccion }}</p>
+                    <div class="d-flex align-items-start gap-3 mb-4">
+                        <span class="badge rounded-pill bg-success-subtle text-success p-3"><i class="bi bi-telephone"></i></span>
+                        <div>
+                            <p class="fw-semibold mb-1">Teléfono</p>
+                            <p class="text-muted mb-0">{{ telefono }}</p>
+                        </div>
                     </div>
-                </div>
-                <div class="d-flex align-items-center mb-3">
-                    <div class="rounded-circle bg-success bg-opacity-10 text-success p-3 me-3">
-                        <i class="bi bi-telephone fs-4"></i>
+                    <div class="d-flex align-items-start gap-3 mb-4">
+                        <span class="badge rounded-pill bg-info-subtle text-info p-3"><i class="bi bi-envelope"></i></span>
+                        <div>
+                            <p class="fw-semibold mb-1">Correo electrónico</p>
+                            <p class="text-muted mb-0">{{ email }}</p>
+                        </div>
                     </div>
-                    <div>
-                        <h5 class="mb-1">Teléfono</h5>
-                        <p class="text-muted mb-0">{{ telefono }}</p>
-                    </div>
-                </div>
-                <div class="d-flex align-items-center mb-0">
-                    <div class="rounded-circle bg-secondary bg-opacity-10 text-secondary p-3 me-3">
-                        <i class="bi bi-envelope fs-4"></i>
-                    </div>
-                    <div>
-                        <h5 class="mb-1">Correo electrónico</h5>
-                        <p class="text-muted mb-0"><a href="mailto:{{ email }}" class="text-decoration-none">{{ email }}</a></p>
+                    <div class="d-flex align-items-start gap-3">
+                        <span class="badge rounded-pill bg-warning-subtle text-warning p-3"><i class="bi bi-clock-history"></i></span>
+                        <div>
+                            <p class="fw-semibold mb-1">Horarios de atención</p>
+                            <ul class="list-unstyled text-muted mb-0">
+                                {% for rango, horario in horarios.items %}
+                                    <li><strong>{{ rango }}:</strong> {{ horario }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
-<div class="row g-4 mb-5">
-    <div class="col-md-6">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body p-4">
-                <h3 class="h4 mb-4">Horarios de atención</h3>
-                <ul class="list-group list-group-flush">
-                    {% for horario in horarios %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                            <span class="fw-semibold text-primary">{{ horario.dia }}</span>
-                            <span class="text-muted">{{ horario.horario }}</span>
-                        </li>
-                    {% endfor %}
-                </ul>
-                <div class="mt-4 p-3 rounded-3 bg-light text-muted">
-                    <i class="bi bi-info-circle me-2"></i>Para emergencias fuera del horario habitual contáctanos directamente por WhatsApp.
-                </div>
+<section class="bg-white border rounded-4 shadow-sm p-4 p-lg-5">
+    <div class="row g-4 align-items-center">
+        <div class="col-lg-5">
+            <h2 class="h3 fw-bold mb-3">Visítanos</h2>
+            <p class="text-muted mb-4">
+                Estamos ubicados en el corazón de Córdoba capital, con fácil acceso y estacionamiento. Agenda tu cita por WhatsApp o teléfono y te esperamos con todo listo para tu mascota.
+            </p>
+            <a href="{{ whatsapp_url }}" class="btn btn-outline-primary px-4" target="_blank" rel="noopener">
+                <i class="bi bi-chat-dots me-2"></i>Coordinar visita
+            </a>
+        </div>
+        <div class="col-lg-7">
+            <div class="ratio ratio-16x9 rounded-4 overflow-hidden">
+                <iframe
+                    src="https://www.google.com/maps?q=Juan+Perrin+6089,+C%C3%B3rdoba,+Argentina&output=embed"
+                    allowfullscreen
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"
+                ></iframe>
             </div>
         </div>
     </div>
-    <div class="col-md-6">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body p-0">
-                <iframe title="Ubicación de la veterinaria" src="{{ mapa_embed }}" style="border:0; width:100%; height:350px; border-radius: 15px 15px 0 0;" allowfullscreen loading="lazy"></iframe>
-                <div class="p-4">
-                    <h3 class="h5 mb-2">Cómo llegar</h3>
-                    <p class="text-muted mb-3">Estamos ubicados en una zona céntrica de Córdoba, con fácil acceso en transporte público y estacionamiento propio para clientes.</p>
-                    <a href="{{ mapa_link }}" target="_blank" rel="noopener" class="btn btn-outline-primary w-100"><i class="bi bi-map me-2"></i>Abrir en el mapa</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="card border-0 shadow-sm">
-    <div class="card-body p-4 p-lg-5">
-        <div class="row align-items-center">
-            <div class="col-lg-8">
-                <h3 class="h4 mb-3 text-primary">¿Necesitas coordinar una visita domiciliaria?</h3>
-                <p class="text-muted mb-lg-0">Nuestro equipo ofrece servicios personalizados y seguimiento integral de tus mascotas. Escríbenos y coordinemos juntos el mejor plan de cuidado.</p>
-            </div>
-            <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
-                <a href="{{ whatsapp_link }}" target="_blank" rel="noopener" class="btn btn-success btn-lg px-4"><i class="bi bi-chat-dots me-2"></i>Contactar por WhatsApp</a>
-            </div>
-        </div>
-    </div>
-</div>
+</section>
 {% endblock %}
