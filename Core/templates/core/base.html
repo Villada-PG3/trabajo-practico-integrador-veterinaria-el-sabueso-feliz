@@ -5,16 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Veterinaria Sabueso Feliz{% endblock %}</title>
 
-    <!-- Tailwind CSS (component styling en vistas internas) -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Bootstrap CSS -->
+    <!-- Bootstrap CSS (legacy components) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 
-    <!-- Font Awesome -->
+    <!-- Font Awesome for dashboard icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
     <!-- Google Fonts -->
@@ -23,33 +23,11 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            padding-top: 80px;
             background-color: #f5f7fa;
         }
 
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 1.5rem;
-        }
-
-        .navbar {
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .nav-link {
-            font-weight: 500;
-            border-radius: 8px;
-            transition: background-color 0.2s ease, color 0.2s ease;
-        }
-
-        .nav-link.active,
-        .nav-link:hover {
-            color: #fff !important;
-            background: linear-gradient(90deg, #4e54c8, #8f94fb);
-        }
-
         .footer {
-            background-color: #1f1f1f;
+            background-color: #0f172a;
             color: #fff;
             padding: 20px 0;
             text-align: center;
@@ -57,140 +35,40 @@
         }
 
         .alert {
-            border-radius: 10px;
-        }
-
-        a.btn,
-        .btn {
-            border-radius: 50px;
-        }
-
-        .card {
-            border-radius: 15px;
+            border-radius: 12px;
         }
     </style>
 
     {% block extra_head %}{% endblock %}
 </head>
-<body>
-    {% with current=request.resolver_match.url_name|default:'' role=request.user.rol|default:'' %}
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'landing' %}">
-                <i class="bi bi-paw-fill me-2"></i>Sabueso Feliz
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+<body class="min-h-screen bg-slate-100">
 
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link{% if current == 'landing' %} active{% endif %}" href="{% url 'landing' %}">Inicio</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link{% if current == 'tienda' or current == 'detalle_producto' %} active{% endif %}" href="{% url 'tienda' %}">Tienda</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link{% if current == 'contacto' %} active{% endif %}" href="{% url 'contacto' %}">Contacto</a>
-                    </li>
-                    {% if request.user.is_authenticated %}
-                        <li class="nav-item">
-                            <a class="nav-link{% if current == 'dashboard' %} active{% endif %}" href="{% url 'dashboard' %}">Panel</a>
-                        </li>
-                        {% if request.user.is_superuser or role == 'ADMIN' or role == 'ADMIN_OP' %}
-                            <li class="nav-item">
-                                <a class="nav-link{% if current == 'listar_usuarios' %} active{% endif %}" href="{% url 'listar_usuarios' %}">Usuarios</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link{% if current == 'listar_pacientes' %} active{% endif %}" href="{% url 'listar_pacientes' %}">Pacientes</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link{% if current == 'listar_citas_admin' or current == 'asignar_veterinario_citas' %} active{% endif %}" href="{% url 'listar_citas_admin' %}">Citas</a>
-                            </li>
-                            {% if request.user.is_superuser or role == 'ADMIN' %}
-                                <li class="nav-item">
-                                    <a class="nav-link{% if current == 'admin_productos_list' or current == 'admin_producto_crear' or current == 'admin_producto_editar' %} active{% endif %}" href="{% url 'admin_productos_list' %}">Productos</a>
-                                </li>
-                            {% endif %}
-                        {% elif role == 'VET' %}
-                            <li class="nav-item">
-                                <a class="nav-link{% if current == 'mis_citas' or current == 'detalle_cita' %} active{% endif %}" href="{% url 'mis_citas' %}">Mis Citas</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link{% if current == 'historial_medico_vet' or current == 'detalle_historial' %} active{% endif %}" href="{% url 'historial_medico_vet' %}">Historiales</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link{% if current == 'dashboard_veterinarios' or current == 'dashboard_veterinarios_indicadores' %} active{% endif %}" href="{% url 'dashboard_veterinarios' %}">Indicadores</a>
-                            </li>
-                        {% elif role == 'OWNER' %}
-                            <li class="nav-item">
-                                <a class="nav-link{% if current == 'mis_mascotas' or current == 'detalle_mascota' or current == 'detalle_mascota_admin' %} active{% endif %}" href="{% url 'mis_mascotas' %}">Mis Mascotas</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link{% if current == 'calendario_vacunas' %} active{% endif %}" href="{% url 'calendario_vacunas' %}">Vacunas</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link{% if current == 'mis_citas' %} active{% endif %}" href="{% url 'mis_citas' %}">Mis Citas</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link{% if current == 'agendar_cita' or current == 'agendar_cita_paciente' %} active{% endif %}" href="{% url 'agendar_cita' %}">Agendar Cita</a>
-                            </li>
-                        {% endif %}
-                    {% endif %}
-                </ul>
-                <div class="d-flex align-items-center gap-3">
-                    {% if request.user.is_authenticated %}
-                        {% if request.user.sucursal and not request.user.is_superuser %}
-                            <span class="navbar-text text-white-50 d-none d-lg-inline">
-                                <i class="bi bi-geo-alt-fill me-1"></i>
-                                {{ request.user.sucursal.nombre }}
-                            </span>
-                        {% elif not request.user.is_superuser %}
-                            {% if role == 'ADMIN' or role == 'ADMIN_OP' or role == 'VET' %}
-                                <span class="navbar-text text-warning d-none d-lg-inline">
-                                    <i class="bi bi-exclamation-triangle-fill me-1"></i>
-                                    Asigna tu sucursal
-                                </span>
-                            {% endif %}
-                        {% endif %}
-                        <a class="btn btn-outline-light px-3" href="{% url 'logout' %}">
-                            <i class="bi bi-box-arrow-right me-1"></i>Cerrar Sesión
-                        </a>
-                    {% else %}
-                        <a class="btn btn-outline-light px-3" href="{% url 'login' %}">
-                            <i class="bi bi-box-arrow-in-right me-1"></i>Ingresar
-                        </a>
-                        <a class="btn btn-light text-primary px-3" href="{% url 'registro_propietario' %}">
-                            <i class="bi bi-person-plus me-1"></i>Registrarme
-                        </a>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </nav>
-    {% endwith %}
+    {% include "core/partials/header.html" %}
 
-    <main class="{% block main_class %}container my-4{% endblock %}">
+    <!-- Contenido principal -->
+    <main class="{% block main_class %}container my-5{% endblock %}">
         {% if messages %}
             {% for message in messages %}
                 <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
                     {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             {% endfor %}
         {% endif %}
 
         {% block content %}
+        <!-- Contenido dinámico -->
         {% endblock %}
     </main>
 
+    <!-- Footer -->
     <footer class="footer">
         &copy; {{ now|date:"Y" }} Veterinaria Sabueso Feliz. Todos los derechos reservados.
     </footer>
 
     {% block extra_scripts %}{% endblock %}
 
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

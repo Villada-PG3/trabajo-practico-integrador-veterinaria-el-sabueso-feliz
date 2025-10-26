@@ -4,11 +4,6 @@
 {% block content %}
 <div class="container mt-5 max-w-6xl">
     <h2 class="mb-4 fw-bold text-dark">Citas Pendientes</h2>
-    {% if sucursal_activa %}
-        <p class="text-muted mb-4">
-            Gestionando turnos de la sucursal <strong>{{ sucursal_activa.nombre }}</strong> · {{ sucursal_activa.direccion }}
-        </p>
-    {% endif %}
 
     {% if citas_pendientes %}
         <div class="list-group">
@@ -18,11 +13,9 @@
                     <div class="flex-grow-1">
                         <h5 class="fw-semibold mb-1">{{ cita.paciente.nombre }} ({{ cita.paciente.especie }})</h5>
                         <p class="mb-1">Propietario: {{ cita.paciente.propietario.user.get_full_name }}</p>
+                        <p class="mb-1"><span class="badge text-bg-primary">{{ cita.sucursal.nombre }}</span></p>
                         <p class="mb-1">Día solicitado: {{ cita.fecha_solicitada|date:"d/m/Y" }}</p>
                         <p class="mb-1">Horario confirmado: {% if cita.fecha_hora %}{{ cita.fecha_hora|date:"H:i" }} hs{% else %}<span class="badge text-bg-warning">Sin confirmar</span>{% endif %}</p>
-                        {% if cita.sucursal %}
-                            <p class="mb-1"><i class="fas fa-map-marker-alt text-danger me-2"></i>Sucursal: {{ cita.sucursal.nombre }} · {{ cita.sucursal.direccion }}</p>
-                        {% endif %}
                         <p class="mb-1">Notas: {{ cita.notas|default:"-" }}</p>
                         {% with telefono=cita.telefono_contacto %}
                             {% if telefono %}

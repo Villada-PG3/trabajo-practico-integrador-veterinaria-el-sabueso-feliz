@@ -146,12 +146,6 @@
                                         Sin propietario asignado
                                     {% endif %}
                                 </p>
-                                {% if cita.sucursal %}
-                                    <p class="text-xs text-gray-500 flex items-center gap-2">
-                                        <i class="fas fa-location-dot"></i>
-                                        {{ cita.sucursal.nombre }} · {{ cita.sucursal.direccion }}
-                                    </p>
-                                {% endif %}
                                 {% if cita.notas %}
                                     <p class="mt-2 text-sm text-gray-600">{{ cita.notas }}</p>
                                 {% endif %}
@@ -225,12 +219,6 @@
                                         {{ cita.paciente.propietario.user.get_full_name|default:cita.paciente.propietario.user.username }}
                                     </p>
                                 {% endif %}
-                                {% if cita.sucursal %}
-                                    <p class="text-xs text-gray-500 flex items-center gap-2">
-                                        <i class="fas fa-location-dot"></i>
-                                        {{ cita.sucursal.nombre }} · {{ cita.sucursal.direccion }}
-                                    </p>
-                                {% endif %}
                                 {% if cita.notas %}
                                     <p class="mt-2 text-sm text-gray-600">{{ cita.notas }}</p>
                                 {% endif %}
@@ -297,12 +285,6 @@
                             Sin veterinario
                         {% endif %}
                     </p>
-                    {% if cita.sucursal %}
-                        <p class="mt-2 text-xs text-gray-500 flex items-center gap-2">
-                            <i class="fas fa-location-dot"></i>
-                            {{ cita.sucursal.nombre }} · {{ cita.sucursal.direccion }}
-                        </p>
-                    {% endif %}
                     {% if cita.notas %}
                         <p class="mt-3 text-sm text-gray-600">{{ cita.notas|truncatechars:120 }}</p>
                     {% endif %}

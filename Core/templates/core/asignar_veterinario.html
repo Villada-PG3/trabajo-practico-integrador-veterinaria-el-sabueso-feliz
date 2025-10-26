@@ -16,13 +16,8 @@
             <span class="badge text-bg-warning">Horario sin confirmar</span>
         {% endif %}
         (estado: {{ cita.get_estado_display }})
+        · <span class="badge text-bg-primary">{{ cita.sucursal.nombre }}</span>
     </p>
-    {% if cita.sucursal %}
-        <p class="text-sm text-secondary mb-4">
-            <i class="fas fa-map-marker-alt me-2 text-danger"></i>
-            Sucursal: <strong>{{ cita.sucursal.nombre }}</strong> · {{ cita.sucursal.direccion }}
-        </p>
-    {% endif %}
 
     {% with telefono=cita.telefono_contacto %}
         {% if telefono %}

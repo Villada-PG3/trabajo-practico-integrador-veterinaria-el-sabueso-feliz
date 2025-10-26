@@ -56,36 +56,36 @@ def _normalizar_especie_mascota(especie: str) -> str:
     return ""
 
 
-def _citas_table_ready() -> bool:
-    """Return True when the citas table exists and includes the sucursal field."""
+def _roles_con_sucursal():
+    return {"ADMIN", "ADMIN_OP", "VET"}
 
-    table_name = Cita._meta.db_table
-    try:
-        tables = connection.introspection.table_names()
-    except (OperationalError, ProgrammingError):
+
+def _filtrar_por_sucursal(queryset, user, field_name="sucursal"):
+    if getattr(user, "is_superuser", False):
+        return queryset
+    if getattr(user, "rol", None) not in _roles_con_sucursal():
+        return queryset
+    sucursal_id = getattr(user, "sucursal_id", None)
+    if not sucursal_id:
+        return queryset.none()
+    return queryset.filter(**{f"{field_name}_id": sucursal_id})
+
+
+def _usuario_puede_gestionar_sucursal(user, sucursal_id):
+    if getattr(user, "is_superuser", False):
+        return True
+    if getattr(user, "rol", None) not in _roles_con_sucursal():
         return False
-
-    if table_name not in tables:
-        return False
-
-    try:
-        with connection.cursor() as cursor:
-            columnas = {
-                column.name
-                for column in connection.introspection.get_table_description(
-                    cursor, table_name
-                )
-            }
-    except (OperationalError, ProgrammingError):
-        return False
-
-    return "sucursal_id" in columnas
+    return sucursal_id is not None and sucursal_id == getattr(user, "sucursal_id", None)
 
 
-def _sucursal_para_usuario(user):
-    if user.is_superuser:
-        return None
-    return getattr(user, "sucursal", None)
+def _sucursales_para_usuario(user):
+    if getattr(user, "is_superuser", False):
+        return Sucursal.objects.all()
+    sucursal_id = getattr(user, "sucursal_id", None)
+    if sucursal_id:
+        return Sucursal.objects.filter(id=sucursal_id)
+    return Sucursal.objects.none()
 
 
 def _veterinarios_activos(sucursal=None):
@@ -93,23 +93,6 @@ def _veterinarios_activos(sucursal=None):
     if sucursal is not None:
         queryset = queryset.filter(sucursal=sucursal)
     return queryset.order_by("first_name", "last_name", "username")
-
-
-def _citas_por_sucursal(user):
-    if not _citas_table_ready():
-        return Cita.objects.none()
-
-    queryset = Cita.objects.select_related(
-        "paciente",
-        "paciente__propietario__user",
-        "veterinario",
-        "historial_medico",
-        "sucursal",
-    )
-    sucursal = _sucursal_para_usuario(user)
-    if sucursal is not None:
-        queryset = queryset.filter(sucursal=sucursal)
-    return queryset
 
 
 # ----------------------------
@@ -125,29 +108,15 @@ def landing(request):
         productos_destacados = Producto.objects.filter(disponible=True)[:6]
         total_productos = Producto.objects.filter(disponible=True).count()
 
-    citas_programadas = Cita.objects.none()
-    cita_proxima = None
-    total_citas_programadas = 0
-    citas_tabla_disponible = _citas_table_ready()
-
-    if citas_tabla_disponible:
-        try:
-            citas_programadas = Cita.objects.filter(estado="programada").exclude(
-                fecha_hora__isnull=True
-            )
-            cita_proxima = (
-                citas_programadas.filter(fecha_hora__gte=timezone.now())
-                .order_by("fecha_hora")
-                .select_related(
-                    "paciente", "veterinario", "paciente__propietario__user"
-                )
-                .first()
-            )
-            total_citas_programadas = citas_programadas.count()
-        except (OperationalError, ProgrammingError):
-            citas_programadas = Cita.objects.none()
-            cita_proxima = None
-            total_citas_programadas = 0
+    citas_programadas = Cita.objects.filter(estado="programada").exclude(
+        fecha_hora__isnull=True
+    )
+    cita_proxima = (
+        citas_programadas.filter(fecha_hora__gte=timezone.now())
+        .order_by("fecha_hora")
+        .select_related("paciente", "veterinario", "paciente__propietario__user")
+        .first()
+    )
 
     nombre_veterinario = ""
     nombre_propietario = ""
@@ -166,11 +135,10 @@ def landing(request):
         "total_propietarios": Propietario.objects.count(),
         "total_pacientes": Paciente.objects.count(),
         "total_veterinarios": User.objects.filter(rol="VET").count(),
-        "total_citas_programadas": total_citas_programadas,
+        "total_citas_programadas": citas_programadas.count(),
         "cita_proxima": cita_proxima,
         "cita_proxima_veterinario": nombre_veterinario,
         "cita_proxima_propietario": nombre_propietario,
-        "citas_migracion_pendiente": not citas_tabla_disponible,
     }
 
     return render(
@@ -263,38 +231,27 @@ def detalle_producto(request, producto_id):
 def dashboard(request):
     user = request.user
     context = {}
-    sucursal = _sucursal_para_usuario(user)
-
-    requiere_sucursal = (
-        user.rol in {"ADMIN", "ADMIN_OP"} and not user.is_superuser
-    )
-    if requiere_sucursal and sucursal is None:
-        messages.error(
-            request,
-            "Tu usuario necesita una sucursal asignada. Solicita al super administrador que registre y te asigne una sucursal.",
-        )
-        context["sucursal_inactiva"] = True
 
     if user.rol == "ADMIN":
-        citas_qs = _citas_por_sucursal(user)
-        if sucursal is not None:
-            usuarios_qs = User.objects.filter(sucursal=sucursal)
-            pacientes_qs = Paciente.objects.filter(
-                cita__sucursal=sucursal
-            ).distinct()
-            historiales_qs = HistorialMedico.objects.filter(
-                Q(cita__sucursal=sucursal)
-                | Q(
-                    cita__isnull=True,
-                    paciente__cita__sucursal=sucursal,
-                )
-            ).distinct()
-        else:
-            usuarios_qs = User.objects.all()
-            pacientes_qs = Paciente.objects.all()
-            historiales_qs = HistorialMedico.objects.all()
+        if not user.is_superuser and not getattr(user, "sucursal_id", None):
+            messages.warning(
+                request,
+                "Asigna una sucursal a tu perfil para comenzar a gestionar la operación.",
+            )
 
-        context["sucursal_activa"] = sucursal
+        usuarios_qs = _filtrar_por_sucursal(User.objects.all(), user)
+        pacientes_qs = Paciente.objects.all()
+        if not user.is_superuser:
+            pacientes_qs = pacientes_qs.filter(
+                cita__sucursal_id=user.sucursal_id
+            ).distinct()
+        citas_qs = _filtrar_por_sucursal(Cita.objects.all(), user)
+        historiales_qs = HistorialMedico.objects.all()
+        if not user.is_superuser:
+            historiales_qs = historiales_qs.filter(
+                paciente__cita__sucursal_id=user.sucursal_id
+            ).distinct()
+
         context["total_usuarios"] = usuarios_qs.count()
         context["total_pacientes"] = pacientes_qs.count()
         context["total_citas"] = citas_qs.count()
@@ -305,13 +262,18 @@ def dashboard(request):
         for item in citas_qs.values("estado").annotate(total=Count("id")):
             resumen[item["estado"]] = item["total"]
         context["resumen_citas"] = resumen
-        context["todas_citas"] = citas_qs.order_by("-fecha_solicitada", "-fecha_hora")[:20]
-        if sucursal is not None:
-            context["todos_pacientes"] = pacientes_qs.select_related("propietario__user").order_by("nombre")[:20]
-        else:
-            context["todos_pacientes"] = (
-                Paciente.objects.select_related("propietario__user").order_by("nombre")[:20]
+        context["todas_citas"] = (
+            citas_qs.select_related(
+                "paciente",
+                "paciente__propietario__user",
+                "veterinario",
+                "historial_medico",
             )
+            .order_by("-fecha_solicitada", "-fecha_hora")[:20]
+        )
+        context["todos_pacientes"] = (
+            pacientes_qs.select_related("propietario__user").order_by("nombre")[:20]
+        )
         context["productos_recientes"] = (
             Producto.objects.order_by("-actualizado")[:6]
             if productos_disponibles
@@ -414,15 +376,10 @@ def dashboard(request):
             else Producto.objects.none()
         )
     elif user.rol == "ADMIN_OP":
-        citas_qs = _citas_por_sucursal(user)
-        context["sucursal_activa"] = sucursal
-        context["todas_citas"] = citas_qs.order_by("-fecha_solicitada", "-fecha_hora")
-        if sucursal is not None:
-            context["todos_pacientes"] = Paciente.objects.filter(
-                cita__sucursal=sucursal
-            ).distinct()
-        else:
-            context["todos_pacientes"] = Paciente.objects.all()
+        context["todas_citas"] = Cita.objects.all().order_by(
+            "-fecha_solicitada", "-fecha_hora"
+        )
+        context["todos_pacientes"] = Paciente.objects.all()
 
     return render(request, "core/dashboard.html", context)
 
@@ -782,22 +739,7 @@ def listar_usuarios(request):
         messages.error(request, "No tienes permiso para ver esta página.")
         return redirect("dashboard")
 
-    sucursal = _sucursal_para_usuario(request.user)
-    if not request.user.is_superuser and sucursal is None:
-        messages.error(
-            request,
-            "Tu usuario necesita una sucursal asignada para listar los usuarios.",
-        )
-        return redirect("dashboard")
-
-    usuarios = User.objects.all()
-    if sucursal is not None:
-        usuarios = usuarios.filter(
-            Q(sucursal=sucursal)
-            | Q(rol="OWNER")
-            | Q(is_superuser=True)
-        )
-    usuarios = usuarios.order_by("username")
+    usuarios = User.objects.all().order_by("username")
     return render(request, "core/usuarios.html", {"usuarios": usuarios})
 
 
@@ -807,22 +749,7 @@ def listar_pacientes(request):
         messages.error(request, "No tienes permiso para ver esta página.")
         return redirect("dashboard")
 
-    sucursal = _sucursal_para_usuario(request.user)
-    if (
-        request.user.rol in {"ADMIN", "ADMIN_OP"}
-        and not request.user.is_superuser
-        and sucursal is None
-    ):
-        messages.error(
-            request,
-            "Tu usuario necesita una sucursal asignada para listar los pacientes.",
-        )
-        return redirect("dashboard")
-
-    pacientes = Paciente.objects.all()
-    if sucursal is not None:
-        pacientes = pacientes.filter(cita__sucursal=sucursal).distinct()
-    pacientes = pacientes.order_by("nombre")
+    pacientes = Paciente.objects.all().order_by("nombre")
     return render(request, "core/pacientes.html", {"pacientes": pacientes})
 
 
@@ -893,13 +820,11 @@ def mis_citas(request):
         "paciente__propietario__user",
         "veterinario",
         "historial_medico",
-        "sucursal",
     )
 
     queryset = base_queryset
 
     propietario = None
-    sucursal = _sucursal_para_usuario(user)
     if user.rol == "VET":
         queryset = queryset.filter(veterinario=user)
     elif user.rol == "OWNER":
@@ -914,17 +839,10 @@ def mis_citas(request):
                 request,
                 "Completa tu perfil de propietario para comenzar a registrar y seguir tus citas.",
             )
-    elif user.rol not in {"ADMIN_OP", "ADMIN"}:
-        queryset = queryset.none()
+    elif user.rol in {"ADMIN_OP", "ADMIN"}:
+        queryset = _filtrar_por_sucursal(queryset, user)
     else:
-        if not user.is_superuser and sucursal is None:
-            messages.error(
-                request,
-                "Tu usuario necesita una sucursal asignada para revisar las citas.",
-            )
-            queryset = queryset.none()
-        elif sucursal is not None:
-            queryset = queryset.filter(sucursal=sucursal)
+        queryset = queryset.none()
 
     if filtros_estado:
         queryset = queryset.filter(estado=filtros_estado)
@@ -1012,7 +930,6 @@ def mis_citas(request):
         },
         "propietario": propietario,
         "estados": Cita.ESTADOS,
-        "sucursal_activa": sucursal,
     }
 
     return render(request, "core/mis_citas.html", context)
@@ -1030,13 +947,6 @@ def agendar_cita(request, paciente_id=None):
     sucursales = Sucursal.objects.all().order_by("nombre")
     sucursal_seleccionada = None
 
-    if not sucursales.exists():
-        messages.error(
-            request,
-            "Aún no hay sucursales registradas. Por favor contacta al administrador para completar el registro.",
-        )
-        return redirect("dashboard")
-
     if request.method == "POST":
         paciente_id_form = request.POST.get("paciente")
         fecha_solicitada_raw = request.POST.get("fecha_solicitada")
@@ -1048,11 +958,11 @@ def agendar_cita(request, paciente_id=None):
         )
         paciente_seleccionado = paciente
 
-        sucursal = None
-        if sucursal_id:
-            sucursal = Sucursal.objects.filter(id=sucursal_id).first()
-        if sucursal is None:
-            messages.error(request, "Debes seleccionar una sucursal para la cita.")
+        try:
+            sucursal = Sucursal.objects.get(id=sucursal_id)
+        except Sucursal.DoesNotExist:
+            messages.error(request, "Selecciona una sucursal válida para la cita.")
+            sucursal = None
         else:
             sucursal_seleccionada = sucursal
 
@@ -1060,7 +970,7 @@ def agendar_cita(request, paciente_id=None):
             messages.error(
                 request, "Debes seleccionar un día válido para la cita."
             )
-        else:
+        elif sucursal:
             try:
                 fecha_solicitada = datetime.strptime(
                     fecha_solicitada_raw, "%Y-%m-%d"
@@ -1074,12 +984,12 @@ def agendar_cita(request, paciente_id=None):
                         request,
                         "El día seleccionado ya pasó. Elige una fecha futura.",
                     )
-                elif sucursal is not None:
+                else:
                     Cita.objects.create(
                         paciente=paciente,
-                        sucursal=sucursal,
                         fecha_solicitada=fecha_solicitada,
                         notas=notas,
+                        sucursal=sucursal,
                         estado="pendiente",
                     )
                     messages.success(
@@ -1114,25 +1024,10 @@ def asignar_veterinario_cita(request, cita_id):
         messages.error(request, "No tienes permiso para asignar veterinarios a las citas.")
         return redirect("dashboard")
 
-    sucursal = _sucursal_para_usuario(request.user)
-    if (
-        request.user.rol in {"ADMIN", "ADMIN_OP"}
-        and not request.user.is_superuser
-        and sucursal is None
-    ):
-        messages.error(
-            request,
-            "Tu usuario necesita una sucursal asignada para gestionar las citas.",
-        )
-        return redirect("listar_citas_admin")
-
-    cita = get_object_or_404(_citas_por_sucursal(request.user), id=cita_id)
-    if sucursal and not cita.sucursal_id:
-        messages.error(
-            request,
-            "La cita aún no tiene una sucursal definida. Actualiza la solicitud antes de asignar un profesional.",
-        )
-        return redirect("listar_citas_admin")
+    cita = get_object_or_404(
+        _filtrar_por_sucursal(Cita.objects.all(), request.user),
+        id=cita_id,
+    )
     veterinarios = _veterinarios_activos(cita.sucursal)
 
     if request.method == "POST":
@@ -1168,10 +1063,12 @@ def asignar_veterinario_cita(request, cita_id):
                     )
                 else:
                     veterinario = get_object_or_404(
-                        User.objects.filter(rol="VET", sucursal=cita.sucursal)
-                        if cita.sucursal_id
-                        else User.objects.filter(rol="VET"),
+                        User,
                         id=vet_id,
+                        rol="VET",
+                        sucursal=cita.sucursal,
+                        activo=True,
+                        is_active=True,
                     )
                     cita.veterinario = veterinario
                     cita.fecha_hora = fecha_hora
@@ -1200,7 +1097,7 @@ def asignar_veterinario_cita(request, cita_id):
     return render(
         request,
         "core/asignar_veterinario.html",
-        {"cita": cita, "veterinarios": veterinarios, "sucursal_activa": cita.sucursal},
+        {"cita": cita, "veterinarios": veterinarios},
     )
 
 
@@ -1210,17 +1107,11 @@ def listar_citas_admin(request):
         messages.error(request, "No tienes permiso para ver esta página.")
         return redirect("dashboard")
 
-    sucursal = _sucursal_para_usuario(request.user)
-    if (
-        request.user.rol in {"ADMIN", "ADMIN_OP"}
-        and not request.user.is_superuser
-        and sucursal is None
-    ):
-        messages.error(
+    if not request.user.is_superuser and not getattr(request.user, "sucursal_id", None):
+        messages.warning(
             request,
-            "Tu usuario necesita una sucursal asignada para gestionar las citas.",
+            "Asigna una sucursal a tu perfil para administrar las citas.",
         )
-        return redirect("dashboard")
 
     if request.method == "POST":
         action = request.POST.get("action", "").strip()
@@ -1231,7 +1122,10 @@ def listar_citas_admin(request):
             messages.error(request, "Selecciona una cita para aplicar la acción.")
             return redirect(redirect_url)
 
-        cita = get_object_or_404(_citas_por_sucursal(request.user), id=cita_id)
+        cita = get_object_or_404(
+            _filtrar_por_sucursal(Cita.objects.all(), request.user),
+            id=cita_id,
+        )
 
         if action == "cancelar":
             if cita.estado == "cancelada":
@@ -1280,7 +1174,13 @@ def listar_citas_admin(request):
     filtro_hasta = request.GET.get("hasta", "").strip()
     filtro_sin_veterinario = request.GET.get("sin_veterinario") == "1"
 
-    queryset = _citas_por_sucursal(request.user)
+    queryset = Cita.objects.select_related(
+        "paciente",
+        "paciente__propietario__user",
+        "veterinario",
+        "historial_medico",
+    )
+    queryset = _filtrar_por_sucursal(queryset, request.user)
 
     if filtro_estado:
         queryset = queryset.filter(estado=filtro_estado)
@@ -1334,8 +1234,7 @@ def listar_citas_admin(request):
         resumen_filtrado[cita.estado] = resumen_filtrado.get(cita.estado, 0) + 1
 
     resumen_global = {estado: 0 for estado, _ in Cita.ESTADOS}
-    total_queryset = _citas_por_sucursal(request.user)
-    for item in total_queryset.values("estado").annotate(total=Count("id")):
+    for item in queryset.values("estado").annotate(total=Count("id")):
         resumen_global[item["estado"]] = item["total"]
 
     proximas_citas = [
@@ -1345,11 +1244,15 @@ def listar_citas_admin(request):
     ]
     proximas_citas.sort(key=lambda c: c.fecha_hora or timezone.now())
 
-    veterinarios = _veterinarios_activos(sucursal)
-    propietarios = Propietario.objects.select_related("user")
-    if sucursal is not None:
-        propietarios = propietarios.filter(paciente__cita__sucursal=sucursal).distinct()
-    propietarios = propietarios.order_by("user__first_name", "user__last_name")
+    veterinarios = _filtrar_por_sucursal(
+        _veterinarios_activos(),
+        request.user,
+    )
+    propietarios = _filtrar_por_sucursal(
+        Propietario.objects.select_related("user"),
+        request.user,
+        field_name="paciente__cita__sucursal",
+    ).distinct().order_by("user__first_name", "user__last_name")
 
     querystring = request.GET.urlencode()
     redirect_target = reverse("listar_citas_admin")
@@ -1357,6 +1260,10 @@ def listar_citas_admin(request):
         redirect_target = f"{redirect_target}?{querystring}"
 
     total_global = sum(resumen_global.values())
+
+    sucursal_activa = None
+    if not request.user.is_superuser and request.user.rol in _roles_con_sucursal():
+        sucursal_activa = request.user.sucursal
 
     context = {
         "citas": citas,
@@ -1381,7 +1288,8 @@ def listar_citas_admin(request):
         "querystring": querystring,
         "redirect_target": redirect_target,
         "total_global": total_global,
-        "sucursal_activa": sucursal,
+        "sucursal_activa": sucursal_activa,
+        "es_superadmin": request.user.is_superuser,
     }
 
     return render(request, "core/citas_admin.html", context)
@@ -1393,22 +1301,22 @@ def asignar_veterinario_citas(request):
         messages.error(request, "No tienes permiso para gestionar estas citas.")
         return redirect("dashboard")
 
-    sucursal = _sucursal_para_usuario(request.user)
-    if (
-        request.user.rol in {"ADMIN", "ADMIN_OP"}
-        and not request.user.is_superuser
-        and sucursal is None
-    ):
-        messages.error(
+    if not request.user.is_superuser and not getattr(request.user, "sucursal_id", None):
+        messages.warning(
             request,
-            "Tu usuario necesita una sucursal asignada para coordinar las citas pendientes.",
+            "Asigna una sucursal a tu perfil para coordinar turnos pendientes.",
         )
-        return redirect("dashboard")
 
-    veterinarios = _veterinarios_activos(sucursal)
-    citas_pendientes = _citas_por_sucursal(request.user).filter(estado="pendiente")
-
-    citas_pendientes = citas_pendientes.order_by("fecha_solicitada", "fecha_hora")
+    veterinarios = _filtrar_por_sucursal(
+        _veterinarios_activos(),
+        request.user,
+    )
+    citas_pendientes = _filtrar_por_sucursal(
+        Cita.objects.select_related("paciente", "paciente__propietario__user")
+        .filter(estado="pendiente")
+        .order_by("fecha_solicitada", "fecha_hora"),
+        request.user,
+    )
 
     if request.method == "POST":
         cita_id = request.POST.get("cita")
@@ -1422,9 +1330,11 @@ def asignar_veterinario_citas(request):
             messages.error(request, "Debes ingresar la fecha y hora confirmadas.")
         else:
             cita = get_object_or_404(
-                _citas_por_sucursal(request.user),
+                _filtrar_por_sucursal(
+                    Cita.objects.filter(estado__in=["pendiente", "programada"]),
+                    request.user,
+                ),
                 id=cita_id,
-                estado__in=["pendiente", "programada"],
             )
             try:
                 fecha_confirmada = datetime.strptime(fecha_raw, "%Y-%m-%d").date()
@@ -1445,10 +1355,12 @@ def asignar_veterinario_citas(request):
                     )
                 else:
                     veterinario = get_object_or_404(
-                        User.objects.filter(rol="VET", sucursal=sucursal)
-                        if sucursal is not None
-                        else User.objects.filter(rol="VET"),
+                        User,
                         id=vet_id,
+                        rol="VET",
+                        sucursal=cita.sucursal,
+                        activo=True,
+                        is_active=True,
                     )
                     cita.veterinario = veterinario
                     cita.fecha_hora = fecha_hora
@@ -1478,18 +1390,14 @@ def asignar_veterinario_citas(request):
     return render(
         request,
         "core/asignar_veterinario_citas.html",
-        {
-            "citas_pendientes": citas_pendientes,
-            "veterinarios": veterinarios,
-            "sucursal_activa": sucursal,
-        },
+        {"citas_pendientes": citas_pendientes, "veterinarios": veterinarios},
     )
 
 
 @login_required
 def atender_cita(request, cita_id):
     cita = get_object_or_404(
-        Cita.objects.select_related("sucursal", "veterinario", "paciente", "paciente__propietario__user"),
+        Cita.objects.select_related("paciente", "paciente__propietario__user"),
         id=cita_id,
     )
 
@@ -1497,20 +1405,19 @@ def atender_cita(request, cita_id):
         messages.error(request, "No tienes permiso para atender esta cita.")
         return redirect("dashboard")
 
-    if cita.veterinario_id and cita.veterinario_id != request.user.id:
-        messages.error(request, "Esta cita está asignada a otro profesional.")
-        return redirect("mis_citas")
-
-    if (
-        not request.user.is_superuser
-        and getattr(request.user, "sucursal_id", None) is not None
-        and cita.sucursal_id != request.user.sucursal_id
-    ):
+    if not _usuario_puede_gestionar_sucursal(request.user, cita.sucursal_id):
         messages.error(
             request,
-            "Solo puedes atender citas de la sucursal a la que perteneces.",
+            "No tienes permiso para operar sobre citas de otra sucursal.",
         )
-        return redirect("mis_citas")
+        return redirect("dashboard")
+
+    if cita.veterinario_id and cita.veterinario_id != request.user.id:
+        messages.error(
+            request,
+            "Esta cita está asignada a otro profesional.",
+        )
+        return redirect("dashboard")
 
     historial_existente = getattr(cita, "historial_medico", None)
 
@@ -1578,42 +1485,25 @@ def mis_historiales(request):
 
 @login_required
 def detalle_cita(request, cita_id):
-    cita = get_object_or_404(
-        Cita.objects.select_related(
-            "paciente",
-            "paciente__propietario__user",
-            "veterinario",
-            "historial_medico",
-            "sucursal",
-        ),
-        id=cita_id,
+    base_queryset = Cita.objects.select_related(
+        "paciente",
+        "paciente__propietario__user",
+        "veterinario",
+        "historial_medico",
     )
+    if request.user.rol in {"ADMIN", "ADMIN_OP"}:
+        base_queryset = _filtrar_por_sucursal(base_queryset, request.user)
+
+    cita = get_object_or_404(base_queryset, id=cita_id)
 
     if request.user.rol == "OWNER" and cita.paciente.propietario.user != request.user:
         messages.error(request, "No tienes permiso para ver esta cita.")
         return redirect("dashboard")
-
-    sucursal_usuario = _sucursal_para_usuario(request.user)
-    if request.user.rol in {"ADMIN", "ADMIN_OP"} and not request.user.is_superuser:
-        if sucursal_usuario is None or cita.sucursal_id != getattr(sucursal_usuario, "id", None):
-            messages.error(
-                request,
-                "Solo puedes acceder a las citas de tu sucursal asignada.",
-            )
-            return redirect("listar_citas_admin")
-
-    if request.user.rol == "VET":
-        if cita.veterinario_id != request.user.id:
-            if (
-                not request.user.is_superuser
-                and getattr(request.user, "sucursal_id", None)
-                != cita.sucursal_id
-            ):
-                messages.error(
-                    request,
-                    "Solo puedes acceder a citas de tu agenda o tu sucursal.",
-                )
-                return redirect("mis_citas")
+    if request.user.rol in {"ADMIN", "ADMIN_OP"} and not _usuario_puede_gestionar_sucursal(
+        request.user, cita.sucursal_id
+    ):
+        messages.error(request, "No tienes permiso para acceder a esta sucursal.")
+        return redirect("dashboard")
 
     fecha_cita = cita.fecha_hora
     if fecha_cita:
@@ -1654,19 +1544,25 @@ def agendar_cita_admin(request):
         messages.error(request, "No tienes permiso para agendar citas.")
         return redirect("dashboard")
 
-    sucursal_usuario = _sucursal_para_usuario(request.user)
-    if not request.user.is_superuser and sucursal_usuario is None:
-        messages.error(
-            request,
-            "Tu usuario necesita una sucursal asignada antes de registrar citas manualmente.",
-        )
-        return redirect("dashboard")
-
-    sucursales = Sucursal.objects.all().order_by("nombre")
     mascotas = Paciente.objects.all().order_by("nombre")
-    veterinarios = _veterinarios_activos(sucursal_usuario)
+    sucursales_disponibles = list(_sucursales_para_usuario(request.user))
+    sucursal_seleccionada = None
+    if not request.user.is_superuser:
+        sucursal_seleccionada = getattr(request.user, "sucursal", None)
+        if sucursal_seleccionada is None:
+            messages.warning(
+                request,
+                "Asigna una sucursal a tu perfil para poder programar citas.",
+            )
+    elif sucursales_disponibles:
+        sucursal_seleccionada = sucursales_disponibles[0]
+
+    veterinarios = (
+        _veterinarios_activos(sucursal_seleccionada)
+        if sucursal_seleccionada is not None
+        else _veterinarios_activos()
+    )
     paciente_seleccionado = None
-    sucursal_seleccionada = sucursal_usuario
 
     if request.method == "POST":
         paciente_id = request.POST.get("paciente")
@@ -1675,56 +1571,58 @@ def agendar_cita_admin(request):
         notas = request.POST.get("notas", "").strip()
         sucursal_id = request.POST.get("sucursal")
 
-        if request.user.is_superuser:
-            if sucursal_id:
-                sucursal_cita = Sucursal.objects.filter(id=sucursal_id).first()
-            else:
-                sucursal_cita = None
-            if sucursal_cita is None:
-                messages.error(request, "Selecciona la sucursal para la cita.")
-                sucursal_seleccionada = None
-                veterinarios = _veterinarios_activos()
-                paciente_seleccionado = Paciente.objects.filter(id=paciente_id).first()
-                return render(
-                    request,
-                    "core/agendar_cita_admin.html",
-                    {
-                        "mascotas": mascotas,
-                        "veterinarios": veterinarios,
-                        "paciente_seleccionado": paciente_seleccionado,
-                        "sucursales": sucursales,
-                        "sucursal_seleccionada": sucursal_seleccionada,
-                    },
-                )
-            sucursal_seleccionada = sucursal_cita
-        else:
-            sucursal_cita = sucursal_usuario
-
-        veterinarios = _veterinarios_activos(sucursal_cita)
-
         paciente = get_object_or_404(Paciente, id=paciente_id)
-        veterinario = get_object_or_404(veterinarios, id=veterinario_id)
+
+        if request.user.is_superuser:
+            sucursal = get_object_or_404(Sucursal, id=sucursal_id)
+        else:
+            sucursal = getattr(request.user, "sucursal", None)
+            if sucursal is None or (
+                sucursal_id and str(sucursal.id) != str(sucursal_id)
+            ):
+                messages.error(
+                    request,
+                    "No tienes permiso para asignar citas en esa sucursal.",
+                )
+                sucursal = None
+
+        if sucursal is None:
+            veterinario = None
+        else:
+            sucursal_seleccionada = sucursal
+            veterinarios = _veterinarios_activos(sucursal)
+            veterinario = get_object_or_404(
+                veterinarios,
+                id=veterinario_id,
+            )
 
         try:
             fecha_hora_dt = datetime.fromisoformat(fecha_hora_raw)
         except (TypeError, ValueError):
             messages.error(request, "Selecciona una fecha y hora válidas.")
         else:
-            if timezone.is_naive(fecha_hora_dt):
+            if sucursal is None:
+                pass
+            elif timezone.is_naive(fecha_hora_dt):
                 fecha_hora_dt = timezone.make_aware(
                     fecha_hora_dt, timezone.get_current_timezone()
                 )
 
-            if fecha_hora_dt < timezone.now():
+            if sucursal is None:
+                messages.error(
+                    request,
+                    "Debes seleccionar una sucursal válida para la cita.",
+                )
+            elif fecha_hora_dt < timezone.now():
                 messages.error(request, "No puedes programar una cita en el pasado.")
             else:
                 Cita.objects.create(
                     paciente=paciente,
-                    sucursal=sucursal_cita,
                     veterinario=veterinario,
                     fecha_solicitada=fecha_hora_dt.date(),
                     fecha_hora=fecha_hora_dt,
                     notas=notas,
+                    sucursal=sucursal,
                     estado="programada",
                 )
                 nombre_vet = veterinario.get_full_name() or veterinario.username
@@ -1743,8 +1641,9 @@ def agendar_cita_admin(request):
             "mascotas": mascotas,
             "veterinarios": veterinarios,
             "paciente_seleccionado": paciente_seleccionado,
-            "sucursales": sucursales,
+            "sucursales": sucursales_disponibles,
             "sucursal_seleccionada": sucursal_seleccionada,
+            "es_superadmin": request.user.is_superuser,
         },
     )
 
@@ -1901,29 +1800,21 @@ def detalle_propietario(request, propietario_id):
         messages.error(request, "No tienes permiso para esta acción.")
         return redirect("dashboard")
 
-    sucursal = _sucursal_para_usuario(request.user)
-    if request.user.rol in {"ADMIN", "ADMIN_OP"} and not request.user.is_superuser and sucursal is None:
-        messages.error(
-            request,
-            "Tu usuario necesita una sucursal asignada para revisar la ficha del propietario.",
-        )
-        return redirect("dashboard")
-
     propietario = get_object_or_404(Propietario, id=propietario_id)
     mascotas = Paciente.objects.filter(propietario=propietario)
     citas = Cita.objects.filter(paciente__in=mascotas)
-    if sucursal is not None:
-        citas = citas.filter(sucursal=sucursal)
+    if not request.user.is_superuser:
+        citas = citas.filter(sucursal_id=getattr(request.user, "sucursal_id", None))
+        mascotas = mascotas.filter(cita__sucursal_id=getattr(request.user, "sucursal_id", None)).distinct()
     citas = citas.order_by("-fecha_solicitada", "-fecha_hora")
     citas_pendientes = citas.filter(estado="pendiente").order_by(
         "fecha_solicitada", "fecha_hora"
     )
     informes = HistorialMedico.objects.filter(paciente__in=mascotas)
-    if sucursal is not None:
+    if not request.user.is_superuser:
         informes = informes.filter(
-            Q(cita__sucursal=sucursal)
-            | Q(cita__isnull=True, paciente__cita__sucursal=sucursal)
-        )
+            paciente__cita__sucursal_id=getattr(request.user, "sucursal_id", None)
+        ).distinct()
 
     return render(
         request,
@@ -1944,35 +1835,53 @@ def gestionar_veterinarios(request):
         messages.error(request, "No tienes permiso para gestionar veterinarios.")
         return redirect("dashboard")
 
-    sucursal = _sucursal_para_usuario(request.user)
-    if not request.user.is_superuser and sucursal is None:
-        messages.error(
-            request,
-            "Tu usuario necesita una sucursal asignada para gestionar el equipo médico.",
-        )
-        return redirect("dashboard")
-
     usuarios_no_vet = User.objects.exclude(rol="VET")
-    if sucursal is not None:
-        usuarios_no_vet = usuarios_no_vet.filter(
-            Q(sucursal=sucursal) | Q(sucursal__isnull=True)
-        )
-    usuarios_no_vet = usuarios_no_vet.order_by("username")
+    if not request.user.is_superuser:
+        sucursal_admin = getattr(request.user, "sucursal", None)
+        if sucursal_admin is None:
+            messages.warning(
+                request,
+                "Asigna una sucursal a tu perfil para administrar veterinarios.",
+            )
+            usuarios_no_vet = usuarios_no_vet.none()
+        else:
+            usuarios_no_vet = usuarios_no_vet.filter(
+                Q(sucursal=sucursal_admin) | Q(sucursal__isnull=True)
+            )
+
+    sucursales = list(_sucursales_para_usuario(request.user))
 
     if request.method == "POST":
         user_id = request.POST.get("usuario")
+        sucursal_id = request.POST.get("sucursal")
         usuario = get_object_or_404(User, id=user_id)
+
+        if request.user.is_superuser:
+            sucursal = get_object_or_404(Sucursal, id=sucursal_id)
+        else:
+            sucursal = getattr(request.user, "sucursal", None)
+            if sucursal is None or (
+                sucursal_id and str(sucursal.id) != str(sucursal_id)
+            ):
+                messages.error(
+                    request,
+                    "No tienes permiso para asignar usuarios a esa sucursal.",
+                )
+                return redirect("gestionar_veterinarios")
+
         usuario.rol = "VET"
-        if sucursal is not None:
-            usuario.sucursal = sucursal
-        usuario.save(update_fields=["rol", "sucursal"] if sucursal is not None else ["rol"])
-        messages.success(request, f"{usuario.get_full_name()} ahora es Veterinario ✅")
+        usuario.sucursal = sucursal
+        usuario.save(update_fields=["rol", "sucursal"])
+        messages.success(
+            request,
+            f"{usuario.get_full_name() or usuario.username} ahora es Veterinario en {sucursal.nombre} ✅",
+        )
         return redirect("gestionar_veterinarios")
 
     return render(
         request,
         "core/asignar_veterinario_admin.html",
-        {"usuarios": usuarios_no_vet},
+        {"usuarios": usuarios_no_vet, "sucursales": sucursales, "es_superadmin": request.user.is_superuser},
     )
 
 
@@ -1981,21 +1890,17 @@ def dashboard_veterinarios(request):
     if request.user.rol != "ADMIN":
         return redirect("dashboard")
 
-    sucursal = _sucursal_para_usuario(request.user)
-    if not request.user.is_superuser and sucursal is None:
-        messages.error(
-            request,
-            "Tu usuario necesita una sucursal asignada para acceder al tablero del equipo médico.",
-        )
-        return redirect("dashboard")
+    veterinarios = _filtrar_por_sucursal(
+        User.objects.filter(rol="VET").order_by("first_name", "last_name"),
+        request.user,
+    )
 
-    citas_qs = _citas_por_sucursal(request.user)
-    veterinarios = _veterinarios_activos(sucursal)
+    citas_base = _filtrar_por_sucursal(Cita.objects.all(), request.user)
 
-    total_pendientes = citas_qs.filter(estado="pendiente").count()
-    total_programadas = citas_qs.filter(estado="programada").count()
-    total_atendidas = citas_qs.filter(estado="atendida").count()
-    total_canceladas = citas_qs.filter(estado="cancelada").count()
+    total_pendientes = citas_base.filter(estado="pendiente").count()
+    total_programadas = citas_base.filter(estado="programada").count()
+    total_atendidas = citas_base.filter(estado="atendida").count()
+    total_canceladas = citas_base.filter(estado="cancelada").count()
 
     citas_en_proceso = total_pendientes + total_programadas
     tasa_cumplimiento = 0
@@ -2008,7 +1913,7 @@ def dashboard_veterinarios(request):
     fin_semana = ahora + timedelta(days=7)
 
     citas_equipo_semana = (
-        citas_qs.filter(
+        citas_base.filter(
             estado="programada",
             fecha_hora__isnull=False,
             fecha_hora__gte=ahora,
@@ -2020,21 +1925,21 @@ def dashboard_veterinarios(request):
 
     proximos_turnos_equipo = citas_equipo_semana[:6]
     solicitudes_recientes = (
-        citas_qs.filter(estado="pendiente")
+        citas_base.filter(estado="pendiente")
         .select_related("paciente", "paciente__propietario__user")
         .order_by("fecha_solicitada")[:5]
     )
 
     total_semana = citas_equipo_semana.count()
     citas_hoy_total = (
-        citas_qs.filter(
+        citas_base.filter(
             estado="programada",
             fecha_hora__date=ahora.date(),
         )
         .exclude(fecha_hora__isnull=True)
         .count()
     )
-    citas_sin_horario_total = citas_qs.filter(
+    citas_sin_horario_total = citas_base.filter(
         estado="programada", fecha_hora__isnull=True
     ).count()
 
@@ -2058,28 +1963,28 @@ def dashboard_veterinarios(request):
 
     vet_stats = []
     for vet in veterinarios:
-        citas_totales = citas_qs.filter(veterinario=vet).count()
-        citas_programadas = citas_qs.filter(
+        citas_totales = citas_base.filter(veterinario=vet).count()
+        citas_programadas = citas_base.filter(
             veterinario=vet, estado="programada"
         ).count()
-        citas_pendientes = citas_qs.filter(
+        citas_pendientes = citas_base.filter(
             veterinario=vet, estado="pendiente"
         ).count()
-        citas_atendidas = citas_qs.filter(
+        citas_atendidas = citas_base.filter(
             veterinario=vet, estado="atendida"
         ).count()
-        citas_canceladas = citas_qs.filter(
+        citas_canceladas = citas_base.filter(
             veterinario=vet, estado="cancelada"
         ).count()
 
         proximas_confirmadas = (
-            citas_qs.filter(
+            citas_base.filter(
                 veterinario=vet, estado="programada", fecha_hora__isnull=False
             )
             .order_by("fecha_hora")[:5]
         )
         proximas_sin_horario = (
-            citas_qs.filter(
+            citas_base.filter(
                 veterinario=vet, estado="programada", fecha_hora__isnull=True
             )
             .order_by("fecha_solicitada")[:5]
@@ -2100,7 +2005,7 @@ def dashboard_veterinarios(request):
                 (citas_atendidas / (citas_programadas + citas_atendidas)) * 100
             )
 
-        citas_semana_vet = citas_qs.filter(
+        citas_semana_vet = citas_base.filter(
             veterinario=vet,
             estado="programada",
             fecha_hora__isnull=False,
@@ -2140,7 +2045,6 @@ def dashboard_veterinarios(request):
             "resumen": resumen_global,
             "proximos_turnos_equipo": proximos_turnos_equipo,
             "solicitudes_recientes": solicitudes_recientes,
-            "sucursal_activa": sucursal,
         },
     )
 
@@ -2155,25 +2059,13 @@ def dashboard_veterinarios_indicadores(request):
     inicio_periodo = (ahora - timedelta(days=29)).date()
     fin_periodo = ahora.date()
 
-    sucursal = _sucursal_para_usuario(request.user)
-    if request.user.rol in {"ADMIN", "ADMIN_OP"} and not request.user.is_superuser and sucursal is None:
-        messages.error(
-            request,
-            "Tu usuario necesita una sucursal asignada para consultar estos indicadores.",
-        )
-        return redirect("dashboard")
+    citas_totales = _filtrar_por_sucursal(Cita.objects.all(), request.user)
 
     citas_periodo = (
-        _citas_por_sucursal(request.user)
-        .filter(fecha_solicitada__gte=inicio_periodo)
+        citas_totales.filter(fecha_solicitada__gte=inicio_periodo)
         .select_related("paciente", "paciente__propietario__user", "veterinario")
         .order_by("-fecha_solicitada")
     )
-
-    if request.user.rol == "VET" and not request.user.is_superuser:
-        citas_periodo = citas_periodo.filter(
-            Q(veterinario=request.user) | Q(veterinario__isnull=True)
-        )
 
     total_periodo = citas_periodo.count()
     total_pendientes = citas_periodo.filter(estado="pendiente").count()
@@ -2213,14 +2105,14 @@ def dashboard_veterinarios_indicadores(request):
             {
                 "fecha": dia,
                 "label": dia.strftime("%d/%m"),
-                "solicitadas": citas_periodo.filter(fecha_solicitada=dia).count(),
-                "programadas": citas_periodo.filter(
+                "solicitadas": citas_totales.filter(fecha_solicitada=dia).count(),
+                "programadas": citas_totales.filter(
                     estado="programada", fecha_hora__date=dia
                 ).count(),
-                "atendidas": citas_periodo.filter(
+                "atendidas": citas_totales.filter(
                     estado="atendida", fecha_hora__date=dia
                 ).count(),
-                "canceladas": citas_periodo.filter(
+                "canceladas": citas_totales.filter(
                     estado="cancelada", fecha_hora__date=dia
                 ).count(),
             }
@@ -2264,7 +2156,7 @@ def dashboard_veterinarios_indicadores(request):
     )
 
     agenda_semana = (
-        citas_periodo.filter(
+        citas_totales.filter(
             estado="programada",
             fecha_hora__isnull=False,
             fecha_hora__date__gte=fin_periodo,
@@ -2296,7 +2188,6 @@ def dashboard_veterinarios_indicadores(request):
         "veterinarios_performance": veterinarios_performance,
         "propietarios_top": propietarios_top,
         "agenda_semana": agenda_semana,
-        "sucursal_activa": sucursal,
     }
 
     return render(
@@ -2322,22 +2213,6 @@ def historial_medico_vet(request):
         "veterinario",
         "cita",
     )
-
-    sucursal = _sucursal_para_usuario(request.user)
-    if request.user.rol == "ADMIN" and not request.user.is_superuser and sucursal is None:
-        messages.error(
-            request,
-            "Tu usuario necesita una sucursal asignada para revisar los historiales clínicos.",
-        )
-        return redirect("dashboard")
-
-    if request.user.rol == "VET":
-        historiales = historiales.filter(veterinario=request.user)
-    elif sucursal is not None:
-        historiales = historiales.filter(
-            Q(cita__sucursal=sucursal)
-            | Q(cita__isnull=True, paciente__cita__sucursal=sucursal)
-        )
 
     if query:
         historiales = historiales.filter(
@@ -2418,39 +2293,6 @@ def historial_medico_vet(request):
 @login_required
 def detalle_historial(request, historial_id):
     historial = get_object_or_404(HistorialMedico, id=historial_id)
-
-    if request.user.rol == "OWNER" and historial.paciente.propietario.user != request.user:
-        messages.error(request, "No tienes permiso para ver este historial.")
-        return redirect("dashboard")
-
-    sucursal_usuario = _sucursal_para_usuario(request.user)
-    cita = getattr(historial, "cita", None)
-    sucursal_historial = getattr(cita, "sucursal", None)
-
-    if request.user.rol in {"ADMIN", "ADMIN_OP"} and not request.user.is_superuser:
-        if sucursal_usuario is None or (
-            sucursal_historial is not None
-            and sucursal_historial.id != getattr(sucursal_usuario, "id", None)
-        ):
-            messages.error(
-                request,
-                "Solo puedes acceder a historiales asociados a tu sucursal.",
-            )
-            return redirect("historial_medico_vet")
-
-    if request.user.rol == "VET":
-        if historial.veterinario_id and historial.veterinario_id != request.user.id:
-            if (
-                not request.user.is_superuser
-                and getattr(request.user, "sucursal_id", None)
-                != getattr(sucursal_historial, "id", None)
-            ):
-                messages.error(
-                    request,
-                    "Solo puedes revisar historiales atendidos por ti o tu sucursal.",
-                )
-                return redirect("historial_medico_vet")
-
     return render(request, "core/detalle_historial.html", {"historial": historial})
 
 

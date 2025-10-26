@@ -118,7 +118,7 @@
                     <option value="" disabled {% if not sucursal_seleccionada %}selected{% endif %}>Selecciona una sucursal</option>
                     {% for sucursal in sucursales %}
                         <option value="{{ sucursal.id }}" {% if sucursal_seleccionada and sucursal_seleccionada.id == sucursal.id %}selected{% endif %}>
-                            {{ sucursal.nombre }} — {{ sucursal.direccion }}
+                            {{ sucursal.nombre }} · {{ sucursal.direccion }}
                         </option>
                     {% endfor %}
                 </select>
@@ -135,7 +135,7 @@
 
             <div>
                 <label for="notas">Notas</label>
-                <textarea name="notas" id="notas">{{ request.POST.notas }}</textarea>
+                <textarea name="notas" id="notas"></textarea>
             </div>
 
             <button type="submit">Agendar cita</button>

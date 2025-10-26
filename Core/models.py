@@ -6,9 +6,13 @@ from django.db import models
 from django.utils import timezone
 
 
+# ----------------------------
+# Sucursal
+# ----------------------------
 class Sucursal(models.Model):
-    nombre = models.CharField(max_length=120, unique=True)
+    nombre = models.CharField(max_length=150, unique=True)
     direccion = models.CharField(max_length=255)
+    ciudad = models.CharField(max_length=120, blank=True)
     telefono = models.CharField(max_length=30, blank=True)
 
     class Meta:
@@ -90,19 +94,17 @@ class Cita(models.Model):
         ("cirugia", "Cirugía"),
     )
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
-    sucursal = models.ForeignKey(
-        Sucursal,
-        on_delete=models.PROTECT,
-        related_name="citas",
-        null=True,
-        blank=True,
-    )
     veterinario = models.ForeignKey(
         User,
         limit_choices_to={"rol": "VET"},
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
+    )
+    sucursal = models.ForeignKey(
+        Sucursal,
+        on_delete=models.PROTECT,
+        related_name="citas",
     )
     fecha_solicitada = models.DateField(default=timezone.now)
     fecha_hora = models.DateTimeField(blank=True, null=True)
@@ -115,6 +117,7 @@ class Cita(models.Model):
         veterinario_nombre = (
             self.veterinario.username if self.veterinario else "Sin asignar"
         )
+        sucursal_nombre = self.sucursal.nombre if self.sucursal_id else "Sin sucursal"
         if self.fecha_hora:
             fecha_local = self.fecha_hora
             if timezone.is_aware(self.fecha_hora):
@@ -123,8 +126,8 @@ class Cita(models.Model):
         else:
             fecha_texto = f"{self.fecha_solicitada.strftime('%d/%m/%Y')} (sin horario)"
         return (
-            f"Cita: {self.paciente.nombre} ({self.get_estado_display()}) con {veterinario_nombre} - "
-            f"{fecha_texto}"
+            f"Cita: {self.paciente.nombre} ({self.get_estado_display()}) en {sucursal_nombre} "
+            f"con {veterinario_nombre} - {fecha_texto}"
         )
 
     def telefono_contacto(self) -> str:

@@ -20,15 +20,8 @@ from .models import (
 class UserAdmin(admin.ModelAdmin):
     form = UserAdminForm
     add_form = UserAdminForm
-    list_display = (
-        "username",
-        "rol",
-        "sucursal",
-        "email",
-        "is_active",
-        "especialidad",
-    )
-    list_filter = ("rol", "is_active", "activo", "sucursal")
+    list_display = ("username", "rol", "sucursal", "email", "is_active", "especialidad")
+    list_filter = ("rol", "sucursal", "is_active", "activo")
     search_fields = ("username", "email", "rol", "sucursal__nombre")
     readonly_fields = ("last_login", "date_joined")
     fieldsets = (
@@ -56,8 +49,8 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(Sucursal)
 class SucursalAdmin(admin.ModelAdmin):
-    list_display = ("nombre", "direccion", "telefono")
-    search_fields = ("nombre", "direccion", "telefono")
+    list_display = ("nombre", "direccion", "ciudad", "telefono")
+    search_fields = ("nombre", "direccion", "ciudad")
 
 # ----------------------------
 # Admin de Propietario
@@ -93,9 +86,21 @@ class PacienteAdmin(admin.ModelAdmin):
 # ----------------------------
 @admin.register(Cita)
 class CitaAdmin(admin.ModelAdmin):
-    list_display = ("paciente", "veterinario", "fecha_solicitada", "fecha_hora", "tipo", "estado")
-    list_filter = ("estado", "tipo")
-    search_fields = ("paciente__nombre", "veterinario__username")
+    list_display = (
+        "paciente",
+        "sucursal",
+        "veterinario",
+        "fecha_solicitada",
+        "fecha_hora",
+        "tipo",
+        "estado",
+    )
+    list_filter = ("sucursal", "estado", "tipo")
+    search_fields = (
+        "paciente__nombre",
+        "veterinario__username",
+        "sucursal__nombre",
+    )
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
