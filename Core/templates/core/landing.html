@@ -2,6 +2,14 @@
 {% block title %}Bienvenido - Veterinaria Sabueso Feliz{% endblock %}
 
 {% block content %}
+{% if citas_migracion_pendiente %}
+<div class="alert alert-warning d-flex align-items-center gap-2 shadow-sm" role="alert">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <div>
+        Hay migraciones pendientes para las citas. Ejecuta <code>python manage.py migrate</code> para habilitar la gestión por sucursales.
+    </div>
+</div>
+{% endif %}
 <section class="position-relative overflow-hidden rounded-4 mb-5 shadow-lg">
     <div class="position-absolute top-0 start-0 w-100 h-100" style="background: radial-gradient(circle at top left, rgba(255,255,255,0.25), transparent 55%), radial-gradient(circle at bottom right, rgba(52,211,153,0.2), transparent 45%), linear-gradient(120deg, rgba(78,84,200,0.92), rgba(143,148,251,0.95));"></div>
     <div class="position-relative px-4 px-lg-5 py-5">

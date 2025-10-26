@@ -56,6 +56,32 @@ def _normalizar_especie_mascota(especie: str) -> str:
     return ""
 
 
+def _citas_table_ready() -> bool:
+    """Return True when the citas table exists and includes the sucursal field."""
+
+    table_name = Cita._meta.db_table
+    try:
+        tables = connection.introspection.table_names()
+    except (OperationalError, ProgrammingError):
+        return False
+
+    if table_name not in tables:
+        return False
+
+    try:
+        with connection.cursor() as cursor:
+            columnas = {
+                column.name
+                for column in connection.introspection.get_table_description(
+                    cursor, table_name
+                )
+            }
+    except (OperationalError, ProgrammingError):
+        return False
+
+    return "sucursal_id" in columnas
+
+
 def _sucursal_para_usuario(user):
     if user.is_superuser:
         return None
@@ -70,6 +96,9 @@ def _veterinarios_activos(sucursal=None):
 
 
 def _citas_por_sucursal(user):
+    if not _citas_table_ready():
+        return Cita.objects.none()
+
     queryset = Cita.objects.select_related(
         "paciente",
         "paciente__propietario__user",
@@ -96,15 +125,29 @@ def landing(request):
         productos_destacados = Producto.objects.filter(disponible=True)[:6]
         total_productos = Producto.objects.filter(disponible=True).count()
 
-    citas_programadas = Cita.objects.filter(estado="programada").exclude(
-        fecha_hora__isnull=True
-    )
-    cita_proxima = (
-        citas_programadas.filter(fecha_hora__gte=timezone.now())
-        .order_by("fecha_hora")
-        .select_related("paciente", "veterinario", "paciente__propietario__user")
-        .first()
-    )
+    citas_programadas = Cita.objects.none()
+    cita_proxima = None
+    total_citas_programadas = 0
+    citas_tabla_disponible = _citas_table_ready()
+
+    if citas_tabla_disponible:
+        try:
+            citas_programadas = Cita.objects.filter(estado="programada").exclude(
+                fecha_hora__isnull=True
+            )
+            cita_proxima = (
+                citas_programadas.filter(fecha_hora__gte=timezone.now())
+                .order_by("fecha_hora")
+                .select_related(
+                    "paciente", "veterinario", "paciente__propietario__user"
+                )
+                .first()
+            )
+            total_citas_programadas = citas_programadas.count()
+        except (OperationalError, ProgrammingError):
+            citas_programadas = Cita.objects.none()
+            cita_proxima = None
+            total_citas_programadas = 0
 
     nombre_veterinario = ""
     nombre_propietario = ""
@@ -123,10 +166,11 @@ def landing(request):
         "total_propietarios": Propietario.objects.count(),
         "total_pacientes": Paciente.objects.count(),
         "total_veterinarios": User.objects.filter(rol="VET").count(),
-        "total_citas_programadas": citas_programadas.count(),
+        "total_citas_programadas": total_citas_programadas,
         "cita_proxima": cita_proxima,
         "cita_proxima_veterinario": nombre_veterinario,
         "cita_proxima_propietario": nombre_propietario,
+        "citas_migracion_pendiente": not citas_tabla_disponible,
     }
 
     return render(
