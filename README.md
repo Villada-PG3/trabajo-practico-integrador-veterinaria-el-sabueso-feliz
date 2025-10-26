@@ -118,10 +118,11 @@ Proyecto de uso educativo y académico.
 
 [<img src='https://cdn.jsdelivr.net/npm/simple-icons@3.0.1/icons/github.svg' alt='github' height='40'>](https://github.com/cromop1)  [<img src='https://cdn.jsdelivr.net/npm/simple-icons@3.0.1/icons/linkedin.svg' alt='linkedin' height='40'>](https://www.linkedin.com/in/bruno-segura-1967a0315/)  [<img src='https://cdn.jsdelivr.net/npm/simple-icons@3.0.1/icons/discord.svg' alt='discord' height='40'>](https://discord.gg/wCjHs37Xt6)  
 
-#### ⚙️ Programador en :
-<p align="center">
+### ⚙️ Programador en :
+<p align="left">
   <img src="https://skillicons.dev/icons?i=python,django,html,css,bootstrap,sqlite,git,github,vscode" />
 </p>
+
 
 ![GitHub stats](https://github-readme-stats.vercel.app/api?username=cromop1&show_icons=true)  
 
@@ -135,10 +136,11 @@ Proyecto de uso educativo y académico.
 
 [<img src='https://cdn.jsdelivr.net/npm/simple-icons@3.0.1/icons/github.svg' alt='github' height='40'>](https://github.com/zaaanaaa)  
 
-#### ⚙️ Programador en :
-<p align="center">
+### ⚙️ Programador en :
+<p align="left">
   <img src="https://skillicons.dev/icons?i=python,django,html,css,bootstrap,sqlite,git,github,vscode" />
 </p>
+
 
 ![GitHub stats](https://github-readme-stats.vercel.app/api?username=zaaanaaa&show_icons=true)  
 
@@ -153,10 +155,11 @@ Proyecto de uso educativo y académico.
 
 [<img src='https://cdn.jsdelivr.net/npm/simple-icons@3.0.1/icons/github.svg' alt='github' height='40'>](https://github.com/faculedesmaa)  
 
-#### ⚙️ Programador en :
-<p align="center">
+### ⚙️ Programador en :
+<p align="left">
   <img src="https://skillicons.dev/icons?i=python,django,html,css,bootstrap,sqlite,git,github,vscode" />
 </p>
+
 
 ![GitHub stats](https://github-readme-stats.vercel.app/api?username=faculedesmaa&show_icons=true)  
 
@@ -169,12 +172,13 @@ Proyecto de uso educativo y académico.
 
 [<img src='https://cdn.jsdelivr.net/npm/simple-icons@3.0.1/icons/github.svg' alt='github' height='40'>](https://github.com/Vago132)  
 
-#### ⚙️ Programador en :
-<p align="right">
+### ⚙️ Programador en :
+<p align="left">
   <img src="https://skillicons.dev/icons?i=python,django,html,css,bootstrap,sqlite,git,github,vscode" />
 </p>
 
 ![GitHub stats](https://github-readme-stats.vercel.app/api?username=Vago132&show_icons=true)  
+
 
 
 
