@@ -28,4 +28,4 @@ def bootstrap_related_profiles(sender, instance, created, **kwargs):
             },
         )
 
-#permiten que diferentes partes de una aplicación se comuniquen entre sí de forma desacoplada, ejecutando una acción en respuesta a un evento ocurrido en otra parte del código
+#permite que diferentes partes de una aplicación se comuniquen entre sí de forma desacoplada, ejecutando una acción en respuesta a un evento ocurrido en otra parte del código
