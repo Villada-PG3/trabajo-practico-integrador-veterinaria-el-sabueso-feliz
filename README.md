@@ -28,6 +28,16 @@
 ![Entorno](https://custom-icon-badges.demolab.com/badge/Entorno-Produccion-FD7E14.svg?logo=gear&logoColor=white)
 
 
+
+---
+# DIAGRAMA MMD
+
+<p align="center">
+  <img src="https://i.imgur.com/ZbOlUPF.png" width="100%" alt="Banner Proyecto Integrador 2025">
+</p>
+
+
+
 ---
 
 ## 🌐 Sitio web
@@ -178,6 +188,7 @@ Proyecto de uso educativo y académico.
 </p>
 
 ![GitHub stats](https://github-readme-stats.vercel.app/api?username=Vago132&show_icons=true)  
+
 
 
 
