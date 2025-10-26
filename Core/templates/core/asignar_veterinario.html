@@ -1,14 +1,12 @@
-<!-- core/templates/core/asignar_veterinario.html -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Asignar Veterinario</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
-<div class="container mt-4">
-    <h2 class="fw-bold">Asignar Veterinario</h2>
+{% extends "core/base.html" %}
+
+{% block title %}Asignar Veterinario{% endblock %}
+
+{% block main_class %}container my-5{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-3xl bg-white p-5 p-md-6 rounded-3xl shadow-sm border border-slate-200">
+    <h2 class="fw-bold mb-3">Asignar Veterinario</h2>
     <p class="text-muted mb-3">
         Cita solicitada para <strong>{{ cita.paciente.nombre }}</strong> el
         <strong>{{ cita.fecha_solicitada|date:"d/m/Y" }}</strong>
@@ -19,28 +17,36 @@
         {% endif %}
         (estado: {{ cita.get_estado_display }})
     </p>
+
     {% with telefono=cita.telefono_contacto %}
         {% if telefono %}
-            <a href="https://wa.me/{{ telefono }}?text={{ cita.mensaje_whatsapp|urlencode }}" target="_blank" class="btn btn-success btn-sm mb-3">
+            <a href="https://wa.me/{{ telefono }}?text={{ cita.mensaje_whatsapp|urlencode }}"
+               target="_blank" class="btn btn-success btn-sm mb-3">
                 Contactar por WhatsApp
             </a>
         {% endif %}
     {% endwith %}
+
     {% if messages %}
         {% for message in messages %}
-            <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-warning{% endif %} mt-3">{{ message }}</div>
+            <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-warning{% endif %} mt-3">
+                {{ message }}
+            </div>
         {% endfor %}
     {% endif %}
-    <form method="POST">
+
+    <form method="POST" class="mt-4">
         {% csrf_token %}
         <div class="row">
             <div class="col-md-6 mb-3">
                 <label for="fecha" class="form-label">Fecha confirmada</label>
-                <input type="date" name="fecha" id="fecha" class="form-control" value="{{ cita.fecha_hora|date:'Y-m-d'|default:cita.fecha_solicitada|date:'Y-m-d' }}" required>
+                <input type="date" name="fecha" id="fecha" class="form-control"
+                       value="{{ cita.fecha_hora|date:'Y-m-d'|default:cita.fecha_solicitada|date:'Y-m-d' }}" required>
             </div>
             <div class="col-md-6 mb-3">
                 <label for="hora" class="form-label">Hora confirmada</label>
-                <input type="time" name="hora" id="hora" class="form-control" value="{{ cita.fecha_hora|date:'H:i' }}" required>
+                <input type="time" name="hora" id="hora" class="form-control"
+                       value="{{ cita.fecha_hora|date:'H:i' }}" required>
             </div>
         </div>
         <div class="mb-3">
@@ -59,5 +65,4 @@
         </div>
     </form>
 </div>
-</body>
-</html>
+{% endblock %}
