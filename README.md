@@ -114,6 +114,7 @@ Proyecto de uso educativo y académico.
 # 🔶 BRUNO SEGURA
 
 
+<img src="https://img.shields.io/badge/ITSV-Instituto%20Villada-004AAD?style=for-the-badge&logo=book&logoColor=white">
 
 [<img src='https://cdn.jsdelivr.net/npm/simple-icons@3.0.1/icons/github.svg' alt='github' height='40'>](https://github.com/cromop1)  [<img src='https://cdn.jsdelivr.net/npm/simple-icons@3.0.1/icons/linkedin.svg' alt='linkedin' height='40'>](https://www.linkedin.com/in/bruno-segura-1967a0315/)  [<img src='https://cdn.jsdelivr.net/npm/simple-icons@3.0.1/icons/discord.svg' alt='discord' height='40'>](https://discord.gg/wCjHs37Xt6)  
 
@@ -127,7 +128,7 @@ Proyecto de uso educativo y académico.
 
 # 🔶 Enzo Secchi
 
-
+<img src="https://img.shields.io/badge/ITSV-Instituto%20Villada-004AAD?style=for-the-badge&logo=book&logoColor=white">
 
 [<img src='https://cdn.jsdelivr.net/npm/simple-icons@3.0.1/icons/github.svg' alt='github' height='40'>](https://github.com/zaaanaaa)  
 
@@ -141,6 +142,7 @@ Proyecto de uso educativo y académico.
 
 # 🔶 Facundo Ledesma
 
+<img src="https://img.shields.io/badge/ITSV-Instituto%20Villada-004AAD?style=for-the-badge&logo=book&logoColor=white">
 
 
 [<img src='https://cdn.jsdelivr.net/npm/simple-icons@3.0.1/icons/github.svg' alt='github' height='40'>](https://github.com/faculedesmaa)  
@@ -153,6 +155,7 @@ Proyecto de uso educativo y académico.
 
 # 🔶 Ignacio Vago
 
+<img src="https://img.shields.io/badge/ITSV-Instituto%20Villada-004AAD?style=for-the-badge&logo=book&logoColor=white">
 
 
 [<img src='https://cdn.jsdelivr.net/npm/simple-icons@3.0.1/icons/github.svg' alt='github' height='40'>](https://github.com/Vago132)  
@@ -161,6 +164,7 @@ Proyecto de uso educativo y académico.
 [![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=Vago132)](https://github.com/anuraghazra/github-readme-stats)
 
 ![GitHub stats](https://github-readme-stats.vercel.app/api?username=Vago132&show_icons=true)  
+
 
 
 
