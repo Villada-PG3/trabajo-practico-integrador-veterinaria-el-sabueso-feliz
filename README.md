@@ -3,7 +3,7 @@
 
 
 <p align="center">
-  <img src="docs/banner.svg" width="100%" alt="Banner Proyecto Integrador 2025">
+  <img src="https://i.imgur.com/ceTZaQZ.jpeg" width="100%" alt="Banner Proyecto Integrador 2025">
 </p>
 
 
@@ -96,6 +96,7 @@ como parte del Proyecto Integrador 2025.
 ## Licencia
 Proyecto de uso educativo y académico.  
 © 2025 Sabueso Feliz – Todos los derechos reservados.
+
 
 
 
