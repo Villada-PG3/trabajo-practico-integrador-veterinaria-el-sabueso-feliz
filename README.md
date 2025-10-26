@@ -1,5 +1,19 @@
 # Veterinaria Sabueso Feliz
 
+
+
+<p align="center">
+  <img src="docs/banner.svg" width="100%" alt="Banner Proyecto Integrador 2025">
+</p>
+
+
+
+
+
+
+
+
+
 ![Python](https://custom-icon-badges.demolab.com/badge/Python-3.11-3776AB.svg?logo=python&logoColor=white)
 ![Django](https://custom-icon-badges.demolab.com/badge/Django-5.2-092E20.svg?logo=django&logoColor=white)
 ![SQLite](https://custom-icon-badges.demolab.com/badge/SQLite-Database-07405E.svg?logo=sqlite&logoColor=white)
@@ -82,6 +96,7 @@ como parte del Proyecto Integrador 2025.
 ## Licencia
 Proyecto de uso educativo y académico.  
 © 2025 Sabueso Feliz – Todos los derechos reservados.
+
 
 
 
