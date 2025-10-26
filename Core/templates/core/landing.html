@@ -2,28 +2,69 @@
 {% block title %}Bienvenido - Veterinaria Sabueso Feliz{% endblock %}
 
 {% block content %}
-<section class="position-relative overflow-hidden rounded-4 mb-5 shadow-lg" style="background: linear-gradient(120deg, rgba(78,84,200,0.9), rgba(143,148,251,0.95));">
-    <div class="row g-0 align-items-center px-4 px-lg-5 py-5">
-        <div class="col-lg-6 text-white">
-            <span class="badge bg-white text-primary mb-3 fw-semibold text-uppercase">Experiencia veterinaria integral</span>
-            <h1 class="display-4 fw-bold mb-3">Sabueso Feliz, bienestar en cada visita</h1>
-            <p class="lead mb-4 opacity-75">Centraliza la salud de tus mascotas, coordina citas con especialistas y descubre productos recomendados por nuestro equipo clínico.</p>
-            <div class="d-flex flex-wrap gap-3">
-                <a href="{% url 'registro_propietario' %}" class="btn btn-light btn-lg px-4 text-primary fw-bold"><i class="bi bi-heart-fill me-2"></i>Comenzar ahora</a>
-                <a href="{% url 'tienda' %}" class="btn btn-outline-light btn-lg px-4"><i class="bi bi-bag-heart me-2"></i>Explorar tienda</a>
-                <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg px-4"><i class="bi bi-speedometer me-2"></i>Ingresar al panel</a>
-                <a href="{% url 'contacto' %}" class="btn btn-outline-light btn-lg px-4"><i class="bi bi-telephone-outbound me-2"></i>Contactar</a>
-            </div>
-        </div>
-        <div class="col-lg-6 text-center mt-4 mt-lg-0">
-            <div class="bg-white rounded-4 shadow-lg p-3 position-relative">
-                <div class="ratio ratio-4x3 rounded-3 overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1576201836106-db1758fd1c97?auto=format&fit=crop&w=1200&q=80" class="w-100 h-100 object-fit-cover" alt="Equipo veterinario Sabueso Feliz">
+<section class="position-relative overflow-hidden rounded-4 mb-5 shadow-lg">
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: radial-gradient(circle at top left, rgba(255,255,255,0.25), transparent 55%), radial-gradient(circle at bottom right, rgba(52,211,153,0.2), transparent 45%), linear-gradient(120deg, rgba(78,84,200,0.92), rgba(143,148,251,0.95));"></div>
+    <div class="position-relative px-4 px-lg-5 py-5">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-6 text-white">
+                <span class="badge bg-white text-primary mb-3 fw-semibold text-uppercase">Experiencia veterinaria integral</span>
+                <h1 class="display-4 fw-bold mb-3">Sabueso Feliz, bienestar en cada visita</h1>
+                <p class="lead mb-4 opacity-75">Centraliza la salud de tus mascotas, coordina citas con especialistas y descubre productos recomendados por nuestro equipo clínico.</p>
+                <ul class="list-unstyled d-flex flex-column gap-3 mb-4">
+                    <li class="d-flex align-items-start gap-3">
+                        <span class="badge bg-success-subtle text-success rounded-pill">1</span>
+                        <span class="opacity-85">Agenda turnos confirmados por WhatsApp en pocos clics y recibe recordatorios automáticos.</span>
+                    </li>
+                    <li class="d-flex align-items-start gap-3">
+                        <span class="badge bg-info-subtle text-info rounded-pill">2</span>
+                        <span class="opacity-85">Accede a historiales médicos, vacunas y tratamientos desde cualquier dispositivo.</span>
+                    </li>
+                    <li class="d-flex align-items-start gap-3">
+                        <span class="badge bg-warning-subtle text-warning rounded-pill">3</span>
+                        <span class="opacity-85">Integra tus compras de la tienda con recomendaciones personalizadas de los veterinarios.</span>
+                    </li>
+                </ul>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="{% url 'registro_propietario' %}" class="btn btn-light btn-lg px-4 text-primary fw-bold"><i class="bi bi-heart-fill me-2"></i>Comenzar ahora</a>
+                    <a href="{% url 'tienda' %}" class="btn btn-outline-light btn-lg px-4"><i class="bi bi-bag-heart me-2"></i>Explorar tienda</a>
+                    <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg px-4"><i class="bi bi-speedometer me-2"></i>Ingresar al panel</a>
+                    <a href="{% url 'contacto' %}" class="btn btn-outline-light btn-lg px-4"><i class="bi bi-telephone-outbound me-2"></i>Contactar</a>
                 </div>
-                <div class="position-absolute top-100 start-0 translate-middle-y bg-primary text-white rounded-4 shadow px-4 py-3 d-none d-lg-flex flex-column align-items-start">
-                    <span class="fw-semibold text-uppercase small opacity-75">Satisfacción</span>
-                    <span class="fs-4 fw-bold">4.9/5</span>
-                    <span class="small opacity-75">Propietarios felices</span>
+            </div>
+            <div class="col-lg-6">
+                <div class="position-relative">
+                    <div class="bg-white rounded-4 shadow-lg p-3">
+                        <div class="ratio ratio-4x3 rounded-3 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1576201836106-db1758fd1c97?auto=format&fit=crop&w=1200&q=80" class="w-100 h-100 object-fit-cover" alt="Equipo veterinario Sabueso Feliz">
+                        </div>
+                    </div>
+                    <div class="position-absolute top-0 start-100 translate-middle bg-white rounded-4 shadow-lg p-3 d-none d-lg-block" style="width: 240px;">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                <i class="bi bi-heart-pulse-fill"></i>
+                            </div>
+                            <div>
+                                <p class="text-muted small mb-1">Calificación promedio</p>
+                                <p class="h5 mb-0 fw-bold">4.9/5</p>
+                            </div>
+                        </div>
+                        <p class="text-muted small mb-3">“El panel simplificó por completo la gestión de turnos y seguimientos.”</p>
+                        <div class="d-flex align-items-center gap-2">
+                            <img src="https://i.pravatar.cc/80?img=32" class="rounded-circle" width="32" height="32" alt="Avatar testimonio">
+                            <div>
+                                <p class="small fw-semibold mb-0">Dra. Camila Ríos</p>
+                                <span class="text-muted small">Veterinaria asociada</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="position-absolute bottom-0 start-50 translate-middle-x bg-primary text-white rounded-4 shadow p-4 d-none d-lg-flex flex-column gap-2" style="min-width: 260px;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-uppercase small opacity-75">Turno confirmado</span>
+                            <i class="bi bi-calendar2-check fs-5"></i>
+                        </div>
+                        <p class="fw-semibold mb-0">Lola · Consulta general</p>
+                        <span class="small opacity-75">Lunes 09:30 hs · Sala 2</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -32,10 +73,10 @@
 
 <section class="mb-5">
     <div class="row g-4">
-        <div class="col-6 col-lg-3">
-            <div class="card border-0 shadow-sm text-center h-100">
-                <div class="card-body py-4">
-                    <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center mb-3" style="width:64px;height:64px;">
+        <div class="col-sm-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body py-4 text-center">
+                    <div class="rounded-3 bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center mb-3" style="width:70px;height:70px;">
                         <i class="bi bi-people fs-4"></i>
                     </div>
                     <p class="text-muted text-uppercase small mb-1">Propietarios activos</p>
@@ -43,10 +84,10 @@
                 </div>
             </div>
         </div>
-        <div class="col-6 col-lg-3">
-            <div class="card border-0 shadow-sm text-center h-100">
-                <div class="card-body py-4">
-                    <div class="rounded-circle bg-success bg-opacity-10 text-success d-inline-flex align-items-center justify-content-center mb-3" style="width:64px;height:64px;">
+        <div class="col-sm-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body py-4 text-center">
+                    <div class="rounded-3 bg-success bg-opacity-10 text-success d-inline-flex align-items-center justify-content-center mb-3" style="width:70px;height:70px;">
                         <i class="bi bi-heart-pulse fs-4"></i>
                     </div>
                     <p class="text-muted text-uppercase small mb-1">Pacientes atendidos</p>
@@ -54,10 +95,10 @@
                 </div>
             </div>
         </div>
-        <div class="col-6 col-lg-3">
-            <div class="card border-0 shadow-sm text-center h-100">
-                <div class="card-body py-4">
-                    <div class="rounded-circle bg-warning bg-opacity-10 text-warning d-inline-flex align-items-center justify-content-center mb-3" style="width:64px;height:64px;">
+        <div class="col-sm-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body py-4 text-center">
+                    <div class="rounded-3 bg-warning bg-opacity-10 text-warning d-inline-flex align-items-center justify-content-center mb-3" style="width:70px;height:70px;">
                         <i class="bi bi-calendar2-check fs-4"></i>
                     </div>
                     <p class="text-muted text-uppercase small mb-1">Citas programadas</p>
@@ -65,10 +106,10 @@
                 </div>
             </div>
         </div>
-        <div class="col-6 col-lg-3">
-            <div class="card border-0 shadow-sm text-center h-100">
-                <div class="card-body py-4">
-                    <div class="rounded-circle bg-info bg-opacity-10 text-info d-inline-flex align-items-center justify-content-center mb-3" style="width:64px;height:64px;">
+        <div class="col-sm-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body py-4 text-center">
+                    <div class="rounded-3 bg-info bg-opacity-10 text-info d-inline-flex align-items-center justify-content-center mb-3" style="width:70px;height:70px;">
                         <i class="bi bi-person-badge fs-4"></i>
                     </div>
                     <p class="text-muted text-uppercase small mb-1">Veterinarios aliados</p>
@@ -81,42 +122,104 @@
 
 <section class="mb-5">
     <div class="row g-4">
-        <div class="col-md-4">
+        <div class="col-lg-4">
             <div class="card h-100 border-0 shadow-sm">
                 <div class="card-body p-4">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="rounded-circle bg-primary bg-opacity-10 text-primary p-3 me-3">
-                            <i class="bi bi-calendar-week fs-4"></i>
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="rounded-circle bg-primary-subtle text-primary p-3">
+                            <i class="bi bi-phone-vibrate fs-4"></i>
                         </div>
-                        <h5 class="card-title mb-0">Solicita en segundos</h5>
+                        <h5 class="card-title mb-0">Gestión omnicanal</h5>
                     </div>
-                    <p class="card-text text-muted">Elige el día que mejor se adapta a tu agenda y nuestro equipo te contactará para confirmar la hora perfecta.</p>
+                    <p class="text-muted mb-3">Confirma turnos por WhatsApp, email o panel web con notificaciones automáticas para propietarios y veterinarios.</p>
+                    <div class="d-flex align-items-center gap-2 text-muted small">
+                        <i class="bi bi-clock-history"></i>
+                        <span>Recordatorios 24&nbsp;hs antes de cada cita</span>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-lg-4">
             <div class="card h-100 border-0 shadow-sm">
                 <div class="card-body p-4">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="rounded-circle bg-success bg-opacity-10 text-success p-3 me-3">
-                            <i class="bi bi-chat-dots fs-4"></i>
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="rounded-circle bg-success-subtle text-success p-3">
+                            <i class="bi bi-clipboard2-pulse fs-4"></i>
                         </div>
-                        <h5 class="card-title mb-0">Coordinación directa</h5>
+                        <h5 class="card-title mb-0">Historias clínicas conectadas</h5>
                     </div>
-                    <p class="card-text text-muted">Recibe confirmaciones por WhatsApp y mantén el historial clínico actualizado desde cualquier dispositivo.</p>
+                    <p class="text-muted mb-3">Registra diagnósticos, vacunas y seguimientos para cada mascota con adjuntos y recomendaciones.</p>
+                    <div class="d-flex align-items-center gap-2 text-muted small">
+                        <i class="bi bi-cloud-arrow-up"></i>
+                        <span>Actualizaciones en tiempo real para propietarios</span>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-lg-4">
             <div class="card h-100 border-0 shadow-sm">
                 <div class="card-body p-4">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="rounded-circle bg-warning bg-opacity-10 text-warning p-3 me-3">
-                            <i class="bi bi-award fs-4"></i>
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="rounded-circle bg-warning-subtle text-warning p-3">
+                            <i class="bi bi-cart-check fs-4"></i>
                         </div>
-                        <h5 class="card-title mb-0">Seguimiento profesional</h5>
+                        <h5 class="card-title mb-0">Recomendaciones inteligentes</h5>
                     </div>
-                    <p class="card-text text-muted">Nuestros veterinarios registran diagnósticos, tratamientos y recomendaciones personalizadas para cada paciente.</p>
+                    <p class="text-muted mb-3">Comparte productos de la tienda alineados con los tratamientos y recibe estadísticas de satisfacción.</p>
+                    <div class="d-flex align-items-center gap-2 text-muted small">
+                        <i class="bi bi-graph-up-arrow"></i>
+                        <span>Informes mensuales de fidelidad</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="mb-5">
+    <div class="row g-4 align-items-stretch">
+        <div class="col-lg-5">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body p-4 p-lg-5 d-flex flex-column justify-content-center">
+                    <span class="badge bg-primary-subtle text-primary fw-semibold text-uppercase mb-3">Tu recorrido en Sabueso Feliz</span>
+                    <h3 class="fw-bold mb-3">Un flujo diseñado para tu equipo y tus mascotas</h3>
+                    <p class="text-muted mb-4">Implementa Sabueso Feliz en horas y ofrece una experiencia cuidada de punta a punta, desde la reserva hasta el seguimiento post consulta.</p>
+                    <a href="{% url 'agendar_cita' %}" class="btn btn-primary px-4 align-self-start"><i class="bi bi-calendar-plus me-2"></i>Agendar primera cita</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-7">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body p-4 p-lg-5">
+                    <div class="timeline">
+                        <div class="d-flex gap-4 mb-4">
+                            <div class="flex-shrink-0">
+                                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width:44px;height:44px;">1</div>
+                            </div>
+                            <div>
+                                <h6 class="fw-semibold mb-1">Reserva sin fricción</h6>
+                                <p class="text-muted mb-0">Solicita un turno, adjunta notas y visualiza disponibilidad en un panel unificado.</p>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-4 mb-4">
+                            <div class="flex-shrink-0">
+                                <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" style="width:44px;height:44px;">2</div>
+                            </div>
+                            <div>
+                                <h6 class="fw-semibold mb-1">Atención coordinada</h6>
+                                <p class="text-muted mb-0">Los veterinarios actualizan el historial clínico y comparten recomendaciones personalizadas.</p>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-4">
+                            <div class="flex-shrink-0">
+                                <div class="rounded-circle bg-warning text-dark d-flex align-items-center justify-content-center" style="width:44px;height:44px;">3</div>
+                            </div>
+                            <div>
+                                <h6 class="fw-semibold mb-1">Seguimiento continuo</h6>
+                                <p class="text-muted mb-0">Recibe recordatorios de vacunas, compras sugeridas y métricas de satisfacción para tu equipo.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -203,7 +306,7 @@
 {% endif %}
 
 <section class="my-5">
-    <div class="row g-4">
+    <div class="row g-4 align-items-stretch">
         <div class="col-lg-4">
             <div class="card h-100 border-0 shadow-sm">
                 <div class="card-body p-4">
@@ -241,6 +344,59 @@
                     <p class="text-muted flex-grow-1">“Puedo pedir turnos para mis dos perros en minutos y siempre encuentro productos recomendados por el mismo equipo que los atiende.”</p>
                     <p class="fw-semibold mb-0">Lucía Fernández</p>
                     <span class="text-muted small">Propietaria de mascotas</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="mb-5">
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4 p-lg-5">
+            <div class="row g-4 align-items-center">
+                <div class="col-lg-6">
+                    <h3 class="fw-bold mb-3">Preguntas frecuentes</h3>
+                    <p class="text-muted mb-0">Resolvemos las dudas más comunes sobre nuestra plataforma para que puedas comenzar sin fricciones.</p>
+                </div>
+                <div class="col-lg-6">
+                    <div class="accordion" id="faqSabueso">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="faqUno">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faqUnoContenido" aria-expanded="true" aria-controls="faqUnoContenido">
+                                    ¿Cómo gestiono múltiples mascotas por propietario?
+                                </button>
+                            </h2>
+                            <div id="faqUnoContenido" class="accordion-collapse collapse show" aria-labelledby="faqUno" data-bs-parent="#faqSabueso">
+                                <div class="accordion-body text-muted">
+                                    Cada propietario puede registrar todas sus mascotas y asignarlas a citas individuales, con historiales, vacunas y seguimiento independiente.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="faqDos">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqDosContenido" aria-expanded="false" aria-controls="faqDosContenido">
+                                    ¿Puedo personalizar los recordatorios?
+                                </button>
+                            </h2>
+                            <div id="faqDosContenido" class="accordion-collapse collapse" aria-labelledby="faqDos" data-bs-parent="#faqSabueso">
+                                <div class="accordion-body text-muted">
+                                    Sí. Define cuándo se envían los mensajes, agrega notas internas para el equipo y elige los canales de notificación que prefieras.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="faqTres">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqTresContenido" aria-expanded="false" aria-controls="faqTresContenido">
+                                    ¿Cómo integro la tienda con las recomendaciones?
+                                </button>
+                            </h2>
+                            <div id="faqTresContenido" class="accordion-collapse collapse" aria-labelledby="faqTres" data-bs-parent="#faqSabueso">
+                                <div class="accordion-body text-muted">
+                                    Cada producto puede vincularse a tratamientos sugeridos. Tus veterinarios los comparten en un clic y los propietarios completan la compra desde su panel.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
