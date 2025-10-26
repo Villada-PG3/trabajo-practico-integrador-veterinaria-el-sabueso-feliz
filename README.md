@@ -100,3 +100,22 @@ Proyecto de uso educativo y académico.
 
 
 
+
+
+# Contributors :
+
+#### BRUNO SEGURA
+
+
+
+[<img src='https://cdn.jsdelivr.net/npm/simple-icons@3.0.1/icons/github.svg' alt='github' height='40'>](https://github.com/cromop1)  [<img src='https://cdn.jsdelivr.net/npm/simple-icons@3.0.1/icons/linkedin.svg' alt='linkedin' height='40'>](https://www.linkedin.com/in/bruno-segura-1967a0315/)  [<img src='https://cdn.jsdelivr.net/npm/simple-icons@3.0.1/icons/discord.svg' alt='discord' height='40'>](https://discord.gg/wCjHs37Xt6)  
+
+[![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=cromop1)](https://github.com/anuraghazra/github-readme-stats)
+
+![GitHub stats](https://github-readme-stats.vercel.app/api?username=cromop1&show_icons=true)  
+
+![Vaunt Badge](https://api.vaunt.dev/v1/github/entities/cromop1/contributions?format=svg&private=false)  
+
+
+
+
