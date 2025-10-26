@@ -111,7 +111,7 @@ Proyecto de uso educativo y académico.
 
 
 
-#### BRUNO SEGURA
+#### 🔶 BRUNO SEGURA
 
 
 
@@ -123,6 +123,19 @@ Proyecto de uso educativo y académico.
 
 ![Vaunt Badge](https://api.vaunt.dev/v1/github/entities/cromop1/contributions?format=svg&private=false)  
 
+
+
+#### 🔶 Enzo Secchi
+
+
+
+[<img src='https://cdn.jsdelivr.net/npm/simple-icons@3.0.1/icons/github.svg' alt='github' height='40'>](https://github.com/zaaanaaa)  
+
+[![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=zaaanaaa)](https://github.com/anuraghazra/github-readme-stats)
+
+![GitHub stats](https://github-readme-stats.vercel.app/api?username=zaaanaaa&show_icons=true)  
+
+![Vaunt Badge](https://api.vaunt.dev/v1/github/entities/zaaanaaa/contributions?format=svg&private=false)  
 
 
 
