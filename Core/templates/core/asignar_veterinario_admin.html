@@ -5,6 +5,9 @@
 {% block content %}
 <div class="container mt-4">
     <h2>Asignar Usuarios como Veterinarios</h2>
+    {% if request.user.sucursal %}
+        <p class="text-muted">Asignando profesionales para la sucursal <strong>{{ request.user.sucursal.nombre }}</strong>.</p>
+    {% endif %}
 
     {% if messages %}
         {% for message in messages %}

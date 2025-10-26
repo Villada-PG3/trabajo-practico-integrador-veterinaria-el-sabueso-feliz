@@ -5,6 +5,18 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
 
+
+class Sucursal(models.Model):
+    nombre = models.CharField(max_length=120, unique=True)
+    direccion = models.CharField(max_length=255)
+    telefono = models.CharField(max_length=30, blank=True)
+
+    class Meta:
+        ordering = ["nombre"]
+
+    def __str__(self):
+        return self.nombre
+
 # ----------------------------
 # Usuario con rol propio
 # ----------------------------
@@ -21,6 +33,13 @@ class User(AbstractUser):
     activo = models.BooleanField(default=True)
     avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)
     especialidad = models.CharField(max_length=100, blank=True)  # para veterinarios
+    sucursal = models.ForeignKey(
+        Sucursal,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="usuarios",
+    )
 
     def __str__(self):
         return f"{self.username} ({self.get_rol_display()})"
@@ -71,6 +90,13 @@ class Cita(models.Model):
         ("cirugia", "Cirugía"),
     )
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
+    sucursal = models.ForeignKey(
+        Sucursal,
+        on_delete=models.PROTECT,
+        related_name="citas",
+        null=True,
+        blank=True,
+    )
     veterinario = models.ForeignKey(
         User,
         limit_choices_to={"rol": "VET"},
