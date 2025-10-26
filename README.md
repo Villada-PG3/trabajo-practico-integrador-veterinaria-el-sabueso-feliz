@@ -111,7 +111,7 @@ Proyecto de uso educativo y académico.
 
 
 
-#### 🔶 BRUNO SEGURA
+# 🔶 BRUNO SEGURA
 
 
 
@@ -125,7 +125,7 @@ Proyecto de uso educativo y académico.
 
 
 
-#### 🔶 Enzo Secchi
+# 🔶 Enzo Secchi
 
 
 
@@ -136,6 +136,7 @@ Proyecto de uso educativo y académico.
 ![GitHub stats](https://github-readme-stats.vercel.app/api?username=zaaanaaa&show_icons=true)  
 
 ![Vaunt Badge](https://api.vaunt.dev/v1/github/entities/zaaanaaa/contributions?format=svg&private=false)  
+
 
 
 
