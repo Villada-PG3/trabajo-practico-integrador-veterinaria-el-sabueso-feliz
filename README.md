@@ -121,7 +121,7 @@ Proyecto de uso educativo y académico.
 
 ![GitHub stats](https://github-readme-stats.vercel.app/api?username=cromop1&show_icons=true)  
 
-![Vaunt Badge](https://api.vaunt.dev/v1/github/entities/cromop1/contributions?format=svg&private=false)  
+
 
 
 
@@ -135,7 +135,7 @@ Proyecto de uso educativo y académico.
 
 ![GitHub stats](https://github-readme-stats.vercel.app/api?username=zaaanaaa&show_icons=true)  
 
-![Vaunt Badge](https://api.vaunt.dev/v1/github/entities/zaaanaaa/contributions?format=svg&private=false)  
+ 
 
 
 
@@ -163,9 +163,8 @@ Proyecto de uso educativo y académico.
 
 ![GitHub stats](https://github-readme-stats.vercel.app/api?username=Vago132&show_icons=true)  
 
-![Vaunt Badge](https://api.vaunt.dev/v1/github/entities/Vago132/contributions?format=svg&private=false)  
 
-![GitHub metrics](https://metrics.lecoq.io/Vago132)  
+
 
 
 
