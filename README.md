@@ -132,7 +132,10 @@ Proyecto de uso educativo y académico.
 
 [<img src='https://cdn.jsdelivr.net/npm/simple-icons@3.0.1/icons/github.svg' alt='github' height='40'>](https://github.com/zaaanaaa)  
 
-[![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=zaaanaaa)](https://github.com/anuraghazra/github-readme-stats)
+Programador en :
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=python,django,html,css,bootstrap,sqlite,git,github,vscode" />
+</p>
 
 ![GitHub stats](https://github-readme-stats.vercel.app/api?username=zaaanaaa&show_icons=true)  
 
@@ -147,7 +150,10 @@ Proyecto de uso educativo y académico.
 
 [<img src='https://cdn.jsdelivr.net/npm/simple-icons@3.0.1/icons/github.svg' alt='github' height='40'>](https://github.com/faculedesmaa)  
 
-[![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=faculedesmaa)](https://github.com/anuraghazra/github-readme-stats)
+Programador en :
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=python,django,html,css,bootstrap,sqlite,git,github,vscode" />
+</p>
 
 ![GitHub stats](https://github-readme-stats.vercel.app/api?username=faculedesmaa&show_icons=true)  
 
@@ -160,10 +166,13 @@ Proyecto de uso educativo y académico.
 
 [<img src='https://cdn.jsdelivr.net/npm/simple-icons@3.0.1/icons/github.svg' alt='github' height='40'>](https://github.com/Vago132)  
 
-
-[![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=Vago132)](https://github.com/anuraghazra/github-readme-stats)
+Programador en :
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=python,django,html,css,bootstrap,sqlite,git,github,vscode" />
+</p>
 
 ![GitHub stats](https://github-readme-stats.vercel.app/api?username=Vago132&show_icons=true)  
+
 
 
 
