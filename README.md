@@ -1,5 +1,17 @@
 # Veterinaria Sabueso Feliz
 
+![Python](https://badgen.net/badge/Python/3.11/000000?icon=python&labelColor=white)
+![Django](https://badgen.net/badge/Django/5.2/000000?labelColor=white)
+![SQLite](https://badgen.net/badge/Database/SQLite/000000?labelColor=white)
+![Bootstrap](https://badgen.net/badge/UI/Bootstrap/000000?labelColor=white)
+![Status](https://badgen.net/badge/Status/Activo/000000?labelColor=white)
+![License](https://badgen.net/badge/License/MIT/000000?labelColor=white)
+![Tests](https://badgen.net/badge/Tests/Pasados/000000?labelColor=white)
+![Version](https://badgen.net/badge/Version/1.0.0/000000?labelColor=white)
+![Contribuidores](https://badgen.net/badge/Contribuidores/4/000000?labelColor=white)
+![Framework](https://badgen.net/badge/Framework/Django/000000?labelColor=white)
+![Lenguaje](https://badgen.net/badge/Lenguaje/Python/000000?labelColor=white)
+
 **Proyecto integrador 2025**  
 _Instituto Técnico Salesiano Villada_
 
@@ -69,4 +81,5 @@ como parte del Proyecto Integrador 2025.
 ## Licencia
 Proyecto de uso educativo y académico.  
 © 2025 Sabueso Feliz – Todos los derechos reservados.
+
 
