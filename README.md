@@ -111,7 +111,7 @@ Proyecto de uso educativo y académico.
 
 
 
-# 🔶 BRUNO SEGURA
+## 🔶 BRUNO SEGURA
 
 
 <img src="https://img.shields.io/badge/ITSV-Instituto%20Villada-004AAD?style=for-the-badge&logo=book&logoColor=white">
@@ -130,7 +130,7 @@ Proyecto de uso educativo y académico.
 
 
 
-# 🔶 Enzo Secchi
+## 🔶 Enzo Secchi
 
 <img src="https://img.shields.io/badge/ITSV-Instituto%20Villada-004AAD?style=for-the-badge&logo=book&logoColor=white">
 
@@ -148,7 +148,7 @@ Proyecto de uso educativo y académico.
 
 
 
-# 🔶 Facundo Ledesma
+## 🔶 Facundo Ledesma
 
 <img src="https://img.shields.io/badge/ITSV-Instituto%20Villada-004AAD?style=for-the-badge&logo=book&logoColor=white">
 
@@ -165,7 +165,7 @@ Proyecto de uso educativo y académico.
 
 
 
-# 🔶 Ignacio Vago
+## 🔶 Ignacio Vago
 
 <img src="https://img.shields.io/badge/ITSV-Instituto%20Villada-004AAD?style=for-the-badge&logo=book&logoColor=white">
 
@@ -178,6 +178,7 @@ Proyecto de uso educativo y académico.
 </p>
 
 ![GitHub stats](https://github-readme-stats.vercel.app/api?username=Vago132&show_icons=true)  
+
 
 
 
