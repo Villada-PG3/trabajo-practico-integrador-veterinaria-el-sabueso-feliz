@@ -1,16 +1,17 @@
 # Veterinaria Sabueso Feliz
 
-![Python](https://badgen.net/badge/Python/3.11/000000?icon=python&labelColor=white)
-![Django](https://badgen.net/badge/Django/5.2/000000?labelColor=white)
-![SQLite](https://badgen.net/badge/Database/SQLite/000000?labelColor=white)
-![Bootstrap](https://badgen.net/badge/UI/Bootstrap/000000?labelColor=white)
-![Status](https://badgen.net/badge/Status/Activo/000000?labelColor=white)
-![License](https://badgen.net/badge/License/MIT/000000?labelColor=white)
-![Tests](https://badgen.net/badge/Tests/Pasados/000000?labelColor=white)
-![Version](https://badgen.net/badge/Version/1.0.0/000000?labelColor=white)
-![Contribuidores](https://badgen.net/badge/Contribuidores/4/000000?labelColor=white)
-![Framework](https://badgen.net/badge/Framework/Django/000000?labelColor=white)
-![Lenguaje](https://badgen.net/badge/Lenguaje/Python/000000?labelColor=white)
+![Python](https://custom-icon-badges.demolab.com/badge/Python-3.11-3776AB.svg?logo=python&logoColor=white)
+![Django](https://custom-icon-badges.demolab.com/badge/Django-5.2-092E20.svg?logo=django&logoColor=white)
+![SQLite](https://custom-icon-badges.demolab.com/badge/SQLite-Database-07405E.svg?logo=sqlite&logoColor=white)
+![Bootstrap](https://custom-icon-badges.demolab.com/badge/Bootstrap-UI-7952B3.svg?logo=bootstrap&logoColor=white)
+![Docker](https://custom-icon-badges.demolab.com/badge/Docker-Infra-0db7ed.svg?logo=docker&logoColor=white)
+![GitHub](https://custom-icon-badges.demolab.com/badge/Repo-GitHub-181717.svg?logo=github&logoColor=white)
+![License](https://custom-icon-badges.demolab.com/badge/License-MIT-FFCC00.svg?logo=law&logoColor=black)
+![Status](https://custom-icon-badges.demolab.com/badge/Status-Activo-28A745.svg?logo=check-circle&logoColor=white)
+![Version](https://custom-icon-badges.demolab.com/badge/Version-1.0.0-007BFF.svg?logo=tag&logoColor=white)
+![Tests](https://custom-icon-badges.demolab.com/badge/Tests-Pasados-17A2B8.svg?logo=checklist&logoColor=white)
+![Contribuidores](https://custom-icon-badges.demolab.com/badge/Contribuidores-4-6F42C1.svg?logo=people&logoColor=white)
+![Entorno](https://custom-icon-badges.demolab.com/badge/Entorno-Produccion-FD7E14.svg?logo=gear&logoColor=white)
 
 **Proyecto integrador 2025**  
 _Instituto Técnico Salesiano Villada_
@@ -81,5 +82,6 @@ como parte del Proyecto Integrador 2025.
 ## Licencia
 Proyecto de uso educativo y académico.  
 © 2025 Sabueso Feliz – Todos los derechos reservados.
+
 
 
