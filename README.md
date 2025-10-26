@@ -27,8 +27,6 @@
 ![Contribuidores](https://custom-icon-badges.demolab.com/badge/Contribuidores-4-6F42C1.svg?logo=people&logoColor=white)
 ![Entorno](https://custom-icon-badges.demolab.com/badge/Entorno-Produccion-FD7E14.svg?logo=gear&logoColor=white)
 
-**Proyecto integrador 2025**  
-_Instituto Técnico Salesiano Villada_
 
 ---
 
@@ -96,6 +94,7 @@ como parte del Proyecto Integrador 2025.
 ## Licencia
 Proyecto de uso educativo y académico.  
 © 2025 Sabueso Feliz – Todos los derechos reservados.
+
 
 
 
