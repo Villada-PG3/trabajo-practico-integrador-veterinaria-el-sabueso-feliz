@@ -230,9 +230,9 @@ def _excel_sections_response(filename, sections):
     return response
 
 
-# ----------------------------
+
 # Sitio público
-# ----------------------------
+
 
 def landing(request):
     productos_destacados = Producto.objects.none()
@@ -393,9 +393,9 @@ def detalle_producto(request, producto_id):
     )
 
 
-# ----------------------------
+
 # Dashboard y estadísticas
-# ----------------------------
+
 
 
 @login_required
@@ -863,9 +863,9 @@ def dashboard_admin_analisis(request):
     return render(request, "core/dashboard_admin_analisis.html", context)
 
 
-# ----------------------------
+
 # Descargas de reportes
-# ----------------------------
+
 
 
 @login_required
@@ -1322,12 +1322,7 @@ def exportar_propietario_excel(request, propietario_id):
     return _excel_sections_response(filename, secciones)
 
 
-# ----------------------------
 # Mascotas y propietarios
-# ----------------------------
-# Mascotas y propietarios
-# ----------------------------
-
 
 @login_required
 def calendario_vacunas(request):
@@ -1745,9 +1740,9 @@ def registrar_mascota(request):
     )
 
 
-# ----------------------------
+
 # Citas
-# ----------------------------
+
 
 
 @login_required
@@ -3751,10 +3746,7 @@ def detalle_historial(request, historial_id):
     historial = get_object_or_404(HistorialMedico, id=historial_id)
     return render(request, "core/detalle_historial.html", {"historial": historial})
 
-
-# ----------------------------
 # Gestión de productos
-# ----------------------------
 
 
 @login_required
@@ -3838,9 +3830,9 @@ def admin_producto_editar(request, producto_id):
     )
 
 
-# ----------------------------
+
 # Autenticación
-# ----------------------------
+
 
 def login_view(request):
     if request.method == "POST":
