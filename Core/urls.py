@@ -2,37 +2,37 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-  
+    # ----------------------------
     # LOGIN / LOGOUT / REGISTRO
-  
+    # ----------------------------
     path('', views.landing, name='landing'),
     path('contacto/', views.contacto, name='contacto'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('registro/', views.registro_propietario, name='registro_propietario'),
 
-  
+    # ----------------------------
     # DASHBOARD
-  
+    # ----------------------------
     path('dashboard/', views.dashboard, name='dashboard'),
 
-  
+    # ----------------------------
     # USUARIOS Y PACIENTES (ADMIN / ADMIN_OP)
-  
+    # ----------------------------
     path('usuarios/', views.listar_usuarios, name='listar_usuarios'),
     path('pacientes/', views.listar_pacientes, name='listar_pacientes'),
 
-  
+    # ----------------------------
     # MASCOTAS (Propietario)
-  
+    # ----------------------------
     path('mis-mascotas/', views.mis_mascotas, name='mis_mascotas'),
     path('calendario-vacunas/', views.calendario_vacunas, name='calendario_vacunas'),
     path('mis-mascotas/registrar/', views.registrar_mascota, name='registrar_mascota'),
     path('mascota/<int:paciente_id>/', views.detalle_mascota, name='detalle_mascota'),
 
-  
+    # ----------------------------
     # TIENDA
-  
+    # ----------------------------
     path('tienda/', views.tienda, name='tienda'),
     path('tienda/<int:producto_id>/', views.detalle_producto, name='detalle_producto'),
     path('administrador/productos/', views.admin_productos_list, name='admin_productos_list'),
@@ -59,16 +59,16 @@ urlpatterns = [
         name='exportar_propietario_excel',
     ),
 
-  
+    # ----------------------------
     # CITAS
-  
+    # ----------------------------
     path('mis-citas/', views.mis_citas, name='mis_citas'),
     path('agendar-cita/', views.agendar_cita, name='agendar_cita'),
     path('agendar-cita/<int:paciente_id>/', views.agendar_cita, name='agendar_cita_paciente'),
 
-  
+    # ----------------------------
     # HISTORIAL MÉDICO (VET)
-  
+    # ----------------------------
     path('registrar-historial/<int:paciente_id>/', views.registrar_historial, name='registrar_historial'),
 
     # ADMIN - citas

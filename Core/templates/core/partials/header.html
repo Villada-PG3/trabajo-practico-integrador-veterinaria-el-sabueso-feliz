@@ -46,7 +46,7 @@
                 {% else %}
                     <div class="flex flex-col items-start gap-3 text-white lg:items-end">
                         <p class="max-w-sm text-sm text-white/80 lg:text-right">
-                            Gestiona tus mascotas, citas y compras comodamente.
+                            Gestiona tus mascotas, citas y compras desde un panel pensado para tu comodidad.
                         </p>
                         <div class="flex flex-wrap gap-2">
                             <a href="{% url 'login' %}"
@@ -149,14 +149,6 @@
                         </a>
                     {% endif %}
                 {% else %}
-                    <a href="{% url 'login' %}"
-                       class="rounded-full px-4 py-2 text-sm font-semibold transition-colors {% if current == 'login' %}bg-white text-cyan-900 shadow{% else %}text-white/85 hover:bg-white/10{% endif %}">
-                        <i class="fas fa-right-to-bracket mr-2"></i>Ingresar
-                    </a>
-                    <a href="{% url 'registro_propietario' %}"
-                       class="rounded-full px-4 py-2 text-sm font-semibold transition-colors {% if current == 'registro_propietario' %}bg-white text-cyan-900 shadow{% else %}text-white/85 hover:bg-white/10{% endif %}">
-                        <i class="fas fa-user-plus mr-2"></i>Registrarme
-                    </a>
                 {% endif %}
             </nav>
         </div>

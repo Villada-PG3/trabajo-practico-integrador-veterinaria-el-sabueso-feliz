@@ -142,7 +142,7 @@
                         </a>
                         <a href="{% url 'gestionar_veterinarios' %}" class="inline-flex items-center px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors">
                             <i class="fas fa-user-clock mr-2"></i>
-                            Disponibilidad de veterinarios
+                             Nuevos veterinarios
                         </a>
                         <a href="{% url 'dashboard_veterinarios' %}" class="inline-flex items-center px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
                             <i class="fas fa-chart-bar mr-2"></i>
@@ -179,27 +179,6 @@
                     </form>
                 </div>
 
-                <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Estado de las citas</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div class="p-4 rounded-lg border border-blue-100 bg-blue-50">
-                            <p class="text-sm text-blue-600 font-medium uppercase tracking-wide">Pendientes</p>
-                            <p class="text-2xl font-bold text-blue-800">{{ resumen_citas.pendiente }}</p>
-                        </div>
-                        <div class="p-4 rounded-lg border border-emerald-100 bg-emerald-50">
-                            <p class="text-sm text-emerald-600 font-medium uppercase tracking-wide">Programadas</p>
-                            <p class="text-2xl font-bold text-emerald-800">{{ resumen_citas.programada }}</p>
-                        </div>
-                        <div class="p-4 rounded-lg border border-purple-100 bg-purple-50">
-                            <p class="text-sm text-purple-600 font-medium uppercase tracking-wide">Atendidas</p>
-                            <p class="text-2xl font-bold text-purple-800">{{ resumen_citas.atendida }}</p>
-                        </div>
-                        <div class="p-4 rounded-lg border border-rose-100 bg-rose-50">
-                            <p class="text-sm text-rose-600 font-medium uppercase tracking-wide">Canceladas</p>
-                            <p class="text-2xl font-bold text-rose-800">{{ resumen_citas.cancelada }}</p>
-                        </div>
-                    </div>
-                </div>
 
                 {% if productos_recientes %}
                 <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
@@ -240,105 +219,10 @@
             </div>
 
             <!-- Appointments Section -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div class="bg-white rounded-xl shadow-sm p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
-                        <i class="fas fa-calendar-check mr-2 text-blue-600"></i>
-                        Todas las Citas
-                    </h3>
-                    <div class="space-y-4 max-h-96 overflow-y-auto">
-                        {% for cita in todas_citas %}
-                            <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                                <div class="flex items-start justify-between">
-                                    <div class="flex-1">
-                                        <div class="flex items-center space-x-2 mb-2">
-                                            <i class="fas fa-paw text-green-600"></i>
-                                            <span class="font-semibold text-gray-900">{{ cita.paciente.nombre }}</span>
-                                            <span class="text-sm text-gray-500">({{ cita.paciente.especie }})</span>
-                                        </div>
-                                        <p class="text-sm text-gray-600 mb-1">
-                                            <i class="fas fa-user mr-1"></i>
-                                            {% if cita.paciente.propietario %}
-                                                {{ cita.paciente.propietario.user.get_full_name|default:cita.paciente.propietario.user.username }}
-                                            {% else %}
-                                                Sin propietario
-                                            {% endif %}
-                                        </p>
-                                        <p class="text-sm text-gray-600 mb-1">
-                                            <i class="fas fa-user-md mr-1"></i>
-                                            {% if cita.veterinario %}
-                                                {{ cita.veterinario.get_full_name|default:cita.veterinario.username }}
-                                            {% else %}
-                                                Sin asignar
-                                            {% endif %}
-                                        </p>
-                                        <p class="text-sm text-gray-600">
-                                            <i class="fas fa-clock mr-1"></i>
-                                            {% if cita.fecha_hora %}
-                                                {{ cita.fecha_hora|date:"d/m/Y H:i" }}
-                                            {% else %}
-                                                {{ cita.fecha_solicitada|date:"d/m/Y" }} · Sin horario
-                                            {% endif %}
-                                        </p>
-                                        <span class="status-badge {% if cita.estado == 'pendiente' %}bg-yellow-100 text-yellow-800{% elif cita.estado == 'programada' %}bg-blue-100 text-blue-800{% elif cita.estado == 'atendida' %}bg-green-100 text-green-800{% elif cita.estado == 'cancelada' %}bg-rose-100 text-rose-800{% else %}bg-gray-100 text-gray-800{% endif %}">
-                                            {{ cita.get_estado_display }}
-                                        </span>
-                                    </div>
-                                    {% if not cita.veterinario and cita.estado == 'pendiente' %}
-                                        <a href="{% url 'asignar_veterinario_cita' cita.id %}" class="px-3 py-1 bg-yellow-500 text-white rounded-lg text-sm hover:bg-yellow-600 transition-colors">
-                                            <i class="fas fa-user-plus mr-1"></i>
-                                            Asignar
-                                        </a>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        {% empty %}
-                            <div class="text-center py-8 text-gray-500">
-                                <i class="fas fa-calendar-times text-4xl mb-3"></i>
-                                <p>No hay citas registradas</p>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
+            
 
                 <!-- Patients Section -->
-                <div class="bg-white rounded-xl shadow-sm p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
-                        <i class="fas fa-dog mr-2 text-green-600"></i>
-                        Todos los Pacientes
-                    </h3>
-                    <div class="space-y-4 max-h-96 overflow-y-auto">
-                        {% for paciente in todos_pacientes %}
-                            <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <div class="flex items-center space-x-2 mb-1">
-                                            <i class="fas fa-paw text-green-600"></i>
-                                            <span class="font-semibold text-gray-900">{{ paciente.nombre }}</span>
-                                        </div>
-                                        <p class="text-sm text-gray-600">
-                                            <i class="fas fa-user mr-1"></i>
-                                            {% if paciente.propietario %}
-                                                {{ paciente.propietario.user.get_full_name|default:paciente.propietario.user.username }}
-                                            {% else %}
-                                                Sin propietario
-                                            {% endif %}
-                                        </p>
-                                    </div>
-                                    <a href="{% url 'crear_mascota_admin' %}" class="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors">
-                                        <i class="fas fa-plus mr-1"></i>
-                                        Agregar
-                                    </a>
-                                </div>
-                            </div>
-                        {% empty %}
-                            <div class="text-center py-8 text-gray-500">
-                                <i class="fas fa-paw text-4xl mb-3"></i>
-                                <p>No hay pacientes registrados</p>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
+               
             </div>
 
         {% elif request.user.rol == "VET" %}
@@ -532,10 +416,7 @@
                                     Centraliza la salud de tus mascotas, programa turnos y consulta sus informes clínicos en un panel moderno y organizado.
                                 </p>
                                 <div class="mt-6 flex flex-wrap gap-3">
-                                    <a href="{% url 'agendar_cita' %}" class="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-cyan-900 shadow-md transition-transform hover:-translate-y-0.5">
-                                        <i class="fas fa-calendar-plus"></i>
-                                        Agendar cita
-                                    </a>
+
                                     <a href="{% url 'calendario_vacunas' %}" class="inline-flex items-center gap-2 rounded-lg border border-white/60 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/10">
                                         <i class="fas fa-syringe"></i>
                                         Calendario de vacunas
@@ -584,29 +465,7 @@
                             </div>
                         </div>
 
-                        <div class="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                            <div class="rounded-2xl bg-white/10 p-5 shadow-md">
-                                <p class="text-xs uppercase tracking-widest text-white/70">Mascotas registradas</p>
-                                <p class="mt-2 text-3xl font-bold">{{ estadisticas_propietario.mascotas|default:0 }}</p>
-                                <p class="mt-1 text-xs text-white/70">Gestioná su información y vacunas</p>
-                            </div>
-                            <div class="rounded-2xl bg-white/10 p-5 shadow-md">
-                                <p class="text-xs uppercase tracking-widest text-white/70">Citas activas</p>
-                                <p class="mt-2 text-3xl font-bold">{{ estadisticas_propietario.citas_activas|default:0 }}</p>
-                                <p class="mt-1 text-xs text-white/70">Próximos compromisos en agenda</p>
-                            </div>
-                            <div class="rounded-2xl bg-white/10 p-5 shadow-md">
-                                <p class="text-xs uppercase tracking-widest text-white/70">Informes médicos</p>
-                                <p class="mt-2 text-3xl font-bold">{{ estadisticas_propietario.informes|default:0 }}</p>
-                                <p class="mt-1 text-xs text-white/70">Resumen de atenciones y seguimientos</p>
-                            </div>
-                            <div class="rounded-2xl bg-white/10 p-5 shadow-md">
-                                <p class="text-xs uppercase tracking-widest text-white/70">Profesionales</p>
-                                <p class="mt-2 text-3xl font-bold">{{ estadisticas_propietario.profesionales|default:0 }}</p>
-                                <p class="mt-1 text-xs text-white/70">Veterinarios que atienden a tus mascotas</p>
-                            </div>
-                        </div>
-                    </div>
+
                 </section>
 
                 <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">

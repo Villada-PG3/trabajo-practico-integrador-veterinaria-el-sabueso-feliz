@@ -97,9 +97,9 @@
             </div>
             <form method="get" class="flex items-center gap-3 text-sm">
                 {% for key, value in request.GET.items %}
-                    {% if key not in ('inventario_periodo',) %}
-                        <input type="hidden" name="{{ key }}" value="{{ value }}">
-                    {% endif %}
+                {% if key != 'inventario_periodo' %}
+                    <input type="hidden" name="{{ key }}" value="{{ value }}">
+                {% endif %}
                 {% endfor %}
                 <label class="font-semibold text-slate-600" for="inventario_periodo">Periodo</label>
                 <select id="inventario_periodo" name="inventario_periodo" class="rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
@@ -296,9 +296,6 @@
                     <i class="fas fa-search mr-2"></i>
                     Aplicar filtros
                 </button>
-                <a href="{% url 'dashboard_admin_analisis' %}?{% if sucursal_param %}sucursal={{ sucursal_param }}{% endif %}{% if inventario_periodo %}{% if sucursal_param %}&{% endif %}inventario_periodo={{ inventario_periodo }}{% endif %}" class="inline-flex items-center justify-center px-4 py-2 border border-slate-300 text-slate-600 rounded-lg hover:bg-slate-100 transition">
-                    Limpiar
-                </a>
             </div>
         </form>
         {% if propietarios_para_descarga %}

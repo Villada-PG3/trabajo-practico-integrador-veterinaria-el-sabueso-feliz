@@ -5,22 +5,23 @@
 {% block content %}
 <div class="row gy-4 align-items-center mb-5">
     <div class="col-lg-7">
-        <div class="card border-0 shadow-sm bg-gradient" style="background: linear-gradient(135deg, #5b86e5 0%, #36d1dc 100%);">
-            <div class="card-body text-white p-4 p-lg-5">
-                <span class="badge bg-white text-primary fw-semibold mb-3">Salud preventiva</span>
+        <div class="card border-0 shadow-sm" style="background-color: #ffffff; color: #000000;">
+            <div class="card-body p-4 p-lg-5">
+                <span class="badge bg-dark text-white fw-semibold mb-3">Salud preventiva</span>
                 <h1 class="h2 fw-bold mb-3">Calendario inteligente de vacunas</h1>
-                <p class="mb-4">Centralizá el esquema de vacunación de tus compañeros felinos y caninos. Registrá cada dosis, añadí observaciones y seguí el progreso recomendado por la clínica.</p>
+                <p class="mb-4">Centraliza el esquema de vacunacion de tus companeros felinos y caninos. Registra cada dosis, anade observaciones y segui el progreso recomendado por la clinica.</p>
                 <div class="d-flex flex-wrap gap-2">
-                    <a href="{% url 'registrar_mascota' %}" class="btn btn-light btn-lg px-4">
+                    <a href="{% url 'registrar_mascota' %}" class="btn btn-dark btn-lg px-4">
                         <i class="bi bi-plus-circle me-2"></i>Registrar nueva mascota
                     </a>
-                    <a href="{% url 'mis_mascotas' %}" class="btn btn-outline-light btn-lg px-4">
-                        <i class="bi bi-journal-medical me-2"></i>Ver historial clínico
+                    <a href="{% url 'mis_mascotas' %}" class="btn btn-outline-dark btn-lg px-4">
+                        <i class="bi bi-journal-medical me-2"></i>Ver historial clinico
                     </a>
                 </div>
             </div>
         </div>
     </div>
+
     <div class="col-lg-5">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body p-4">
