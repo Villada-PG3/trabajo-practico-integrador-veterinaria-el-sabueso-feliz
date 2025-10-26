@@ -6,9 +6,9 @@ from django.db import models
 from django.utils import timezone
 
 
-# ----------------------------
+
 # Sucursal
-# ----------------------------
+
 class Sucursal(models.Model):
     nombre = models.CharField(max_length=150, unique=True)
     direccion = models.CharField(max_length=255)
@@ -22,9 +22,9 @@ class Sucursal(models.Model):
     def __str__(self):
         return self.nombre
 
-# ----------------------------
+
 # Usuario con rol propio
-# ----------------------------
+
 class User(AbstractUser):
     ROLES = (
         ("ADMIN", "Administrador"),
@@ -49,9 +49,9 @@ class User(AbstractUser):
     def __str__(self):
         return f"{self.username} ({self.get_rol_display()})"
 
-# ----------------------------
+
 # Propietario
-# ----------------------------
+
 class Propietario(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     telefono = models.CharField(max_length=20, blank=True)
@@ -62,9 +62,9 @@ class Propietario(models.Model):
     def __str__(self):
         return self.user.get_full_name() or self.user.username
 
-# ----------------------------
+
 # Paciente / Mascota
-# ----------------------------
+
 class Paciente(models.Model):
     nombre = models.CharField(max_length=100)
     especie = models.CharField(max_length=50)
@@ -79,9 +79,9 @@ class Paciente(models.Model):
     def __str__(self):
         return f"{self.nombre} ({self.especie})"
 
-# ----------------------------
+
 # Cita
-# ----------------------------
+
 class Cita(models.Model):
     ESTADOS = (
         ("pendiente", "Pendiente"),
@@ -157,9 +157,9 @@ class Cita(models.Model):
         )
 
 
-# ----------------------------
+
 # Inventario farmacológico
-# ----------------------------
+
 class Farmaco(models.Model):
     class Categoria(models.TextChoices):
         ANALGESICOS_ANTIINFLAMATORIOS = (
@@ -260,9 +260,9 @@ class CitaFarmaco(models.Model):
         return f"{self.cita_id} - {self.farmaco.nombre} ({self.cantidad})"
 
 
-# ----------------------------
+
 # Historial Médico
-# ----------------------------
+
 class HistorialMedico(models.Model):
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
     veterinario = models.ForeignKey(User, limit_choices_to={"rol": "VET"}, on_delete=models.SET_NULL, null=True)
