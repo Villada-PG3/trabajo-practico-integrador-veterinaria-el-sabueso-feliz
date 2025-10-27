@@ -1,11 +1,19 @@
-# 🐶 Veterinaria Sabueso Feliz
+<p align="center">
+  <img src="https://i.imgur.com/uYeDNLF.png" width="100%" alt="Banner Proyecto Integrador 2025">
+</p>
 
+
+
+
+
+<p align="center">
+  <img src="https://i.imgur.com/RVGaecC.png" width="100%" alt="Banner Proyecto Integrador 2025">
+</p>
 
 
 <p align="center">
   <img src="https://i.imgur.com/cap2sCd.png" width="100%" alt="Banner Proyecto Integrador 2025">
 </p>
-
 
 
 
@@ -27,18 +35,9 @@
 ![Entorno](https://custom-icon-badges.demolab.com/badge/Entorno-Produccion-FD7E14.svg?logo=gear&logoColor=white)
 
 
-<img alt="separator" width="100%" height="4"
-     src='data:image/svg+xml;utf8,
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3000 4" preserveAspectRatio="none">
-  <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="%23007BFF"/>
-      <stop offset="0.5" stop-color="%2366B2FF"/>
-      <stop offset="1" stop-color="%23FFFFFF"/>
-    </linearGradient>
-  </defs>
-  <line x1="0" y1="2" x2="3000" y2="2" stroke="url(%23g)" stroke-width="2" stroke-linecap="round"/>
-</svg>'>
+<p align="center">
+  <img src="https://i.imgur.com/RVGaecC.png" width="100%" alt="Banner Proyecto Integrador 2025">
+</p>
 
 
 # DIAGRAMA MMD
