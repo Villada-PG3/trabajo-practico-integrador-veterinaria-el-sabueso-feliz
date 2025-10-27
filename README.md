@@ -27,19 +27,19 @@
 ![Entorno](https://custom-icon-badges.demolab.com/badge/Entorno-Produccion-FD7E14.svg?logo=gear&logoColor=white)
 
 
-<p align="center">
-  <img alt="separator" width="100%" height="2"
-       src='data:image/svg+xml;utf8,
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 3" preserveAspectRatio="none">
+<img alt="separator" width="100%" height="4"
+     src='data:image/svg+xml;utf8,
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3000 4" preserveAspectRatio="none">
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0" stop-color="%23007BFF"/>
+      <stop offset="0.5" stop-color="%2366B2FF"/>
       <stop offset="1" stop-color="%23FFFFFF"/>
     </linearGradient>
   </defs>
-  <line x1="0" y1="1.5" x2="1200" y2="1.5" stroke="url(%23g)" stroke-width="1.4" stroke-linecap="round"/>
+  <line x1="0" y1="2" x2="3000" y2="2" stroke="url(%23g)" stroke-width="2" stroke-linecap="round"/>
 </svg>'>
-</p>
+
 
 # DIAGRAMA MMD
 
@@ -370,6 +370,7 @@ Proyecto de uso educativo y académico.
 </p>
 
 ![GitHub stats](https://github-readme-stats.vercel.app/api?username=Vago132&show_icons=true)  
+
 
 
 
