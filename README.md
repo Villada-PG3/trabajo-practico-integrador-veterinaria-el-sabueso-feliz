@@ -18,7 +18,6 @@
 ![Django](https://custom-icon-badges.demolab.com/badge/Django-5.2-092E20.svg?logo=django&logoColor=white)
 ![SQLite](https://custom-icon-badges.demolab.com/badge/SQLite-Database-07405E.svg?logo=sqlite&logoColor=white)
 ![Bootstrap](https://custom-icon-badges.demolab.com/badge/Bootstrap-UI-7952B3.svg?logo=bootstrap&logoColor=white)
-![Docker](https://custom-icon-badges.demolab.com/badge/Docker-Infra-0db7ed.svg?logo=docker&logoColor=white)
 ![GitHub](https://custom-icon-badges.demolab.com/badge/Repo-GitHub-181717.svg?logo=github&logoColor=white)
 ![License](https://custom-icon-badges.demolab.com/badge/License-MIT-FFCC00.svg?logo=law&logoColor=black)
 ![Status](https://custom-icon-badges.demolab.com/badge/Status-Activo-28A745.svg?logo=check-circle&logoColor=white)
@@ -359,6 +358,7 @@ Proyecto de uso educativo y académico.
 </p>
 
 ![GitHub stats](https://github-readme-stats.vercel.app/api?username=Vago132&show_icons=true)  
+
 
 
 
