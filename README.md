@@ -33,7 +33,7 @@
 # DIAGRAMA MMD
 
 <p align="center">
-  <img src="https://i.imgur.com/ZbOlUPF.png" width="100%" alt="Banner Proyecto Integrador 2025">
+  <img src="https://i.imgur.com/fy4uHhC.png" width="100%" alt="Banner Proyecto Integrador 2025">
 </p>
 
 
@@ -188,6 +188,7 @@ Proyecto de uso educativo y académico.
 </p>
 
 ![GitHub stats](https://github-readme-stats.vercel.app/api?username=Vago132&show_icons=true)  
+
 
 
 
