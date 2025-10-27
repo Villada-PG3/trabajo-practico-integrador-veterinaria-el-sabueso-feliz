@@ -20,8 +20,6 @@
 
 
 
-
-
 ![Python](https://custom-icon-badges.demolab.com/badge/Python-3.11-3776AB.svg?logo=python&logoColor=white)
 ![Django](https://custom-icon-badges.demolab.com/badge/Django-5.2-092E20.svg?logo=django&logoColor=white)
 ![SQLite](https://custom-icon-badges.demolab.com/badge/SQLite-Database-07405E.svg?logo=sqlite&logoColor=white)
@@ -199,18 +197,26 @@ erDiagram
 ```
 
 
----
+<p align="center">
+  <img src="https://i.imgur.com/zDTIHyR.png" width="100%" alt="Banner Proyecto Integrador 2025">
+</p>
+
 
 ## 🌐 Sitio web (desactualizado ) (version anterior) (demo y preview desactualizada)
 **https://sabuesofeliz.sbs**
 
----
+<p align="center">
+  <img src="https://i.imgur.com/zDTIHyR.png" width="100%" alt="Banner Proyecto Integrador 2025">
+</p>
+
 
 ## Descripción
 Sabueso Feliz es una plataforma web para la gestión integral de una veterinaria.  
 Permite a administradores, veterinarios y propietarios de mascotas interactuar dentro de un mismo sistema, optimizando la atención y el control clínico de los pacientes.
 
----
+<p align="center">
+  <img src="https://i.imgur.com/zDTIHyR.png" width="100%" alt="Banner Proyecto Integrador 2025">
+</p>
 
 ## Funcionalidades principales
 - Panel de control por roles (Administrador, Veterinario, Propietario)
@@ -221,7 +227,10 @@ Permite a administradores, veterinarios y propietarios de mascotas interactuar d
 - Módulo de tienda veterinaria
 - Dashboard con indicadores e informes
 
----
+<p align="center">
+  <img src="https://i.imgur.com/zDTIHyR.png" width="100%" alt="Banner Proyecto Integrador 2025">
+</p>
+
 
 ## Tecnologías utilizadas
 - Python / Django (backend)
@@ -230,13 +239,19 @@ Permite a administradores, veterinarios y propietarios de mascotas interactuar d
 - Bootstrap 5 (interfaz)
 - GitHub Pages + Hostinger (hosting)
 
----
+<p align="center">
+  <img src="https://i.imgur.com/zDTIHyR.png" width="100%" alt="Banner Proyecto Integrador 2025">
+</p>
+
 
 ## Autores
 Proyecto académico desarrollado por estudiantes del Instituto Técnico Salesiano Villada,  
 como parte del Proyecto Integrador 2025.
 
----
+<p align="center">
+  <img src="https://i.imgur.com/zDTIHyR.png" width="100%" alt="Banner Proyecto Integrador 2025">
+</p>
+
 
 ## Instalación y Configuración
 
@@ -280,7 +295,10 @@ como parte del Proyecto Integrador 2025.
 ```
 8. Acceder a: **http://localhost:8000**
 
----
+<p align="center">
+  <img src="https://i.imgur.com/zDTIHyR.png" width="100%" alt="Banner Proyecto Integrador 2025">
+</p>
+
 
 ## Licencia
 Proyecto de uso educativo y académico.  
@@ -297,7 +315,10 @@ Proyecto de uso educativo y académico.
 
 
 
----
+<p align="center">
+  <img src="https://i.imgur.com/zDTIHyR.png" width="100%" alt="Banner Proyecto Integrador 2025">
+</p>
+
 # Contributors :
 
 
@@ -369,6 +390,7 @@ Proyecto de uso educativo y académico.
 </p>
 
 ![GitHub stats](https://github-readme-stats.vercel.app/api?username=Vago132&show_icons=true)  
+
 
 
 
