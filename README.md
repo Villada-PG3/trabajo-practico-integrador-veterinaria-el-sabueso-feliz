@@ -191,7 +191,7 @@ erDiagram
 
 ---
 
-## 🌐 Sitio web (desactualizado ) (version anterior) (demo y preview descatualizada)
+## 🌐 Sitio web (desactualizado ) (version anterior) (demo y preview desactualizada)
 **https://sabuesofeliz.sbs**
 
 ---
@@ -339,6 +339,7 @@ Proyecto de uso educativo y académico.
 </p>
 
 ![GitHub stats](https://github-readme-stats.vercel.app/api?username=Vago132&show_icons=true)  
+
 
 
 
