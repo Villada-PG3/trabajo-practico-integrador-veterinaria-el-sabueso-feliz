@@ -245,7 +245,7 @@ como parte del Proyecto Integrador 2025.
 ```
 3. Crear Entorno Virtual:
 ```bash
-  -   python -m venv venv
+  python -m venv venv
  ```
 ```bash
   source venv/bin/activate # En Windows: venv\Scripts\activate
@@ -359,6 +359,7 @@ Proyecto de uso educativo y académico.
 </p>
 
 ![GitHub stats](https://github-readme-stats.vercel.app/api?username=Vago132&show_icons=true)  
+
 
 
 
