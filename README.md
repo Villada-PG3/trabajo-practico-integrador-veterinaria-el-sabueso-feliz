@@ -230,25 +230,45 @@ como parte del Proyecto Integrador 2025.
 
 ## Instalación y Configuración
 
-1. Requisitos Previos: 
+1. Requisitos Previos:
+  ```diff
   -   Python 3.11 o superior
   -   pip (gestor de paquetes de Python)
   -   virtualenv
-2. Clonar el Repositorio: 
-  -   git clone https://github.com/Villada-PG3/trabajo-practico-integrador-veterinaria-el-sabueso-feliz.git
-  -   cd trabajo-practico-integrador-veterinaria-el-sabueso-feliz-main
-3. Crear Entorno Virtual: 
+```
+2. Clonar el Repositorio:
+  ```bash
+  git clone https://github.com/Villada-PG3/trabajo-practico-integrador-veterinaria-el-sabueso-feliz.git
+```
+```bash
+  cd trabajo-practico-integrador-veterinaria-el-sabueso-feliz-main
+```
+3. Crear Entorno Virtual:
+```bash
   -   python -m venv venv
-  -   source venv/bin/activate # En Windows: venv\Scripts\activate
+ ```
+```bash
+  source venv/bin/activate # En Windows: venv\Scripts\activate
+```
 4. Instalar Dependencias:
-  -   pip install -r requirements.txt
-6. Ejecutar Migraciones: 
-  -   python manage.py makemigrations
-  -   python manage.py migrate
-  -   python manage.py createsuperuser
-7. Iniciar Servidor: 
-  -   python manage.py runserver
-8. Acceder a: http://localhost:8000
+```bash
+  pip install -r requirements.txt
+```
+6. Ejecutar Migraciones:
+```bash
+ python manage.py makemigrations
+ ```
+```bash
+ python manage.py migrate
+```
+```bash
+ python manage.py createsuperuser
+```
+7. Iniciar Servidor:
+```bash
+   python manage.py runserver
+```
+8. Acceder a: **http://localhost:8000**
 
 ---
 
@@ -339,6 +359,7 @@ Proyecto de uso educativo y académico.
 </p>
 
 ![GitHub stats](https://github-readme-stats.vercel.app/api?username=Vago132&show_icons=true)  
+
 
 
 
