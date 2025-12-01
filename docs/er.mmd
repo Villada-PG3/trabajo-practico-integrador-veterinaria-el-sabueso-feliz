@@ -1,0 +1,159 @@
+erDiagram
+
+ 
+    Sucursal {
+        int id PK
+        string nombre
+        string direccion
+        string ciudad
+        string telefono
+        string imagen
+    }
+
+    User {
+        int id PK
+        string username
+        string password
+        string first_name
+        string last_name
+        string email
+        string rol 
+        string telefono
+        string direccion
+        bool activo
+        string avatar
+        string especialidad
+        int sucursal_id FK
+    }
+
+    Propietario {
+        int id PK
+        int user_id FK
+        string telefono
+        string direccion
+        string ciudad
+        text notas
+    }
+
+    Paciente {
+        int id PK
+        string nombre
+        string especie
+        string raza
+        string sexo
+        date fecha_nacimiento
+        int propietario_id FK
+        text vacunas
+        text alergias
+        string foto
+    }
+
+    Cita {
+        int id PK
+        int paciente_id FK
+        int veterinario_id FK
+        int sucursal_id FK
+        date fecha_solicitada
+        datetime fecha_hora
+        int duracion
+        string tipo
+        string estado
+        text notas
+    }
+
+    HistorialMedico {
+        int id PK
+        int paciente_id FK
+        int veterinario_id FK
+        int cita_id FK
+        datetime fecha
+        text diagnostico
+        text tratamiento
+        text notas
+        decimal peso
+        decimal temperatura
+        text examenes
+        string imagenes
+        date proximo_control
+        bool sin_proximo_control
+    }
+
+    Farmaco {
+        int id PK
+        int sucursal_id FK
+        string nombre
+        string categoria
+        text descripcion
+        int stock
+        datetime creado
+        datetime actualizado
+    }
+
+    CitaFarmaco {
+        int id PK
+        int cita_id FK
+        int farmaco_id FK
+        int cantidad
+        datetime registrado
+    }
+
+    VacunaRecomendada {
+        int id PK
+        string nombre
+        string especie
+        text descripcion
+        int edad_recomendada
+        string unidad_tiempo
+        string refuerzo
+        int orden
+    }
+
+    VacunaRegistro {
+        int id PK
+        int paciente_id FK
+        int vacuna_id FK
+        date fecha_aplicacion
+        text notas
+        datetime creado
+        datetime actualizado
+    }
+
+    Producto {
+        int id PK
+        string nombre
+        text descripcion
+        string categoria
+        decimal precio
+        string imagen
+        string telefono_contacto
+        bool disponible
+        datetime creado
+        datetime actualizado
+    }
+
+    Sucursal ||--o{ User : "tiene"
+    Sucursal ||--o{ Farmaco : "almacena"
+    Sucursal ||--o{ Cita : "recibe"
+    Sucursal ||--o{ Producto : "vende"
+
+  
+    User ||--|| Propietario : "representa"
+    User ||--o{ Cita : "atiende"
+    User ||--o{ HistorialMedico : "registra"
+
+  
+    Propietario ||--o{ Paciente : "posee"
+
+
+    Paciente ||--o{ Cita : "genera"
+    Paciente ||--o{ HistorialMedico : "tiene"
+    Paciente ||--o{ VacunaRegistro : "recibe"
+
+    Cita ||--|| HistorialMedico : "origina"
+    Cita ||--o{ CitaFarmaco : "usa"
+
+   
+    Farmaco ||--o{ CitaFarmaco : "participa"
+
+  
+    VacunaRecomendada ||--o{ VacunaRegistro : "asociada"
