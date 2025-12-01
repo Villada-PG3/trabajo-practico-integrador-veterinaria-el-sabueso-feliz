@@ -1,131 +1,128 @@
-{% extends "core/base.html" %}
+{% extends "core/header.html" %}
 
-{% block title %}Iniciar Sesión - Veterinaria Sabueso Feliz{% endblock %}
+{% block title %}Iniciar Sesion - Sabueso Feliz{% endblock %}
 
-{% block extra_head %}
-    <style>
-        .login-wrapper {
-            min-height: calc(100vh - 220px);
-        }
-    </style>
-{% endblock %}
-
-{% block main_class %}px-4 sm:px-6 lg:px-8 py-10{% endblock %}
+{% block main_class %}px-4 sm:px-6 lg:px-8 py-16{% endblock %}
 
 {% block content %}
-<div class="login-wrapper flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 rounded-3xl p-6">
-    <div class="w-full max-w-md">
-        <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-teal-600 rounded-2xl mb-4 shadow-lg">
-                <i class="fas fa-paw text-2xl text-white"></i>
-            </div>
-            <h1 class="text-2xl font-bold text-gray-900 mb-1">Veterinaria Sabueso Feliz</h1>
-            <p class="text-gray-600 text-sm">Cuidando a tus mascotas con amor</p>
-        </div>
-
-        <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8">
-            <div class="text-center mb-8">
-                <h2 class="text-2xl font-bold text-gray-900 mb-2">Iniciar Sesión</h2>
-                <p class="text-gray-500 text-sm">Accede a tu cuenta</p>
-            </div>
-
-            {% if form.errors %}
-            <div class="mb-6 p-4 bg-red-50/80 backdrop-blur-sm border border-red-200 rounded-xl">
-                <div class="flex items-center">
-                    <i class="fas fa-exclamation-circle text-red-500 mr-3"></i>
-                    <span class="text-red-700 text-sm font-medium">Credenciales incorrectas</span>
-                </div>
-            </div>
-            {% endif %}
-
-            <form method="POST" class="space-y-6">
-                {% csrf_token %}
-
-                <div class="space-y-4">
-                    <div>
-                        <label for="username" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Usuario
-                        </label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <i class="fas fa-user text-gray-400"></i>
-                            </div>
-                            <input
-                                type="text"
-                                id="username"
-                                name="username"
-                                required
-                                class="w-full pl-12 pr-4 py-4 bg-gray-50/80 backdrop-blur-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 text-gray-900 placeholder-gray-400"
-                                placeholder="Ingresa tu usuario"
-                            >
-                        </div>
-                    </div>
-
-                    <div>
-                        <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Contraseña
-                        </label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <i class="fas fa-lock text-gray-400"></i>
-                            </div>
-                            <input
-                                type="password"
-                                id="password"
-                                name="password"
-                                required
-                                class="w-full pl-12 pr-4 py-4 bg-gray-50/80 backdrop-blur-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 text-gray-900 placeholder-gray-400"
-                                placeholder="Ingresa tu contraseña"
-                            >
-                        </div>
-                    </div>
-                </div>
-
-                <button
-                    type="submit"
-                    class="w-full bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                >
-                    <i class="fas fa-sign-in-alt mr-2"></i>
-                    Iniciar Sesión
-                </button>
-            </form>
-
-            <div class="mt-8 text-center">
-                <p class="text-gray-600 text-sm">
-                    ¿No tienes cuenta?
-                    <a href="{% url 'registro_propietario' %}" class="text-blue-600 hover:text-blue-700 font-semibold transition-colors ml-1">
-                        Regístrate aquí
-                    </a>
+<div class="max-w-6xl mx-auto grid gap-10 lg:grid-cols-2 items-stretch">
+    <section class="relative overflow-hidden rounded-[36px] text-white shadow-2xl" style="background: linear-gradient(120deg, #0f172a 0%, #142850 55%, #1f3b72 110%);">
+        <div class="absolute inset-0 opacity-60 pointer-events-none" style="background-image: radial-gradient(circle at 15% 25%, rgba(255,255,255,0.35) 0, transparent 55%), radial-gradient(circle at 90% 0%, rgba(122,58,255,0.45) 0, transparent 40%);"></div>
+        <div class="relative z-10 p-10 lg:p-12 space-y-8">
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.45em] text-white/70">Sabueso Feliz</p>
+                <h1 class="mt-4 text-3xl font-semibold sm:text-4xl">Bienvenido nuevamente</h1>
+                <p class="mt-4 text-sm text-white/80 leading-relaxed max-w-xl">
+                    Gestioná citas, historiales y recomendaciones en un entorno seguro alineado al diseño universal de la clínica.
                 </p>
             </div>
-        </div>
 
-        <div class="mt-8">
-            <div class="flex items-center justify-center space-x-8 text-xs text-gray-500">
-                <div class="flex flex-col items-center">
-                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mb-1">
-                        <i class="fas fa-shield-alt text-green-600 text-sm"></i>
-                    </div>
-                    <span>Seguro</span>
+            <div class="grid gap-4 sm:grid-cols-3">
+                <div class="rounded-3xl bg-white/10 p-4 backdrop-blur">
+                    <p class="text-2xl font-bold">24/7</p>
+                    <p class="text-xs uppercase tracking-widest text-white/70">Disponibilidad</p>
                 </div>
-                <div class="flex flex-col items-center">
-                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mb-1">
-                        <i class="fas fa-lock text-blue-600 text-sm"></i>
-                    </div>
-                    <span>Privado</span>
+                <div class="rounded-3xl bg-white/10 p-4 backdrop-blur">
+                    <p class="text-2xl font-bold">+250</p>
+                    <p class="text-xs uppercase tracking-widest text-white/70">Mascotas activas</p>
                 </div>
-                <div class="flex flex-col items-center">
-                    <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mb-1">
-                        <i class="fas fa-certificate text-purple-600 text-sm"></i>
+                <div class="rounded-3xl bg-white/10 p-4 backdrop-blur">
+                    <p class="text-2xl font-bold">12</p>
+                    <p class="text-xs uppercase tracking-widest text-white/70">Profesionales</p>
+                </div>
+            </div>
+
+            <div class="rounded-[28px] border border-white/30 bg-white/10 p-5 backdrop-blur">
+                <p class="text-xs font-semibold uppercase tracking-[0.35em] text-white/60">Lo que obtenés</p>
+                <div class="mt-4 space-y-3 text-sm text-white/80">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-shield-alt text-lg"></i>
+                        Seguridad verificada en cada inicio de sesión.
                     </div>
-                    <span>Confiable</span>
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-notes-medical text-lg"></i>
+                        Acceso inmediato a historiales clínicos.
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-calendar-check text-lg"></i>
+                        Agenda sincronizada con el equipo médico.
+                    </div>
                 </div>
             </div>
         </div>
+    </section>
 
-        <div class="mt-8 text-center">
-            <p class="text-xs text-gray-400">&copy; {{ now|date:"Y" }} Veterinaria Sabueso Feliz. Todos los derechos reservados.</p>
+    <section class="rounded-[32px] border border-[#e0e3f3] bg-white shadow-xl p-8 lg:p-10 flex flex-col">
+        <div class="text-center mb-8 space-y-3">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#eef0ff] text-[#1f3b72] text-2xl shadow-inner">
+                <i class="fas fa-paw"></i>
+            </div>
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.35em] text-[#7c87b3]">Panel seguro</p>
+                <h2 class="text-3xl font-semibold text-[#0f172a]">Iniciar sesión</h2>
+                <p class="text-sm text-[#5f6b8e]">Ingresá tus credenciales corporativas para continuar</p>
+            </div>
         </div>
-    </div>
+
+        {% if form.errors %}
+            <div class="mb-6 rounded-2xl border border-[#fed7d7] bg-[#fff5f5] px-4 py-3 text-sm text-[#b42318] flex items-center gap-3">
+                <i class="fas fa-circle-exclamation text-base"></i>
+                Credenciales incorrectas. Intentalo nuevamente.
+            </div>
+        {% endif %}
+
+        <form method="POST" class="space-y-5 flex-1">
+            {% csrf_token %}
+            <div class="space-y-2">
+                <label for="username" class="text-xs font-semibold uppercase tracking-[0.25em] text-[#7c87b3]">Usuario</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-[#9ca4c8]">
+                        <i class="fas fa-user"></i>
+                    </span>
+                    <input type="text" id="username" name="username" required
+                        class="w-full rounded-2xl border border-[#e4e7f4] bg-[#f8f9ff] pl-12 pr-4 py-3 text-sm text-[#0f172a] placeholder-[#9ca4c8] focus:outline-none focus:ring-2 focus:ring-[#7A3AFF]"
+                        placeholder="Tu usuario corporativo">
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label for="password" class="text-xs font-semibold uppercase tracking-[0.25em] text-[#7c87b3]">Contraseña</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-[#9ca4c8]">
+                        <i class="fas fa-lock"></i>
+                    </span>
+                    <input type="password" id="password" name="password" required
+                        class="w-full rounded-2xl border border-[#e4e7f4] bg-[#f8f9ff] pl-12 pr-4 py-3 text-sm text-[#0f172a] placeholder-[#9ca4c8] focus:outline-none focus:ring-2 focus:ring-[#7A3AFF]"
+                        placeholder="Tu contraseña">
+                </div>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-3 text-xs text-[#7c87b3]">
+                <span class="inline-flex items-center gap-2">
+                    <i class="fas fa-lock text-[#1f3b72]"></i>
+                    Autenticación cifrada
+                </span>
+                <span class="inline-flex items-center gap-2">
+                    <i class="fas fa-headset text-[#1f3b72]"></i>
+                    Soporte 24/7
+                </span>
+            </div>
+
+            <button type="submit" class="w-full rounded-2xl bg-gradient-to-r from-[#7A3AFF] via-[#5C25D7] to-[#1f3b72] text-white font-semibold py-3 shadow-lg shadow-[#1f3b72]/25 hover:scale-[1.01] transition">
+                <i class="fas fa-sign-in-alt mr-2"></i>Ingresar al panel
+            </button>
+        </form>
+
+        <div class="mt-6 text-center text-sm text-[#5f6b8e] space-y-2">
+            <p>
+                ¿Aún no tenés cuenta?
+                <a href="{% url 'registro_propietario' %}" class="font-semibold text-[#7A3AFF] hover:text-[#5C25D7]">Registrate acá</a>
+            </p>
+            <a href="{% url 'landing' %}" class="inline-flex items-center gap-2 text-xs font-semibold text-[#1f3b72] hover:text-[#7A3AFF]">
+                <i class="fas fa-arrow-left"></i>
+                Volver al inicio
+            </a>
+        </div>
+    </section>
 </div>
 {% endblock %}

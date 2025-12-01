@@ -1,0 +1,98 @@
+{% extends "core/header.html" %}
+
+{% block title %}Transferir mascota{% endblock %}
+
+{% block main_class %}max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="rounded-4 border border-[#FFFFFF] bg-white shadow-sm p-5">
+        <p class="text-uppercase small text-muted mb-2">Transferencia segura</p>
+        <h1 class="h4 fw-bold mb-3">Mover una mascota a otro propietario</h1>
+        <p class="text-muted mb-4">Selecciona a cual de tus mascotas deseas transferir, elige al propietario destino y confirma escribiendo tu contrasena actual dos veces. Conservaremos el historial clinico, informes y citas asociados al paciente.</p>
+        <form method="post" class="d-flex flex-column gap-4">
+            {% csrf_token %}
+            <div>
+                <label class="form-label text-muted text-uppercase small">Mascota</label>
+                {{ form.mascota }}
+                {% for error in form.mascota.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div>
+                <label class="form-label text-muted text-uppercase small">Propietario destino</label>
+                {{ form.nuevo_propietario }}
+                <small class="text-muted d-block mt-1">Solo se muestran perfiles activos disponibles.</small>
+                {% for error in form.nuevo_propietario.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label text-muted text-uppercase small">Contrasena</label>
+                    {{ form.password1 }}
+                    {% for error in form.password1.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label text-muted text-uppercase small">Confirmar contrasena</label>
+                    {{ form.password2 }}
+                    {% for error in form.password2.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger mb-0">
+                    {% for error in form.non_field_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <div class="d-flex justify-content-end gap-2">
+                <a href="{% url 'mis_mascotas' %}" class="btn btn-light">Cancelar</a>
+                <button type="submit" class="btn btn-primary rounded-pill px-4">
+                    <i class="bi bi-arrow-left-right me-2"></i>Solicitar transferencia
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if confirmacion_activa and mascota_confirmada and destino_confirmado %}
+    <div class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-50" style="z-index: 60;">
+        <div class="bg-white rounded-4 shadow-xl p-5 mx-3 max-w-lg w-100">
+            <div class="mb-4">
+                <p class="text-uppercase small text-muted mb-1">Confirmacion final</p>
+                <h2 class="h5 fw-bold mb-2">Deseas confirmar esta transferencia?</h2>
+                <p class="text-muted mb-0">
+                    El cambio sera permanente y toda la informacion clinica de <strong>{{ mascota_confirmada.nombre }}</strong>
+                    pasara al panel de <strong>{{ destino_confirmado.user.get_full_name|default:destino_confirmado.user.username }}</strong>.
+                </p>
+            </div>
+            <div class="rounded-3 bg-light p-3 mb-4">
+                <p class="mb-1 text-muted small">Mascota</p>
+                <p class="fw-semibold mb-0">{{ mascota_confirmada.nombre }} ({{ mascota_confirmada.especie }})</p>
+                <hr>
+                <p class="mb-1 text-muted small">Nuevo propietario</p>
+                <p class="fw-semibold mb-0">{{ destino_confirmado.user.get_full_name|default:destino_confirmado.user.username }}</p>
+            </div>
+            <form method="post" class="d-flex justify-content-end gap-2">
+                {% csrf_token %}
+                <input type="hidden" name="mascota" value="{{ mascota_confirmada.id }}">
+                <input type="hidden" name="nuevo_propietario" value="{{ destino_confirmado.id }}">
+                <input type="hidden" name="password1" value="{{ form_data.password1 }}">
+                <input type="hidden" name="password2" value="{{ form_data.password2 }}">
+                <input type="hidden" name="confirmado" value="1">
+                <button type="submit" class="btn btn-primary">
+                    Confirmar transferencia
+                </button>
+                <a href="{% url 'transferir_mascota' %}" class="btn btn-outline-secondary">
+                    Cancelar
+                </a>
+            </form>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,57 +1,137 @@
-{% extends "core/base.html" %}
+{% extends "core/header.html" %}
 
-{% block title %}Registro Propietario - Veterinaria Sabueso Feliz{% endblock %}
+{% block title %}Registro Propietario - Sabueso Feliz{% endblock %}
 
-{% block main_class %}container my-5{% endblock %}
+{% block main_class %}px-4 sm:px-6 lg:px-8 py-16{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-5">
-        <div class="bg-white p-4 p-md-5 rounded-3xl shadow-sm border border-slate-200">
-            <h3 class="text-center mb-3">Registro de Propietario</h3>
-            <form method="post" class="needs-validation" novalidate>
-                {% csrf_token %}
-                <div class="mb-3">
-                    <label class="form-label">Nombre de usuario</label>
-                    <input type="text" name="username" class="form-control" required>
+<div class="max-w-6xl mx-auto grid gap-10 lg:grid-cols-[minmax(0,380px),1fr] items-stretch">
+    <section class="relative overflow-hidden rounded-[36px] text-white shadow-2xl" style="background: linear-gradient(120deg, #0f172a 0%, #142850 55%, #1f3b72 110%);">
+        <div class="absolute inset-0 opacity-55 pointer-events-none" style="background-image: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.35) 0, transparent 55%), radial-gradient(circle at 80% 0%, rgba(122,58,255,0.4) 0, transparent 40%);"></div>
+        <div class="relative z-10 p-10 lg:p-12 space-y-8">
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.45em] text-white/70">Registro oficial</p>
+                <h1 class="mt-4 text-3xl font-semibold sm:text-4xl">Crea tu cuenta</h1>
+                <p class="mt-4 text-sm text-white/80 leading-relaxed">
+                    Centralizá los datos de tus mascotas, agendá controles y recibí recomendaciones personalizadas en un ecosistema seguro.
+                </p>
+            </div>
+            <div class="space-y-4 text-sm text-white/85">
+                <div class="flex items-start gap-3">
+                    <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white/15 text-lg">
+                        <i class="fas fa-calendar-alt"></i>
+                    </span>
+                    Agenda digital alineada con nuestros profesionales.
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Email</label>
-                    <input type="email" name="email" class="form-control" required>
+                <div class="flex items-start gap-3">
+                    <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white/15 text-lg">
+                        <i class="fas fa-file-medical"></i>
+                    </span>
+                    Historias clínicas protegidas y accesibles 24/7.
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Nombre completo</label>
-                    <input type="text" name="first_name" class="form-control" required>
+                <div class="flex items-start gap-3">
+                    <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white/15 text-lg">
+                        <i class="fas fa-store"></i>
+                    </span>
+                    Recomendaciones de productos seleccionados por el equipo.
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Apellido</label>
-                    <input type="text" name="last_name" class="form-control" required>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-3 text-center">
+                <div class="rounded-3xl bg-white/10 p-4 backdrop-blur">
+                    <p class="text-2xl font-semibold">+1200</p>
+                    <p class="text-xs uppercase tracking-widest text-white/70">Consultas/año</p>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Teléfono</label>
-                    <input type="text" name="telefono" class="form-control">
+                <div class="rounded-3xl bg-white/10 p-4 backdrop-blur">
+                    <p class="text-2xl font-semibold">18</p>
+                    <p class="text-xs uppercase tracking-widest text-white/70">Especialistas</p>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Contraseña</label>
-                    <input type="password" name="password1" class="form-control" required>
+                <div class="rounded-3xl bg-white/10 p-4 backdrop-blur">
+                    <p class="text-2xl font-semibold">5</p>
+                    <p class="text-xs uppercase tracking-widest text-white/70">Sucursales</p>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Confirmar Contraseña</label>
-                    <input type="password" name="password2" class="form-control" required>
-                </div>
-                <button type="submit" class="btn btn-success w-100">Registrarse</button>
-            </form>
-
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} mt-3">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-
-            <p class="mt-3 text-center">
-                <a href="{% url 'login' %}">¿Ya tienes cuenta? Iniciar sesión</a>
-            </p>
+            </div>
         </div>
-    </div>
+    </section>
+
+    <section class="rounded-[32px] border border-[#e0e3f3] bg-white shadow-xl p-8 lg:p-10">
+        <div class="text-center space-y-3 mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#eef0ff] text-[#1f3b72] text-2xl shadow-inner">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.35em] text-[#7c87b3]">Formulario seguro</p>
+                <h2 class="text-3xl font-semibold text-[#0f172a]">Registro premium</h2>
+                <p class="text-sm text-[#5f6b8e]">Completá tus datos y activá el acceso al panel</p>
+            </div>
+        </div>
+
+        <form method="post" class="space-y-5">
+            {% csrf_token %}
+            <div class="grid gap-4 md:grid-cols-2">
+                <div>
+                    <label class="text-xs font-semibold uppercase tracking-[0.25em] text-[#7c87b3] mb-2 block">Usuario</label>
+                    <input type="text" name="username" required class="w-full rounded-2xl border border-[#e4e7f4] bg-[#f8f9ff] px-4 py-3 text-sm text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-[#7A3AFF]">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold uppercase tracking-[0.25em] text-[#7c87b3] mb-2 block">Email</label>
+                    <input type="email" name="email" required class="w-full rounded-2xl border border-[#e4e7f4] bg-[#f8f9ff] px-4 py-3 text-sm text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-[#7A3AFF]">
+                </div>
+            </div>
+            <div class="grid gap-4 md:grid-cols-2">
+                <div>
+                    <label class="text-xs font-semibold uppercase tracking-[0.25em] text-[#7c87b3] mb-2 block">Nombre</label>
+                    <input type="text" name="first_name" required class="w-full rounded-2xl border border-[#e4e7f4] bg-[#f8f9ff] px-4 py-3 text-sm text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-[#7A3AFF]">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold uppercase tracking-[0.25em] text-[#7c87b3] mb-2 block">Apellido</label>
+                    <input type="text" name="last_name" required class="w-full rounded-2xl border border-[#e4e7f4] bg-[#f8f9ff] px-4 py-3 text-sm text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-[#7A3AFF]">
+                </div>
+            </div>
+            <div class="grid gap-4 md:grid-cols-2">
+                <div>
+                    <label class="text-xs font-semibold uppercase tracking-[0.25em] text-[#7c87b3] mb-2 block">Teléfono</label>
+                    <input type="text" name="telefono" class="w-full rounded-2xl border border-[#e4e7f4] bg-[#f8f9ff] px-4 py-3 text-sm text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-[#c7b8ff]">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold uppercase tracking-[0.25em] text-[#7c87b3] mb-2 block">Dirección</label>
+                    <input type="text" name="direccion" class="w-full rounded-2xl border border-[#e4e7f4] bg-[#f8f9ff] px-4 py-3 text-sm text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-[#c7b8ff]">
+                </div>
+            </div>
+            <div class="grid gap-4 md:grid-cols-2">
+                <div>
+                    <label class="text-xs font-semibold uppercase tracking-[0.25em] text-[#7c87b3] mb-2 block">Contraseña</label>
+                    <input type="password" name="password1" required class="w-full rounded-2xl border border-[#e4e7f4] bg-[#f8f9ff] px-4 py-3 text-sm text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-[#7A3AFF]">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold uppercase tracking-[0.25em] text-[#7c87b3] mb-2 block">Confirmar</label>
+                    <input type="password" name="password2" required class="w-full rounded-2xl border border-[#e4e7f4] bg-[#f8f9ff] px-4 py-3 text-sm text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-[#7A3AFF]">
+                </div>
+            </div>
+
+            <div class="rounded-2xl border border-[#e4e7f4] bg-[#fdfcff] p-4 text-xs text-[#5f6b8e] flex items-start gap-3">
+                <i class="fas fa-info-circle text-[#7A3AFF] mt-0.5"></i>
+                <p>Al crear tu cuenta aceptás los términos de privacidad y el uso responsable de la información clínica de tu mascota.</p>
+            </div>
+
+            <button type="submit" class="w-full rounded-2xl bg-gradient-to-r from-[#7A3AFF] via-[#5C25D7] to-[#1f3b72] text-white font-semibold py-3 shadow-lg shadow-[#1f3b72]/20 hover:scale-[1.01] transition">
+                Crear cuenta
+            </button>
+        </form>
+
+        {% if messages %}
+            <div class="mt-6 space-y-3">
+                {% for message in messages %}
+                    <div class="rounded-2xl border border-[#c7b8ff] bg-[#f8f9ff] px-4 py-3 text-sm text-[#1f3b72]">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <p class="mt-8 text-center text-sm text-[#5f6b8e]">
+            ¿Ya tenés cuenta?
+            <a href="{% url 'login' %}" class="font-semibold text-[#7A3AFF] hover:text-[#5C25D7]">Iniciá sesión</a>
+        </p>
+    </section>
 </div>
 {% endblock %}

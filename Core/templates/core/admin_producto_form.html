@@ -1,5 +1,11 @@
-{% extends 'core/base.html' %}
+{% extends 'core/header.html' %}
+{% load static %}
 {% block title %}{{ titulo }}{% endblock %}
+
+{% block extra_head %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/admin_producto_form.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
@@ -64,7 +70,7 @@
                         {% if producto and producto.imagen %}
                             <div class="mt-2">
                                 <span class="text-muted small d-block">Imagen actual:</span>
-                                <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="rounded" style="max-height: 160px;">
+                                <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="product-image-preview">
                             </div>
                         {% endif %}
                         {% if form.imagen.errors %}

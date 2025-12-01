@@ -1,0 +1,152 @@
+{% extends "core/header.html" %}
+
+{% block title %}Configuracion de perfil{% endblock %}
+
+{% block main_class %}max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column gap-4">
+    <section class="card border-0 shadow-lg overflow-hidden">
+        <div class="row g-0 align-items-center">
+            <div class="col-md-7 p-5 text-white" style="background: linear-gradient(135deg, #111827 0%, #1d4ed8 60%, #22d3ee 120%);">
+                <p class="text-uppercase small fw-semibold text-white-50 mb-2">Configuracion</p>
+                <h1 class="h3 fw-bold mb-3">Perfil y seguridad</h1>
+                <p class="text-white-75 mb-4">Actualiza tu informacion personal, foto y credenciales en un entorno seguro. Recorda confirmar con tu contrasena actual antes de guardar.</p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{% url 'dashboard' %}" class="btn btn-light text-slate-900 px-4 rounded-pill">
+                        <i class="bi bi-speedometer2 me-2"></i>Volver al panel
+                    </a>
+                    <a href="{% url 'mis_mascotas' %}" class="btn btn-outline-light px-4 rounded-pill">
+                        <i class="bi bi-paw me-2"></i>Mis mascotas
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-5 bg-light p-4">
+                <div class="d-flex gap-3 align-items-center">
+                    {% if request.user.avatar %}
+                        <img src="{{ request.user.avatar.url }}" alt="Avatar" class="rounded-circle object-fit-cover" style="width:84px;height:84px;">
+                    {% else %}
+                        <div class="rounded-circle bg-white border text-primary d-flex align-items-center justify-content-center" style="width:84px;height:84px;">
+                            <i class="bi bi-person-fill fs-1"></i>
+                        </div>
+                    {% endif %}
+                    <div>
+                        <p class="text-uppercase small text-muted mb-1">Hola</p>
+                        <h2 class="h4 fw-bold mb-1">{{ request.user.get_full_name|default:request.user.username }}</h2>
+                        <span class="badge bg-primary-subtle text-primary">ID {{ request.user.id }}</span>
+                    </div>
+                </div>
+                <ul class="list-unstyled text-muted small mt-4 mb-0">
+                    <li class="mb-2"><i class="bi bi-shield-lock-fill text-primary me-2"></i>Telefono y direccion se guardan con verificacion.</li>
+                    <li class="mb-2"><i class="bi bi-camera-fill text-primary me-2"></i>Subi una foto cuadrada en JPG o PNG (max 5MB).</li>
+                    <li><i class="bi bi-key-fill text-primary me-2"></i>Para cambiar contraseña completa los tres campos.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="card border-0 shadow-sm">
+        <div class="card-body p-4 p-lg-5">
+            {% if messages %}
+                <div class="mb-4">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags|default:'info' }} mb-2">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger mb-4">
+                    {% for error in form.non_field_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <form method="post" enctype="multipart/form-data" class="d-flex flex-column gap-4">
+                {% csrf_token %}
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small text-uppercase">Nombre</label>
+                        {{ form.first_name }}
+                        {% for error in form.first_name.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small text-uppercase">Apellido</label>
+                        {{ form.last_name }}
+                        {% for error in form.last_name.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-lg-6">
+                        <label class="form-label text-muted small text-uppercase">Email</label>
+                        {{ form.email }}
+                        {% for error in form.email.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-lg-6">
+                        <label class="form-label text-muted small text-uppercase">Telefono</label>
+                        {{ form.telefono }}
+                        {% for error in form.telefono.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-lg-6">
+                        <label class="form-label text-muted small text-uppercase">Direccion</label>
+                        {{ form.direccion }}
+                        {% for error in form.direccion.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-lg-6">
+                        <label class="form-label text-muted small text-uppercase">Avatar</label>
+                        <div class="d-flex gap-3 align-items-center">
+                            {{ form.avatar }}
+                            {% if request.user.avatar %}
+                                <img src="{{ request.user.avatar.url }}" alt="Avatar actual" class="rounded-circle object-fit-cover border" style="width:48px;height:48px;">
+                            {% endif %}
+                        </div>
+                        <small class="text-muted d-block mt-1">Formatos JPG o PNG. Max 5MB.</small>
+                        {% for error in form.avatar.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="border-top pt-4">
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <label class="form-label text-muted small text-uppercase d-flex justify-content-between align-items-center">
+                                <span>Contraseña actual</span>
+                                <small class="text-danger">Requerida para guardar cambios</small>
+                            </label>
+                            {{ form.current_password }}
+                            {% for error in form.current_password.errors %}
+                                <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small text-uppercase">Nueva contraseña</label>
+                            {{ form.new_password }}
+                            {% for error in form.new_password.errors %}
+                                <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small text-uppercase">Confirmar contraseña</label>
+                            {{ form.confirm_password }}
+                            {% for error in form.confirm_password.errors %}
+                                <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{% url 'dashboard' %}" class="btn btn-link text-muted">Cancelar</a>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">Guardar cambios</button>
+                </div>
+            </form>
+        </div>
+    </section>
+</div>
+{% endblock %}

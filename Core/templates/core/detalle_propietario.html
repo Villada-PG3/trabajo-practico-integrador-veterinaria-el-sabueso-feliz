@@ -1,80 +1,76 @@
-{% extends "core/base.html" %}
+{% extends "core/header.html" %}
 
-{% block title %}Detalle Propietario{% endblock %}
+{% block title %}Perfil de Propietario - Sabueso Feliz{% endblock %}
+
+{% block main_class %}px-4 sm:px-6 lg:px-8 py-16{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2>Propietario: {{ propietario.first_name }} {{ propietario.last_name }}</h2>
-    <p><strong>Teléfono:</strong> {{ propietario.telefono }}</p>
-    <p><strong>Email:</strong> {{ propietario.email }}</p>
-    <p><strong>Dirección:</strong> {{ propietario.direccion }}</p>
+<div class="max-w-6xl mx-auto space-y-10">
+    <section class="rounded-[32px] bg-gradient-to-br from-[#7A3AFF] via-[#8D4DFF] to-[#C7B8FF] text-white shadow-2xl p-8">
+        <div class="flex flex-col gap-6 md:flex-row md:justify-between md:items-center">
+            <div>
+                <p class="text-xs uppercase tracking-[0.4em] text-white/70">Propietario</p>
+                <h1 class="text-3xl font-semibold mt-2">{{ propietario.first_name }} {{ propietario.last_name }}</h1>
+                <p class="mt-3 text-sm text-white/80 leading-relaxed">
+                    Datos de contacto y acceso directo a las mascotas registradas por esta familia.
+                </p>
+            </div>
+            <div class="grid grid-cols-2 gap-4 text-center md:text-left">
+                <div class="rounded-2xl bg-white/15 px-5 py-4">
+                    <p class="text-xs uppercase text-white/70">Telefono</p>
+                    <p class="text-lg font-semibold">{{ propietario.telefono|default:"-" }}</p>
+                </div>
+                <div class="rounded-2xl bg-white/15 px-5 py-4">
+                    <p class="text-xs uppercase text-white/70">Email</p>
+                    <p class="text-lg font-semibold break-all">{{ propietario.email|default:propietario.user.email }}</p>
+                </div>
+                <div class="rounded-2xl bg-white/15 px-5 py-4 col-span-2">
+                    <p class="text-xs uppercase text-white/70">Direccion</p>
+                    <p class="text-lg font-semibold">{{ propietario.direccion|default:"Sin registrar" }}</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <hr>
+    <section class="space-y-4">
+        <div class="flex items-center justify-between">
+            <h2 class="text-xl font-semibold text-[#2E0E5C]">Mascotas registradas</h2>
+            <span class="text-sm text-[#7A3AFF] font-semibold">{{ mascotas|length }} pacientes</span>
+        </div>
 
-    <h3>Mascotas</h3>
-    <ul class="list-group mb-3">
-        {% for mascota in mascotas %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                {{ mascota.nombre }} ({{ mascota.especie }})
-                <a href="{% url 'detalle_mascota' mascota.id %}" class="btn btn-sm btn-primary">Ver Detalle</a>
-            </li>
-        {% empty %}
-            <li class="list-group-item">No tiene mascotas registradas</li>
-        {% endfor %}
-    </ul>
-
-    <h3>Citas Pendientes</h3>
-    <ul class="list-group mb-3">
-        {% for cita in citas_pendientes %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                {{ cita.paciente.nombre }} -
-                {% if cita.fecha_hora %}
-                    {{ cita.fecha_hora|date:"M. d, Y, g:i a" }}
-                {% else %}
-                    {{ cita.fecha_solicitada|date:"M. d, Y" }} (sin horario)
-                {% endif %}
-                - {{ cita.estado }}
-                {% if cita.estado == "programada" %}
-                    <a href="{% url 'atender_cita' cita.id %}" class="btn btn-sm btn-success">Atender</a>
-                {% endif %}
-            </li>
-        {% empty %}
-            <li class="list-group-item">No tiene citas pendientes</li>
-        {% endfor %}
-    </ul>
-
-    <h3>Historial de Citas</h3>
-    <ul class="list-group mb-3">
-        {% for cita in citas %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                {{ cita.paciente.nombre }} -
-                {% if cita.fecha_hora %}
-                    {{ cita.fecha_hora|date:"M. d, Y, g:i a" }}
-                {% else %}
-                    {{ cita.fecha_solicitada|date:"M. d, Y" }} (sin horario)
-                {% endif %}
-                - {{ cita.estado }}
-                {% if cita.estado == "atendida" %}
-                    <a href="{% url 'detalle_cita' cita.id %}" class="btn btn-sm btn-info">Ver Informe</a>
-                {% endif %}
-            </li>
-        {% empty %}
-            <li class="list-group-item">No tiene citas registradas</li>
-        {% endfor %}
-    </ul>
-
-    <h3>Informes Médicos</h3>
-    <ul class="list-group mb-3">
-        {% for informe in informes %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                {{ informe.paciente.nombre }} - {{ informe.fecha|date:"M. d, Y" }} - {{ informe.diagnostico|truncatechars:50 }}
-                {% if informe.cita %}
-                    <a href="{% url 'detalle_cita' informe.cita.id %}" class="btn btn-sm btn-info">Ver Informe Completo</a>
-                {% endif %}
-            </li>
-        {% empty %}
-            <li class="list-group-item">No tiene informes médicos</li>
-        {% endfor %}
-    </ul>
+        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {% for mascota in mascotas %}
+                <article class="rounded-[24px] border border-[#FFFFFF] bg-white/95 shadow-md p-5 flex flex-col gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="h-14 w-14 rounded-2xl bg-[#F5F0FF] flex items-center justify-center text-lg font-semibold text-[#7A3AFF] shadow-inner">
+                            {% if mascota.foto %}
+                                <img src="{{ mascota.foto.url }}" alt="{{ mascota.nombre }}" class="w-full h-full object-cover rounded-2xl">
+                            {% else %}
+                                {{ mascota.nombre|slice:":1"|upper }}
+                            {% endif %}
+                        </div>
+                        <div>
+                            <p class="text-lg font-semibold text-[#30194F]">{{ mascota.nombre }}</p>
+                            <p class="text-sm text-[#7C6F9B]">{{ mascota.especie }}{% if mascota.raza %}  {{ mascota.raza }}{% endif %}</p>
+                        </div>
+                    </div>
+                    <div class="text-sm text-[#6A5D82] space-y-1">
+                        <p>Sexo: <span class="font-semibold">{{ mascota.sexo }}</span></p>
+                        <p>Nacimiento: <span class="font-semibold">{{ mascota.fecha_nacimiento|date:"d/m/Y" }}</span></p>
+                        {% if mascota.proxima_cita %}
+                            <p class="text-[#7A3AFF] text-xs">Proxima cita: {{ mascota.proxima_cita|date:"d/m/Y H:i" }}</p>
+                        {% endif %}
+                    </div>
+                    <a href="{% url 'detalle_mascota' mascota.id %}" class="inline-flex items-center justify-center rounded-full border border-[#7A3AFF] px-4 py-2 text-sm font-semibold text-[#7A3AFF] hover:bg-[#F5F0FF] transition">
+                        Ver ficha completa
+                    </a>
+                </article>
+            {% empty %}
+                <div class="col-span-full rounded-[24px] border border-dashed border-[#FFFFFF] bg-white/60 p-8 text-center text-[#7C6F9B]">
+                    Este propietario aun no registra mascotas.
+                </div>
+            {% endfor %}
+        </div>
+    </section>
 </div>
 {% endblock %}

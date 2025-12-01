@@ -1,0 +1,150 @@
+{% extends "core/base.html" %}
+
+{% block header %}
+{% with current=request.resolver_match.url_name %}
+<header class="relative overflow-hidden text-white rounded-b-[36px]" style="background: linear-gradient(120deg, #0f172a 0%, #142850 55%, #1f3b72 110%);">
+    <div class="absolute inset-0 opacity-70 pointer-events-none">
+        <div class="absolute -left-16 top-10 h-56 w-56 rounded-full bg-white/12 blur-3xl"></div>
+        <div class="absolute right-[-80px] top-[-40px] h-80 w-80 rounded-full bg-[#4c6ef5]/30 blur-[120px]"></div>
+        <div class="absolute bottom-[-60px] left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-white/10 blur-[110px]"></div>
+    </div>
+
+    <div class="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10">
+        <div class="flex flex-col gap-8">
+            <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                <div class="flex items-start gap-4">
+                    <div class="flex h-16 w-16 items-center justify-center rounded-3xl bg-white/15 text-white text-2xl shadow-lg shadow-[#0f172a]/30">
+                        <i class="fas fa-heart-pulse"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.45em] text-white/70">dY?� Veterinaria</p>
+                        <a href="{% url 'landing' %}" class="text-3xl font-semibold leading-tight text-white hover:text-white/90 transition">
+                            Sabueso Feliz
+                        </a>
+                        <p class="mt-2 text-sm text-white/75 max-w-lg">
+                            Clinica veterinaria premium con un cuidado calido, moderno y clinico para cada familia peluda.
+                        </p>
+                    </div>
+                </div>
+
+                {% if request.user.is_authenticated %}
+                    <div class="w-full lg:w-auto">
+                        <div class="rounded-[26px] bg-white/90 px-6 py-5 text-slate-900 shadow-2xl shadow-[#2B0E66]/20">
+                            <div class="flex items-start gap-4">
+                                <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#FFFFFF] text-[#7A3AFF] text-lg">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-xs uppercase tracking-[0.35em] text-slate-500">Panel activo</p>
+                                    <p class="mt-2 text-2xl font-semibold text-[#2E0E5C]">Hola, {{ request.user.get_full_name|default:request.user.username }}</p>
+                                    <p class="mt-1 text-sm text-slate-500">Tienes toda la informacion de tus pacientes en un tablero moderno y seguro.</p>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex flex-wrap items-center gap-3">
+                                <span class="inline-flex items-center gap-2 rounded-full bg-[#F4F3F9] px-4 py-1 text-xs font-semibold text-[#7A3AFF]">
+                                    <i class="fas fa-id-badge text-[0.8rem]"></i>
+                                    {{ request.user.get_rol_display }}
+                                </span>
+                                <a href="{% url 'configuracion_perfil' %}" class="inline-flex items-center gap-2 rounded-full bg-[#7A3AFF] px-4 py-1.5 text-xs font-semibold text-white shadow hover:opacity-90">
+                                    <i class="fas fa-gear text-[0.8rem]"></i>
+                                    Configuracion de perfil
+                                </a>
+                                <a href="{% url 'logout' %}" class="inline-flex items-center gap-2 rounded-full border border-[#C7B8FF] px-4 py-1.5 text-xs font-semibold text-[#2E0E5C] transition hover:bg-[#F4F3F9]">
+                                    <i class="fas fa-arrow-right-from-bracket text-[0.8rem]"></i>
+                                    Cerrar sesion
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="w-full lg:w-auto">
+                        <div class="max-w-[260px] rounded-[28px] bg-white/95 px-4 py-4 text-center text-[#381d60] shadow-xl shadow-[#240b4f]/15 ring-1 ring-white/60">
+                            <div class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-[#7A3AFF] to-[#9C6CFF] text-white text-base shadow shadow-[#7A3AFF]/30">
+                                <i class="fas fa-paw"></i>
+                            </div>
+                            <p class="text-xs leading-snug text-[#58406f]">
+                                Gestiona citas y seguimientos en un panel premium.
+                            </p>
+                            <div class="mt-4 flex flex-col gap-2">
+                                <a href="{% url 'login' %}" class="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#7A3AFF] to-[#9C6CFF] px-4 py-1.5 text-xs font-semibold text-white shadow-md hover:opacity-90">
+                                    <i class="fas fa-right-to-bracket"></i> Ingresar
+                                </a>
+                                <a href="{% url 'registro_propietario' %}" class="inline-flex items-center justify-center gap-2 rounded-full border border-[#7A3AFF] px-4 py-1.5 text-xs font-semibold text-[#7A3AFF] bg-white hover:bg-[#F5F0FF]">
+                                    <i class="fas fa-user-plus"></i> Registrarme
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <nav class="eva-nav">
+                <a href="{% url 'landing' %}" class="eva-nav-link {% if current == 'landing' %}active{% endif %}">
+                    <i class="fas fa-home mr-2"></i>Inicio
+                </a>
+                <a href="{% url 'tienda' %}" class="eva-nav-link {% if current == 'tienda' or current == 'detalle_producto' %}active{% endif %}">
+                    <i class="fas fa-store mr-2"></i>Tienda
+                </a>
+                <a href="{% url 'contacto' %}" class="eva-nav-link {% if current == 'contacto' %}active{% endif %}">
+                    <i class="fas fa-envelope-open-text mr-2"></i>Contacto
+                </a>
+
+                {% if request.user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}" class="eva-nav-link {% if current == 'dashboard' %}active{% endif %}">
+                        <i class="fas fa-chart-line mr-2"></i>Panel
+                    </a>
+
+                    {% if request.user.rol == "ADMIN" or request.user.rol == "ADMIN_OP" %}
+                        <a href="{% url 'listar_usuarios' %}" class="eva-nav-link {% if current == 'listar_usuarios' %}active{% endif %}">
+                            <i class="fas fa-users mr-2"></i>Usuarios
+                        </a>
+                        <a href="{% url 'listar_pacientes' %}" class="eva-nav-link {% if current == 'listar_pacientes' %}active{% endif %}">
+                            <i class="fas fa-dog mr-2"></i>Pacientes
+                        </a>
+                        <a href="{% url 'listar_citas_admin' %}" class="eva-nav-link {% if current == 'listar_citas_admin' or current == 'asignar_veterinario_citas' %}active{% endif %}">
+                            <i class="fas fa-calendar-check mr-2"></i>Citas
+                        </a>
+                    {% endif %}
+
+                    {% if request.user.rol == "ADMIN" %}
+                        <a href="{% url 'dashboard_veterinarios' %}" class="eva-nav-link {% if current == 'dashboard_veterinarios' %}active{% endif %}">
+                            <i class="fas fa-user-md mr-2"></i>Equipo
+                        </a>
+                        <a href="{% url 'admin_productos_list' %}" class="eva-nav-link {% if current == 'admin_productos_list' %}active{% endif %}">
+                            <i class="fas fa-box-open mr-2"></i>Inventario
+                        </a>
+                    {% elif request.user.rol == "ADMIN_OP" %}
+                        <a href="{% url 'dashboard_veterinarios' %}" class="eva-nav-link {% if current == 'dashboard_veterinarios' %}active{% endif %}">
+                            <i class="fas fa-user-md mr-2"></i>Equipo
+                        </a>
+                    {% elif request.user.rol == "VET" %}
+                        <a href="{% url 'mis_citas' %}" class="eva-nav-link {% if current == 'mis_citas' or current == 'detalle_cita' %}active{% endif %}">
+                            <i class="fas fa-calendar-check mr-2"></i>Mis citas
+                        </a>
+                        <a href="{% url 'historial_medico_vet' %}" class="eva-nav-link {% if current == 'historial_medico_vet' or current == 'detalle_historial' %}active{% endif %}">
+                            <i class="fas fa-file-medical mr-2"></i>Historiales
+                        </a>
+                        <a href="{% url 'inventario_farmacos_veterinario' %}" class="eva-nav-link {% if current == 'inventario_farmacos_veterinario' %}active{% endif %}">
+                            <i class="fas fa-prescription-bottle-medical mr-2"></i>Inventario farmacos
+                        </a>
+                    {% elif request.user.rol == "OWNER" %}
+                        <a href="{% url 'mis_mascotas' %}" class="eva-nav-link {% if current == 'mis_mascotas' or current == 'detalle_mascota' or current == 'detalle_mascota_admin' %}active{% endif %}">
+                            <i class="fas fa-paw mr-2"></i>Mis mascotas
+                        </a>
+                        <a href="{% url 'calendario_vacunas' %}" class="eva-nav-link {% if current == 'calendario_vacunas' %}active{% endif %}">
+                            <i class="fas fa-syringe mr-2"></i>Vacunas
+                        </a>
+                        <a href="{% url 'mis_citas' %}" class="eva-nav-link {% if current == 'mis_citas' %}active{% endif %}">
+                            <i class="fas fa-calendar-alt mr-2"></i>Mis citas
+                        </a>
+                        <a href="{% url 'agendar_cita' %}" class="eva-nav-link {% if current == 'agendar_cita' %}active{% endif %}">
+                            <i class="fas fa-plus-circle mr-2"></i>Agendar
+                        </a>
+                    {% endif %}
+                {% endif %}
+            </nav>
+        </div>
+    </div>
+</header>
+{% endwith %}
+{% endblock %}

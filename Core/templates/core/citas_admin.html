@@ -1,92 +1,155 @@
-{% extends "core/base.html" %}
+{% extends "core/header.html" %}
 
-{% block title %}Gestión integral de citas - Sabueso Feliz{% endblock %}
+{% block title %}Gestion integral de citas - Sabueso Feliz{% endblock %}
 
 {% block main_class %}max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10{% endblock %}
 
 {% block content %}
 <div class="space-y-10">
-    <div class="flex flex-wrap items-center justify-between gap-4">
-        <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Administración</p>
-            <h2 class="text-2xl font-bold text-gray-900">Citas y agenda clínica</h2>
-            <p class="mt-2 max-w-2xl text-sm text-gray-600">
-                Supervisá toda la agenda de la clínica, filtrá por estado o profesional y coordiná acciones inmediatas sobre cada cita.
-            </p>
-            {% if sucursal_activa %}
-                <p class="mt-3 inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
-                    <i class="fas fa-map-marker-alt"></i>
-                    Gestión actual: {{ sucursal_activa.nombre }}
+    <section class="overflow-hidden rounded-3xl bg-gradient-to-r from-sky-50 via-white to-indigo-50 p-6 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-6">
+            <div class="max-w-2xl space-y-3">
+                <p class="text-xs font-semibold uppercase tracking-[0.35em] text-indigo-400">Administracion</p>
+                <h1 class="text-3xl font-bold text-slate-900">Panel integral de citas</h1>
+                <p class="text-sm text-slate-600">
+                    Centraliz la agenda completa, interpreta tendencias a simple vista y dispara acciones inmediatas sin abandonar el tablero.
+                    Las secciones siguientes agrupan busquedas, filtros y listados para que el flujo sea evidente.
                 </p>
-            {% elif es_superadmin %}
-                <p class="mt-3 inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                    <i class="fas fa-crown"></i>
-                    Super administrador · Todas las sucursales
-                </p>
-            {% endif %}
+                <div class="flex flex-wrap gap-3">
+                    <span class="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-xs font-semibold text-indigo-700 shadow-sm">
+                        <i class="fas fa-database"></i>
+                        {{ total_global }} citas consolidadas
+                    </span>
+                    {% if sucursal_activa %}
+                        <span class="inline-flex items-center gap-2 rounded-full bg-indigo-600/10 px-4 py-2 text-xs font-semibold text-indigo-800">
+                            <i class="fas fa-map-marker-alt"></i>
+                            Gestionando {{ sucursal_activa.nombre }}
+                        </span>
+                    {% elif es_superadmin %}
+                        <span class="inline-flex items-center gap-2 rounded-full bg-slate-900/10 px-4 py-2 text-xs font-semibold text-slate-800">
+                            <i class="fas fa-crown"></i>
+                            Super administrador  Todas las sedes
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="flex flex-col gap-3 text-sm font-semibold text-white">
+                <a href="{% url 'asignar_veterinario_citas' %}" class="inline-flex items-center gap-3 rounded-2xl bg-emerald-600 px-5 py-3 shadow hover:bg-emerald-700">
+                    <i class="fas fa-user-plus text-base"></i>
+                    Asignar turnos pendientes
+                </a>
+                <a href="{% url 'listar_citas_admin' %}?estado=pendiente&sin_veterinario=1" class="inline-flex items-center gap-3 rounded-2xl bg-amber-500 px-5 py-3 shadow hover:bg-amber-600">
+                    <i class="fas fa-bolt text-base"></i>
+                    Resolver urgentes sin profesional
+                </a>
+            </div>
         </div>
-        <div class="flex flex-wrap items-center gap-3">
-            <span class="inline-flex items-center gap-2 rounded-full bg-cyan-50 px-4 py-2 text-sm font-semibold text-cyan-700">
-                <i class="fas fa-database"></i>
-                {{ total_global }} citas en total
-            </span>
-            <a href="{% url 'asignar_veterinario_citas' %}" class="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-700">
-                <i class="fas fa-user-plus"></i>
-                Asignar turnos pendientes
-            </a>
-        </div>
-    </div>
+    </section>
 
-    <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <section class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         <article class="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm">
-            <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Pendientes</p>
-            <p class="mt-3 text-3xl font-bold text-blue-600">{{ resumen_filtrado.pendiente }}</p>
-            <p class="mt-1 text-xs text-gray-500">En espera de confirmación</p>
+            <div class="flex items-center justify-between text-xs uppercase tracking-wider text-blue-500">
+                <span>Pendientes</span>
+                <i class="fas fa-hourglass-half"></i>
+            </div>
+            <p class="mt-4 text-4xl font-bold text-blue-600">{{ resumen_filtrado.pendiente }}</p>
+            <p class="mt-2 text-xs text-gray-500">Solicitudes esperando confirmacion.</p>
         </article>
         <article class="rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm">
-            <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Programadas</p>
-            <p class="mt-3 text-3xl font-bold text-emerald-600">{{ resumen_filtrado.programada }}</p>
-            <p class="mt-1 text-xs text-gray-500">Con horario confirmado</p>
+            <div class="flex items-center justify-between text-xs uppercase tracking-wider text-emerald-500">
+                <span>Programadas</span>
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <p class="mt-4 text-4xl font-bold text-emerald-600">{{ resumen_filtrado.programada }}</p>
+            <p class="mt-2 text-xs text-gray-500">Turnos confirmados con horario.</p>
         </article>
         <article class="rounded-2xl border border-purple-100 bg-white p-5 shadow-sm">
-            <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Atendidas</p>
-            <p class="mt-3 text-3xl font-bold text-purple-600">{{ resumen_filtrado.atendida }}</p>
-            <p class="mt-1 text-xs text-gray-500">Finalizadas recientemente</p>
+            <div class="flex items-center justify-between text-xs uppercase tracking-wider text-purple-500">
+                <span>Atendidas</span>
+                <i class="fas fa-stethoscope"></i>
+            </div>
+            <p class="mt-4 text-4xl font-bold text-purple-600">{{ resumen_filtrado.atendida }}</p>
+            <p class="mt-2 text-xs text-gray-500">Casos cerrados en el periodo.</p>
         </article>
         <article class="rounded-2xl border border-rose-100 bg-white p-5 shadow-sm">
-            <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Canceladas</p>
-            <p class="mt-3 text-3xl font-bold text-rose-600">{{ resumen_filtrado.cancelada }}</p>
-            <p class="mt-1 text-xs text-gray-500">Reprogramar si corresponde</p>
+            <div class="flex items-center justify-between text-xs uppercase tracking-wider text-rose-500">
+                <span>Canceladas</span>
+                <i class="fas fa-rotate-left"></i>
+            </div>
+            <p class="mt-4 text-4xl font-bold text-rose-600">{{ resumen_filtrado.cancelada }}</p>
+            <p class="mt-2 text-xs text-gray-500">Casos para reprogramar o cerrar.</p>
         </article>
     </section>
 
-    <form method="get" class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <form method="get" class="space-y-8 rounded-3xl border border-gray-200 bg-white/90 p-6 shadow-sm">
+        <header class="flex flex-wrap items-center justify-between gap-4">
             <div>
-                <label for="buscar" class="block text-xs font-semibold uppercase tracking-wide text-gray-500">Buscar</label>
-                <input type="text" id="buscar" name="q" value="{{ filtros.q }}" placeholder="Paciente, propietario, nota..." class="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 focus:border-cyan-500 focus:ring-cyan-500" />
+                <p class="text-xs font-semibold uppercase tracking-[0.4em] text-gray-400">Filtros inteligentes</p>
+                <h3 class="mt-1 text-xl font-semibold text-gray-900">Secciona tus citas por contexto</h3>
+                <p class="text-sm text-gray-500">Primero buscador y fechas, luego agrupadores por estado, tipo y responsables.</p>
             </div>
-            <div>
-                <label for="estado" class="block text-xs font-semibold uppercase tracking-wide text-gray-500">Estado</label>
-                <select id="estado" name="estado" class="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 focus:border-cyan-500 focus:ring-cyan-500">
-                    <option value="">Todos</option>
+            <span class="rounded-full bg-gray-100 px-4 py-1 text-xs font-semibold text-gray-600">
+                {{ total_citas }} coincidencias visibles
+            </span>
+        </header>
+
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-4">
+            <label class="lg:col-span-2">
+                <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Buscar</span>
+                <div class="mt-2 flex items-center rounded-2xl border border-gray-200 bg-gray-50 px-3">
+                    <i class="fas fa-search text-gray-400"></i>
+                    <input type="text" id="buscar" name="q" value="{{ filtros.q }}" placeholder="Paciente, tutor, nota o ID" class="w-full border-0 bg-transparent px-3 py-3 text-sm text-gray-800 focus:outline-none focus:ring-0" />
+                </div>
+            </label>
+            <label>
+                <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Desde</span>
+                <input type="date" id="desde" name="desde" value="{{ filtros.desde }}" class="mt-2 w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-700 focus:border-cyan-500 focus:ring-cyan-500" />
+            </label>
+            <label>
+                <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Hasta</span>
+                <input type="date" id="hasta" name="hasta" value="{{ filtros.hasta }}" class="mt-2 w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-700 focus:border-cyan-500 focus:ring-cyan-500" />
+            </label>
+        </div>
+
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <fieldset>
+                <legend class="text-xs font-semibold uppercase tracking-wider text-gray-500">Estado</legend>
+                <div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    <label class="group flex cursor-pointer flex-col rounded-2xl border border-transparent bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-600 shadow-sm transition hover:bg-white hover:text-gray-900 {% if not filtros.estado %}!border-cyan-200 bg-cyan-50 text-cyan-800{% endif %}">
+                        <input type="radio" name="estado" value="" class="sr-only" {% if not filtros.estado %}checked{% endif %}>
+                        <span>Todos</span>
+                        <span class="text-xs font-normal text-gray-500 group-[input:checked+span+span]:text-cyan-700">Sin filtro</span>
+                    </label>
                     {% for valor, etiqueta in estados %}
-                        <option value="{{ valor }}" {% if filtros.estado == valor %}selected{% endif %}>{{ etiqueta }}</option>
+                        <label class="group flex cursor-pointer flex-col rounded-2xl border border-gray-100 px-4 py-3 text-sm font-semibold text-gray-600 shadow-sm transition hover:border-cyan-200 hover:text-gray-900 {% if filtros.estado == valor %}!border-cyan-400 bg-cyan-50 text-cyan-800{% endif %}">
+                            <input type="radio" name="estado" value="{{ valor }}" class="sr-only" {% if filtros.estado == valor %}checked{% endif %}>
+                            <span>{{ etiqueta }}</span>
+                        </label>
                     {% endfor %}
-                </select>
-            </div>
-            <div>
-                <label for="tipo" class="block text-xs font-semibold uppercase tracking-wide text-gray-500">Tipo</label>
-                <select id="tipo" name="tipo" class="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 focus:border-cyan-500 focus:ring-cyan-500">
-                    <option value="">Todos</option>
+                </div>
+            </fieldset>
+            <fieldset>
+                <legend class="text-xs font-semibold uppercase tracking-wider text-gray-500">Tipo de cita</legend>
+                <div class="mt-3 grid grid-cols-2 gap-3">
+                    <label class="group flex cursor-pointer flex-col rounded-2xl border border-transparent bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-600 shadow-sm transition hover:bg-white hover:text-gray-900 {% if not filtros.tipo %}!border-indigo-200 bg-indigo-50 text-indigo-800{% endif %}">
+                        <input type="radio" name="tipo" value="" class="sr-only" {% if not filtros.tipo %}checked{% endif %}>
+                        <span>Todos</span>
+                        <span class="text-xs font-normal text-gray-500 group-[input:checked+span+span]:text-indigo-700">Sin filtro</span>
+                    </label>
                     {% for valor, etiqueta in tipos %}
-                        <option value="{{ valor }}" {% if filtros.tipo == valor %}selected{% endif %}>{{ etiqueta }}</option>
+                        <label class="group flex cursor-pointer flex-col rounded-2xl border border-gray-100 px-4 py-3 text-sm font-semibold text-gray-600 shadow-sm transition hover:border-indigo-200 hover:text-gray-900 {% if filtros.tipo == valor %}!border-indigo-400 bg-indigo-50 text-indigo-800{% endif %}">
+                            <input type="radio" name="tipo" value="{{ valor }}" class="sr-only" {% if filtros.tipo == valor %}checked{% endif %}>
+                            <span>{{ etiqueta }}</span>
+                        </label>
                     {% endfor %}
-                </select>
-            </div>
-            <div>
-                <label for="veterinario" class="block text-xs font-semibold uppercase tracking-wide text-gray-500">Veterinario</label>
-                <select id="veterinario" name="veterinario" class="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 focus:border-cyan-500 focus:ring-cyan-500">
+                </div>
+            </fieldset>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+            <div class="rounded-2xl border border-gray-200 p-4">
+                <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Veterinario</p>
+                <select id="veterinario" name="veterinario" class="mt-2 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm text-gray-700 focus:border-cyan-500 focus:ring-cyan-500">
                     <option value="">Todos</option>
                     <option value="sin_asignar" {% if filtros.veterinario == 'sin_asignar' %}selected{% endif %}>Sin asignar</option>
                     {% for veterinario in veterinarios %}
@@ -95,10 +158,14 @@
                         </option>
                     {% endfor %}
                 </select>
+                <label class="mt-3 flex items-center gap-2 text-xs text-gray-600">
+                    <input type="checkbox" id="sin_veterinario" name="sin_veterinario" value="1" class="rounded border-gray-300 text-cyan-600 focus:ring-cyan-500" {% if filtros.sin_veterinario %}checked{% endif %}>
+                    Solo mostrar sin asignar
+                </label>
             </div>
-            <div>
-                <label for="propietario" class="block text-xs font-semibold uppercase tracking-wide text-gray-500">Propietario</label>
-                <select id="propietario" name="propietario" class="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 focus:border-cyan-500 focus:ring-cyan-500">
+            <div class="rounded-2xl border border-gray-200 p-4">
+                <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Propietario</p>
+                <select id="propietario" name="propietario" class="mt-2 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm text-gray-700 focus:border-cyan-500 focus:ring-cyan-500">
                     <option value="">Todos</option>
                     {% for propietario in propietarios %}
                         <option value="{{ propietario.id }}" {% if filtros.propietario|add:'' == propietario.id|add:'' %}selected{% endif %}>
@@ -106,41 +173,58 @@
                         </option>
                     {% endfor %}
                 </select>
+                <p class="mt-3 text-xs text-gray-500">Listado alfabetico para ubicar tutores frecuentes.</p>
             </div>
-            <div>
-                <label for="desde" class="block text-xs font-semibold uppercase tracking-wide text-gray-500">Desde</label>
-                <input type="date" id="desde" name="desde" value="{{ filtros.desde }}" class="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 focus:border-cyan-500 focus:ring-cyan-500" />
-            </div>
-            <div>
-                <label for="hasta" class="block text-xs font-semibold uppercase tracking-wide text-gray-500">Hasta</label>
-                <input type="date" id="hasta" name="hasta" value="{{ filtros.hasta }}" class="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 focus:border-cyan-500 focus:ring-cyan-500" />
-            </div>
-            <div class="flex items-center gap-2 pt-7">
-                <input type="checkbox" id="sin_veterinario" name="sin_veterinario" value="1" class="h-4 w-4 rounded border-gray-300 text-cyan-600 focus:ring-cyan-500" {% if filtros.sin_veterinario %}checked{% endif %}>
-                <label for="sin_veterinario" class="text-sm text-gray-600">Solo sin veterinario asignado</label>
+            <div class="rounded-2xl border border-gray-200 p-4">
+                <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Resumen aplicado</p>
+                <ul class="mt-3 space-y-2 text-sm text-gray-600">
+                    <li class="flex items-center gap-2">
+                        <i class="fas fa-tag text-cyan-500"></i>
+                        Estado: {{ filtros.estado|default:"todos" }}
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i class="fas fa-calendar text-indigo-500"></i>
+                        Tipo: {{ filtros.tipo|default:"todos" }}
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i class="fas fa-user-md text-emerald-500"></i>
+                        Veterinario: {% if filtros.veterinario == 'sin_asignar' %}solo sin asignar{% elif filtros.veterinario %}ID {{ filtros.veterinario }}{% else %}todos{% endif %}
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i class="fas fa-user text-purple-500"></i>
+                        Propietario: {% if filtros.propietario %}ID {{ filtros.propietario }}{% else %}todos{% endif %}
+                    </li>
+                </ul>
             </div>
         </div>
-        <div class="mt-6 flex flex-wrap items-center gap-3">
-            <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-cyan-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-cyan-700">
+
+        <div class="flex flex-wrap items-center gap-3">
+            <button type="submit" class="inline-flex items-center gap-2 rounded-2xl bg-cyan-600 px-6 py-3 text-sm font-semibold text-white shadow hover:bg-cyan-700">
                 <i class="fas fa-filter"></i>
                 Aplicar filtros
             </button>
-            <a href="{% url 'listar_citas_admin' %}" class="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100">
+            <a href="{% url 'listar_citas_admin' %}" class="inline-flex items-center gap-2 rounded-2xl border border-gray-200 px-6 py-3 text-sm font-semibold text-gray-600 hover:bg-gray-100">
                 <i class="fas fa-rotate-left"></i>
                 Limpiar
             </a>
-            <span class="text-xs text-gray-500">{{ total_citas }} coincidencias en la vista actual.</span>
+            <span class="text-xs text-gray-500">Los filtros se combinan entre si para refinar la agenda.</span>
         </div>
     </form>
 
     {% if proximas_citas %}
         <section class="rounded-3xl border border-cyan-100 bg-cyan-50/60 p-6 shadow-sm">
-            <h3 class="text-lg font-semibold text-cyan-900">Próximas citas confirmadas</h3>
-            <p class="text-sm text-cyan-800/80">Acciones rápidas para los próximos compromisos.</p>
+            <header class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.4em] text-cyan-500">Rutina inmediata</p>
+                    <h3 class="text-lg font-semibold text-cyan-900">Proximas citas confirmadas</h3>
+                    <p class="text-sm text-cyan-800/80">Accede a detalle o reasigna con dos clics.</p>
+                </div>
+                <span class="text-xs font-semibold uppercase tracking-widest text-cyan-700">{{ proximas_citas|length }} citas</span>
+            </header>
             <div class="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {% for cita in proximas_citas %}
                     <article class="rounded-2xl border border-cyan-100 bg-white p-4 shadow-sm">
-                        <p class="text-xs font-semibold uppercase tracking-wide text-cyan-600">{{ cita.fecha_hora|date:"d \d\e F" }} · {{ cita.fecha_hora|date:"H:i" }} hs</p>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-cyan-600">{{ cita.fecha_hora|date:"d \\d\\e F" }}  {{ cita.fecha_hora|date:"H:i" }} hs</p>
                         <h4 class="mt-1 text-lg font-semibold text-gray-900">{{ cita.paciente.nombre }}</h4>
                         <p class="mt-1 text-sm text-gray-600">Propietario: {{ cita.paciente.propietario.user.get_full_name|default:cita.paciente.propietario.user.username }}</p>
                         <p class="mt-1 text-sm text-gray-600">Veterinario: {% if cita.veterinario %}{{ cita.veterinario.get_full_name|default:cita.veterinario.username }}{% else %}Sin asignar{% endif %}</p>
@@ -163,10 +247,11 @@
     <section class="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 px-6 py-4">
             <div>
-                <h3 class="text-lg font-semibold text-gray-900">Listado de citas</h3>
-                <p class="text-sm text-gray-500">Gestioná cada turno con acciones inmediatas.</p>
+                <p class="text-xs font-semibold uppercase tracking-[0.4em] text-gray-400">Listado maestro</p>
+                <h3 class="text-lg font-semibold text-gray-900">Citas en monitoreo</h3>
+                <p class="text-sm text-gray-500">Elige una fila para abrir el expediente o ejecutar acciones rapidas.</p>
             </div>
-            <div class="flex items-center gap-2 text-xs text-gray-500">
+            <div class="flex flex-wrap items-center gap-2 text-xs text-gray-500">
                 <span class="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 font-semibold text-blue-700"><i class="fas fa-circle"></i>Pendiente</span>
                 <span class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 font-semibold text-emerald-700"><i class="fas fa-circle"></i>Programada</span>
                 <span class="inline-flex items-center gap-2 rounded-full bg-purple-50 px-3 py-1 font-semibold text-purple-700"><i class="fas fa-circle"></i>Atendida</span>
@@ -205,7 +290,7 @@
                             </td>
                             <td class="px-6 py-4">
                                 <p class="font-semibold text-gray-900">{{ cita.paciente.nombre }}</p>
-                                <p class="text-xs text-gray-500">{{ cita.paciente.especie }}{% if cita.paciente.raza %} · {{ cita.paciente.raza }}{% endif %}</p>
+                                <p class="text-xs text-gray-500">{{ cita.paciente.especie }}{% if cita.paciente.raza %}  {{ cita.paciente.raza }}{% endif %}</p>
                             </td>
                             <td class="px-6 py-4">
                                 <p class="text-sm font-medium text-gray-800">{{ cita.paciente.propietario.user.get_full_name|default:cita.paciente.propietario.user.username }}</p>
@@ -288,7 +373,7 @@
                         </tr>
                     {% empty %}
                         <tr>
-                            <td colspan="9" class="px-6 py-10 text-center text-sm text-gray-500">
+                            <td colspan="10" class="px-6 py-10 text-center text-sm text-gray-500">
                                 <i class="fas fa-calendar-check text-2xl"></i>
                                 <p class="mt-3">No se encontraron citas con los filtros actuales.</p>
                             </td>

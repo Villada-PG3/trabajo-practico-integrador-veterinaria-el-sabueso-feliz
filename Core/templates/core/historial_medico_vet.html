@@ -1,6 +1,6 @@
-{% extends "core/base.html" %}
+{% extends "core/header.html" %}
 
-{% block title %}Historial clínico del equipo{% endblock %}
+{% block title %}Historial clinico del equipo{% endblock %}
 
 {% block content %}
 <section class="mb-5">
@@ -8,10 +8,10 @@
          style="background: linear-gradient(135deg, #312e81 0%, #4338ca 35%, #0f172a 100%);">
         <div class="row align-items-center g-4">
             <div class="col-xl-7">
-                <span class="badge bg-white text-primary fw-semibold text-uppercase small mb-3">Gestión clínica</span>
-                <h1 class="display-6 fw-semibold mb-3">Historial médico consolidado</h1>
+                <span class="badge bg-white text-primary fw-semibold text-uppercase small mb-3">Gestion clinica</span>
+                <h1 class="display-6 fw-semibold mb-3">Historial medico consolidado</h1>
                 <p class="lead text-white-50 mb-4">
-                    Explora los informes clínicos generados por el equipo veterinario, detecta tendencias
+                    Explora los informes clinicos generados por el equipo veterinario, detecta tendencias
                     de especies y monitoriza la trazabilidad de cada caso atendido.
                 </p>
                 <div class="d-flex flex-wrap gap-3">
@@ -20,11 +20,11 @@
                         <p class="h3 fw-semibold mb-0">{{ resumen.total }}</p>
                     </div>
                     <div class="bg-white bg-opacity-10 rounded-3 px-4 py-3">
-                        <p class="text-uppercase small text-white-50 mb-1">Últimos 30 días</p>
+                        <p class="text-uppercase small text-white-50 mb-1">Ultimos 30 dias</p>
                         <p class="h3 fw-semibold mb-0">{{ resumen.mes }}</p>
                     </div>
                     <div class="bg-white bg-opacity-10 rounded-3 px-4 py-3">
-                        <p class="text-uppercase small text-white-50 mb-1">Pacientes únicos</p>
+                        <p class="text-uppercase small text-white-50 mb-1">Pacientes unicos</p>
                         <p class="h3 fw-semibold mb-0">{{ resumen.pacientes }}</p>
                     </div>
                 </div>
@@ -33,7 +33,7 @@
                 <div class="bg-white text-dark rounded-4 p-4 h-100">
                     <div class="d-flex align-items-start justify-content-between mb-3">
                         <div>
-                            <p class="text-uppercase text-muted small mb-1">Actualización</p>
+                            <p class="text-uppercase text-muted small mb-1">Actualizacion</p>
                             <h5 class="mb-0">Resumen operativo</h5>
                         </div>
                         <span class="badge bg-primary-subtle text-primary fw-semibold">{{ resumen.ultima_actualizacion|date:"d/m/Y H:i"|default:"Sin registros" }}</span>
@@ -61,7 +61,7 @@
                     <div class="input-group input-group-lg">
                         <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
                         <input type="text" id="buscar" name="q" class="form-control"
-                               placeholder="Paciente, propietario, diagnóstico..." value="{{ query }}">
+                               placeholder="Paciente, propietario, diagnostico..." value="{{ query }}">
                     </div>
                 </div>
                 <div class="col-sm-3 col-lg-2">
@@ -94,7 +94,7 @@
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h2 class="h5 mb-0">Especies más atendidas</h2>
+                        <h2 class="h5 mb-0">Especies mas atendidas</h2>
                         <span class="badge bg-primary-subtle text-primary">Top 4</span>
                     </div>
                     {% if especies_destacadas %}
@@ -109,7 +109,7 @@
                             {% endfor %}
                         </ul>
                     {% else %}
-                        <p class="text-muted mb-0">Aún no hay registros para analizar.</p>
+                        <p class="text-muted mb-0">Aun no hay registros para analizar.</p>
                     {% endif %}
                 </div>
             </div>
@@ -118,8 +118,8 @@
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h2 class="h5 mb-0">Profesionales con más actividad</h2>
-                        <span class="badge bg-success-subtle text-success">Últimos 30 días</span>
+                        <h2 class="h5 mb-0">Profesionales con mas actividad</h2>
+                        <span class="badge bg-success-subtle text-success">Ultimos 30 dias</span>
                     </div>
                     {% if profesionales_destacados %}
                         <ul class="list-group list-group-flush">
@@ -134,7 +134,7 @@
                             {% endfor %}
                         </ul>
                     {% else %}
-                        <p class="text-muted mb-0">Aún no hay profesionales con actividad en el período seleccionado.</p>
+                        <p class="text-muted mb-0">Aun no hay profesionales con actividad en el periodo seleccionado.</p>
                     {% endif %}
                 </div>
             </div>
@@ -147,8 +147,8 @@
         <div class="card-body">
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
                 <div>
-                    <h2 class="h5 mb-1">Historial clínico reciente</h2>
-                    <p class="text-muted small mb-0">Los últimos informes cargados por el equipo.</p>
+                    <h2 class="h5 mb-1">Historial clinico reciente</h2>
+                    <p class="text-muted small mb-0">Los ultimos informes cargados por el equipo.</p>
                 </div>
                 <a href="{% url 'mis_citas' %}#historiales" class="btn btn-outline-primary btn-sm">
                     <i class="bi bi-clock-history me-2"></i>Ver citas relacionadas
@@ -168,13 +168,23 @@
                                 </div>
                                 <p class="small text-muted mb-2"><i class="bi bi-person-badge me-1 text-primary"></i>{{ historial.veterinario.get_full_name|default:"Sin asignar" }}</p>
                                 <p class="mb-2 small">{{ historial.diagnostico|truncatechars:120 }}</p>
+                                {% if historial.cita and historial.cita.administraciones_farmacos.all %}
+                                    <div class="mb-3">
+                                        <span class="badge bg-light text-primary fw-semibold text-uppercase small">Medicamentos</span>
+                                        <ul class="list-unstyled mb-0 mt-2 text-muted small">
+                                            {% for admin in historial.cita.administraciones_farmacos.all %}
+                                                <li>{{ admin.farmaco.nombre }} - {{ admin.cantidad }} ud.</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
                                 <a href="{% url 'detalle_historial' historial.id %}" class="btn btn-sm btn-primary rounded-pill">Ver detalle</a>
                             </div>
                         </div>
                     {% endfor %}
                 </div>
             {% else %}
-                <p class="text-muted mb-0">Todavía no se registraron informes en el período seleccionado.</p>
+                <p class="text-muted mb-0">Todavia no se registraron informes en el periodo seleccionado.</p>
             {% endif %}
         </div>
     </div>
@@ -191,7 +201,8 @@
                             <th scope="col">Propietario</th>
                             <th scope="col" class="text-nowrap">Fecha registro</th>
                             <th scope="col">Profesional</th>
-                            <th scope="col">Diagnóstico</th>
+                            <th scope="col">Diagnostico</th>
+                            <th scope="col">Medicamentos</th>
                             <th scope="col" class="text-center">Acciones</th>
                         </tr>
                     </thead>
@@ -205,7 +216,7 @@
                                 <td>
                                     {% if hist.paciente.propietario %}
                                         <div class="fw-semibold">{{ hist.paciente.propietario.user.get_full_name|default:hist.paciente.propietario.user.username }}</div>
-                                        <div class="small text-muted">{{ hist.paciente.propietario.telefono|default:"Sin teléfono" }}</div>
+                                        <div class="small text-muted">{{ hist.paciente.propietario.telefono|default:"Sin telefono" }}</div>
                                     {% else %}
                                         <span class="badge bg-warning-subtle text-warning">Sin propietario</span>
                                     {% endif %}
@@ -221,6 +232,17 @@
                                     <div class="fw-semibold mb-1">{{ hist.diagnostico|truncatechars:80 }}</div>
                                     <div class="small text-muted">{{ hist.tratamiento|truncatechars:80 }}</div>
                                 </td>
+                                <td style="max-width: 240px;">
+                                    {% if hist.cita and hist.cita.administraciones_farmacos.all %}
+                                        <ul class="list-unstyled mb-0 text-muted small">
+                                            {% for admin in hist.cita.administraciones_farmacos.all %}
+                                                <li>{{ admin.farmaco.nombre }} - {{ admin.cantidad }} ud.</li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% else %}
+                                        <span class="text-muted small">Sin registros</span>
+                                    {% endif %}
+                                </td>
                                 <td class="text-center">
                                     <a href="{% url 'detalle_historial' hist.id %}" class="btn btn-sm btn-outline-primary rounded-pill">
                                         <i class="bi bi-eye me-1"></i>Ver
@@ -229,13 +251,13 @@
                             </tr>
                         {% empty %}
                             <tr>
-                                <td colspan="6" class="text-center py-5">
+                                <td colspan="7" class="text-center py-5">
                                     <div class="d-flex flex-column align-items-center gap-2">
                                         <span class="rounded-circle bg-primary-subtle text-primary d-inline-flex align-items-center justify-content-center" style="width:60px;height:60px;">
                                             <i class="bi bi-journal-medical fs-4"></i>
                                         </span>
                                         <p class="fw-semibold mb-0">Sin resultados para los filtros aplicados</p>
-                                        <p class="text-muted small mb-0">Ajusta la búsqueda para visualizar nuevos informes clínicos.</p>
+                                        <p class="text-muted small mb-0">Ajusta la busqueda para visualizar nuevos informes clinicos.</p>
                                     </div>
                                 </td>
                             </tr>

@@ -1,4 +1,4 @@
-{% extends 'core/base.html' %}
+{% extends 'core/header.html' %}
 {% block title %}Administrar productos{% endblock %}
 
 {% block content %}
@@ -28,9 +28,9 @@
                     <tr>
                         <td class="d-flex align-items-center gap-3">
                             {% if producto.imagen %}
-                                <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="rounded" style="width: 56px; height: 56px; object-fit: cover;">
+                                <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="product-thumb">
                             {% else %}
-                                <span class="d-inline-flex align-items-center justify-content-center rounded bg-light text-secondary" style="width: 56px; height: 56px;">
+                                <span class="product-thumb--placeholder">
                                     <i class="bi bi-box"></i>
                                 </span>
                             {% endif %}

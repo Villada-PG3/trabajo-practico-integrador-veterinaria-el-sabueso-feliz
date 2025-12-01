@@ -1,74 +1,155 @@
-{% extends "core/base.html" %}
+{% extends "core/header.html" %}
+{% load static %}
 
 {% block title %}Mis Mascotas{% endblock %}
 
+{% block extra_head %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/mis_mascotas.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
-    <div>
-        <h1 class="h3 mb-1">Mis Mascotas</h1>
-        <p class="text-muted mb-0">Accede al detalle clínico, su calendario de vacunas y agenda nuevas consultas</p>
-    </div>
-    <div class="d-flex gap-2">
-        <a href="{% url 'calendario_vacunas' %}" class="btn btn-outline-primary">
-            <i class="bi bi-calendar2-check me-2"></i>Calendario de vacunas
-        </a>
-        <a href="{% url 'registrar_mascota' %}" class="btn btn-primary">
-            <i class="bi bi-plus-lg me-2"></i>Registrar nueva mascota
-        </a>
-    </div>
-</div>
-
-<div class="row g-4">
-    {% for mascota in mascotas %}
-    <div class="col-md-6 col-xl-4">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body d-flex flex-column">
-                <div class="d-flex align-items-center gap-3 mb-3">
-                    <div class="rounded-circle overflow-hidden flex-shrink-0"
-                         style="width: 56px; height: 56px;">
-                        {% if mascota.foto %}
-                            <img src="{{ mascota.foto.url }}" alt="Foto de {{ mascota.nombre }}"
-                                 class="w-100 h-100 object-fit-cover">
-                        {% else %}
-                            <div class="w-100 h-100 bg-primary-subtle text-primary-emphasis d-flex align-items-center justify-content-center"
-                                 style="font-size: 1.75rem;">
-                                {% if mascota.especie|lower == "gato" %}🐱{% elif mascota.especie|lower == "ave" %}🦜{% else %}🐾{% endif %}
-                            </div>
-                        {% endif %}
-                    </div>
-                    <div>
-                        <h2 class="h5 mb-0">{{ mascota.nombre }}</h2>
-                        <span class="text-muted small">{{ mascota.especie }}{% if mascota.raza %} • {{ mascota.raza }}{% endif %}</span>
-                    </div>
-                </div>
-
-                <ul class="list-unstyled small text-muted mb-4">
-                    <li class="mb-1"><i class="bi bi-gender-ambiguous me-2"></i>{{ mascota.sexo }}</li>
-                    <li><i class="bi bi-cake me-2"></i>{{ mascota.fecha_nacimiento|date:"d/m/Y" }}</li>
-                </ul>
-
-                <div class="mt-auto d-grid gap-2">
-                    <a href="{% url 'detalle_mascota' mascota.id %}" class="btn btn-outline-primary">
-                        <i class="bi bi-search me-2"></i>Ver ficha completa
+<div class="pets-shell">
+    <section class="pets-hero">
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-8">
+                <p class="text-uppercase small fw-semibold text-white-50 mb-2">Cuidados integrales</p>
+                <h1 class="mb-3">Gestiona cada mascota sin perder detalle</h1>
+                <p class="text-white-75 mb-4">Organiza sus fichas clinicas, recordatorios de vacunas y proximas citas desde un espacio disenado para tutores exigentes.</p>
+                <div class="quick-actions">
+                    <a href="{% url 'registrar_mascota' %}" class="btn btn-light text-primary fw-semibold">
+                        <i class="bi bi-plus-circle me-2"></i>Nueva mascota
                     </a>
-                    <a href="{% url 'agendar_cita' %}?paciente={{ mascota.id }}" class="btn btn-outline-secondary">
-                        <i class="bi bi-calendar-plus me-2"></i>Agendar cita
+                    <a href="{% url 'calendario_vacunas' %}" class="btn btn-outline-light fw-semibold">
+                        <i class="bi bi-calendar2-check me-2"></i>Calendario de vacunas
+                    </a>
+                    <a href="{% url 'transferir_mascota' %}" class="btn btn-outline-light fw-semibold">
+                        <i class="bi bi-arrow-left-right me-2"></i>Transferir mascota
                     </a>
                 </div>
             </div>
+            <div class="col-lg-4">
+                <div class="pill mb-3">
+                    <i class="bi bi-heart"></i>
+                    {{ mascotas|length }} Mascotas activas
+                </div>
+                <div class="bg-white bg-opacity-10 rounded-4 p-4">
+                    <p class="text-uppercase small text-white-75 mb-1">Tip del dia</p>
+                    <p class="fw-semibold mb-0">Agrega notas clinicas en cada ficha despues de una cita para que el equipo tenga el contexto al instante.</p>
+                </div>
+            </div>
         </div>
-    </div>
-    {% empty %}
-    <div class="col-12">
-        <div class="text-center py-5 bg-light rounded-4">
-            <i class="bi bi-emoji-frown display-5 d-block mb-3"></i>
-            <h3 class="h5">No tienes mascotas registradas</h3>
-            <p class="text-muted">Registra tu primera mascota para comenzar a administrar sus citas e historiales.</p>
-            <a href="{% url 'registrar_mascota' %}" class="btn btn-primary">
-                <i class="bi bi-plus-lg me-2"></i>Registrar mascota
-            </a>
+    </section>
+
+    <section>
+        <div class="row g-4">
+            {% for mascota in mascotas %}
+            <div class="col-md-6 col-xl-4">
+                <article class="pet-card">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="pet-avatar bg-light d-flex align-items-center justify-content-center">
+                            {% if mascota.foto %}
+                                <img src="{{ mascota.foto.url }}" alt="Foto de {{ mascota.nombre }}" class="w-100 h-100 object-fit-cover">
+                            {% else %}
+                                <span class="fw-bold text-primary">{{ mascota.nombre|slice:":1"|upper }}</span>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <p class="text-uppercase text-muted small mb-1">Mascota</p>
+                            <h2 class="h4 mb-0">{{ mascota.nombre }}</h2>
+                            <span class="text-muted">{{ mascota.especie }}{% if mascota.raza %} - {{ mascota.raza }}{% endif %}</span>
+                        </div>
+                    </div>
+                    <div class="pet-meta">
+                        <span><i class="bi bi-gender-ambiguous"></i>{{ mascota.sexo|default:"Sin dato" }}</span>
+                        <span><i class="bi bi-cake"></i>{{ mascota.fecha_nacimiento|date:"d/m/Y" }}</span>
+                    </div>
+                    <div class="pet-actions mt-auto d-grid gap-2">
+                        <a href="{% url 'detalle_mascota' mascota.id %}" class="btn btn-outline-primary">
+                            <i class="bi bi-search me-2"></i>Ver ficha completa
+                        </a>
+                        <a href="{% url 'agendar_cita' %}?paciente={{ mascota.id }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-calendar-plus me-2"></i>Agendar cita
+                        </a>
+                        <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalFoto{{ mascota.id }}">
+                            <i class="bi bi-image me-2"></i>Cambiar o poner foto
+                        </button>
+                    </div>
+                </article>
+            </div>
+            <div class="modal fade" id="modalFoto{{ mascota.id }}" tabindex="-1" aria-labelledby="modalFotoLabel{{ mascota.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <form method="post" action="{% url 'actualizar_foto_mascota' mascota.id %}" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalFotoLabel{{ mascota.id }}">Actualizar foto de {{ mascota.nombre }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p class="text-muted small mb-3">Elegí una imagen JPG o PNG para personalizar la tarjeta de tu mascota.</p>
+                                <div class="border border-dashed rounded-4 p-4 text-center bg-light">
+                                    <div class="mb-2">
+                                        <i class="bi bi-cloud-arrow-up fs-2 text-primary"></i>
+                                    </div>
+                                    <p class="fw-semibold mb-2" id="fotoSeleccionada{{ mascota.id }}">Ningún archivo seleccionado</p>
+                                    <p class="text-muted small mb-3">Formatos admitidos: JPG o PNG. Peso máximo sugerido 2MB.</p>
+                                    <button type="button" class="btn btn-outline-primary btn-select-photo" data-input-target="inputFoto{{ mascota.id }}">
+                                        <i class="bi bi-image me-2"></i>Elegir archivo
+                                    </button>
+                                    <input type="file" class="d-none foto-input" id="inputFoto{{ mascota.id }}" name="foto" accept="image/png,image/jpeg">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-cloud-upload me-2"></i>Subir imagen
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="pets-empty text-center">
+                    <i class="bi bi-emoji-smile display-4 text-primary d-block mb-3"></i>
+                    <h3 class="h5">Todavia no registraste mascotas</h3>
+                    <p class="text-muted mb-4">Suma tu primera ficha para habilitar recordatorios, calendario y seguimiento clinico.</p>
+                    <a href="{% url 'registrar_mascota' %}" class="btn btn-primary btn-lg rounded-pill">
+                        <i class="bi bi-plus-lg me-2"></i>Registrar mascota
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
         </div>
-    </div>
-    {% endfor %}
+    </section>
 </div>
 {% endblock %}
+
+{% block extra_scripts %}
+    {{ block.super }}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".btn-select-photo").forEach(function (btn) {
+                btn.addEventListener("click", function () {
+                    const inputId = btn.getAttribute("data-input-target");
+                    const input = document.getElementById(inputId);
+                    if (input) {
+                        input.click();
+                    }
+                });
+            });
+
+            document.querySelectorAll(".foto-input").forEach(function (input) {
+                input.addEventListener("change", function () {
+                    const label = document.getElementById("fotoSeleccionada" + input.id.replace("inputFoto", ""));
+                    if (label) {
+                        label.textContent = input.files.length ? input.files[0].name : "Ningún archivo seleccionado";
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}
+

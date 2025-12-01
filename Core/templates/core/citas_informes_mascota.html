@@ -1,0 +1,63 @@
+{% extends "core/header.html" %}
+
+{% block title %}Informes de {{ paciente.nombre }}{% endblock %}
+
+{% block main_class %}px-4 sm:px-6 lg:px-8 py-16 bg-slate-50 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-8">
+    <section class="rounded-[32px] bg-white shadow-xl p-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <p class="text-xs uppercase tracking-[0.35em] text-slate-400">Informes disponibles</p>
+            <h1 class="text-3xl font-semibold text-slate-900">Citas atendidas de {{ paciente.nombre }}</h1>
+            <p class="text-sm text-slate-500">Consulta rápidamente los reportes clínicos generados para esta mascota.</p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+            <a href="{% url 'detalle_mascota' paciente.id %}" class="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100">
+                <i class="bi bi-arrow-left"></i>
+                Volver a la ficha
+            </a>
+            {% if request.user.rol == "OWNER" %}
+            <a href="{% url 'agendar_cita' %}?paciente={{ paciente.id }}" class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-cyan-500/30">
+                <i class="bi bi-calendar-plus"></i>
+                Agendar nueva cita
+            </a>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="space-y-4">
+        {% for cita in citas %}
+        <article class="rounded-[24px] border border-slate-100 bg-white shadow-sm p-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Cita atendida</p>
+                <h2 class="text-xl font-semibold text-slate-900">
+                    {% if cita.fecha_hora %}
+                        {{ cita.fecha_hora|date:"d/m/Y H:i" }}
+                    {% else %}
+                        {{ cita.fecha_solicitada|date:"d/m/Y" }} (sin horario)
+                    {% endif %}
+                </h2>
+                <p class="text-sm text-slate-500">Veterinario: {{ cita.veterinario.get_full_name|default:cita.veterinario.username|default:"Sin asignar" }}</p>
+                <p class="text-sm text-slate-500">Sucursal: {{ cita.sucursal.nombre }}</p>
+            </div>
+            <div class="flex flex-wrap gap-3">
+                <span class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-1 text-xs font-semibold text-emerald-700">
+                    <i class="bi bi-check2-circle"></i>
+                    Informe disponible
+                </span>
+                <a href="{% url 'detalle_cita' cita.id %}" class="inline-flex items-center gap-2 rounded-full border border-[#7A3AFF] px-4 py-2 text-xs font-semibold text-[#7A3AFF] hover:bg-[#f4f0ff]">
+                    <i class="bi bi-eye"></i>
+                    Ver informe
+                </a>
+            </div>
+        </article>
+        {% empty %}
+        <div class="rounded-[24px] border border-dashed border-slate-200 bg-white p-6 text-center text-slate-500">
+            <i class="bi bi-clipboard2-check display-6 d-block mb-3"></i>
+            <p>No hay citas con informes registrados para esta mascota.</p>
+        </div>
+        {% endfor %}
+    </section>
+</div>
+{% endblock %}

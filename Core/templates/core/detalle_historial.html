@@ -1,4 +1,4 @@
-{% extends "core/base.html" %}
+{% extends "core/header.html" %}
 
 {% block title %}Detalle Historial{% endblock %}
 
@@ -7,10 +7,10 @@
     <div class="row justify-content-center">
         <div class="col-xl-10">
             <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-                <div class="card-header bg-gradient text-white py-4" style="background: linear-gradient(135deg, #1f2937 0%, #0f172a 40%, #2563eb 100%);">
+                <div class="card-header text-white py-4" style="background: linear-gradient(135deg, #1f2937 0%, #0f172a 40%, #2563eb 100%);">
                     <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
                         <div>
-                            <p class="text-uppercase small text-white-50 mb-1">Historial clínico</p>
+                            <p class="text-uppercase small text-white-50 mb-1">Historial clinico</p>
                             <h1 class="h4 mb-0">{{ historial.paciente.nombre }} <span class="text-white-50">({{ historial.paciente.especie }})</span></h1>
                         </div>
                         <div class="text-md-end">
@@ -27,9 +27,9 @@
                                 {% if historial.paciente.propietario %}
                                     {% with propietario=historial.paciente.propietario %}
                                     <h2 class="h5 mb-1">{{ propietario.user.get_full_name|default:propietario.user.username }}</h2>
-                                    <p class="text-muted small mb-1"><i class="bi bi-telephone me-2"></i>{{ propietario.telefono|default:"Sin teléfono" }}</p>
+                                    <p class="text-muted small mb-1"><i class="bi bi-telephone me-2"></i>{{ propietario.telefono|default:"Sin telefono" }}</p>
                                     <p class="text-muted small mb-1"><i class="bi bi-envelope me-2"></i>{{ propietario.user.email|default:"Sin correo" }}</p>
-                                    <p class="text-muted small mb-0"><i class="bi bi-geo-alt me-2"></i>{{ propietario.direccion|default:propietario.user.direccion|default:"Sin dirección" }}</p>
+                                    <p class="text-muted small mb-0"><i class="bi bi-geo-alt me-2"></i>{{ propietario.direccion|default:"Sin direccion" }}</p>
                                     {% endwith %}
                                 {% else %}
                                     <p class="text-muted mb-0">Sin propietario registrado.</p>
@@ -52,8 +52,8 @@
                     <div class="row g-4">
                         <div class="col-xl-8">
                             <div class="rounded-4 border border-light p-4 h-100 bg-white">
-                                <h3 class="h5 mb-3">Resumen clínico</h3>
-                                <p class="mb-3"><span class="fw-semibold text-muted text-uppercase small d-block">Diagnóstico</span>{{ historial.diagnostico }}</p>
+                                <h3 class="h5 mb-3">Resumen clinico</h3>
+                                <p class="mb-3"><span class="fw-semibold text-muted text-uppercase small d-block">Diagnostico</span>{{ historial.diagnostico }}</p>
                                 <p class="mb-3"><span class="fw-semibold text-muted text-uppercase small d-block">Tratamiento</span>{{ historial.tratamiento }}</p>
                                 <p class="mb-3"><span class="fw-semibold text-muted text-uppercase small d-block">Notas</span>{{ historial.notas|default:"Sin observaciones adicionales" }}</p>
                                 <div class="row g-3">
@@ -61,10 +61,10 @@
                                         <p class="mb-0"><span class="text-uppercase small text-muted d-block">Peso</span>{{ historial.peso|default:"-" }} kg</p>
                                     </div>
                                     <div class="col-sm-4">
-                                        <p class="mb-0"><span class="text-uppercase small text-muted d-block">Temperatura</span>{{ historial.temperatura|default:"-" }} °C</p>
+                                        <p class="mb-0"><span class="text-uppercase small text-muted d-block">Temperatura</span>{{ historial.temperatura|default:"-" }} C</p>
                                     </div>
                                     <div class="col-sm-4">
-                                        <p class="mb-0"><span class="text-uppercase small text-muted d-block">Próximo paso</span>
+                                        <p class="mb-0"><span class="text-uppercase small text-muted d-block">Proximo paso</span>
                                             {% if historial.sin_proximo_control %}
                                                 No requiere seguimiento programado
                                             {% elif historial.proximo_control %}
@@ -77,18 +77,33 @@
                                 </div>
                                 {% if historial.examenes %}
                                 <div class="mt-4">
-                                    <span class="fw-semibold text-muted text-uppercase small d-block">Exámenes realizados</span>
+                                    <span class="fw-semibold text-muted text-uppercase small d-block">Examenes realizados</span>
                                     <p class="mb-0">{{ historial.examenes }}</p>
                                 </div>
                                 {% endif %}
                             </div>
                         </div>
                         <div class="col-xl-4">
-                            <div class="rounded-4 border border-light p-4 h-100 d-flex flex-column justify-content-between bg-white">
+                            <div class="rounded-4 border border-light p-4 h-100 d-flex flex-column gap-4 bg-white">
+                                <div>
+                                    <h3 class="h6 text-uppercase text-muted fw-semibold mb-3">Medicamentos utilizados</h3>
+                                    {% if historial.cita and historial.cita.administraciones_farmacos.all %}
+                                        <ul class="list-group list-group-flush">
+                                            {% for admin in historial.cita.administraciones_farmacos.all %}
+                                                <li class="list-group-item px-0 d-flex justify-content-between">
+                                                    <span>{{ admin.farmaco.nombre }}</span>
+                                                    <span class="fw-semibold">{{ admin.cantidad }} ud.</span>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% else %}
+                                        <p class="text-muted small mb-0">No se registraron medicamentos para esta consulta.</p>
+                                    {% endif %}
+                                </div>
                                 <div>
                                     <h3 class="h6 text-uppercase text-muted fw-semibold mb-3">Material complementario</h3>
                                     {% if historial.imagenes %}
-                                        <img src="{{ historial.imagenes.url }}" class="img-fluid rounded-3 border shadow-sm mb-3" alt="Adjunto clínico">
+                                        <img src="{{ historial.imagenes.url }}" class="img-fluid rounded-3 border shadow-sm mb-3" alt="Adjunto clinico">
                                         <a href="{{ historial.imagenes.url }}" download class="btn btn-outline-primary w-100">
                                             <i class="bi bi-download me-2"></i>Descargar adjunto
                                         </a>
