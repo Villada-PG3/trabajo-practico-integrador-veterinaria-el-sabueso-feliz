@@ -4,56 +4,60 @@
 {% block content %}
 <div class="d-flex flex-column gap-5">
     <!-- Hero -->
-    <section class="hero-landing shadow-xl text-white">
+    <section class="hero-landing shadow-xl text-white py-4">
         <div class="row g-0 align-items-center position-relative">
-            <div class="col-lg-7 pe-lg-5 mb-4 mb-lg-0">
-                <span class="hero-chip mb-3">
+
+            <!-- Columna izquierda: texto -->
+            <div class="col-lg-6 pe-lg-5 mb-3 mb-lg-0">
+                <span class="hero-chip mb-2">
                     <i class="bi bi-stars"></i>
                     Clínica veterinaria premium
                 </span>
-                <h1 class="display-5 fw-bold mb-3 text-white">Bienestar de nuestras mascotas en cada visita.</h1>
-                <p class="lead text-white-75 mb-4">Gestioná turnos, historiales y compras en un hub digital que sostiene la calma y la confianza de cada familia peluda.</p>
-                <div class="d-flex flex-wrap gap-3 mb-4">
-                    <a href="{% url 'registro_propietario' %}" class="btn btn-light text-primary fw-semibold px-4">
+
+                <h1 class="h2 fw-bold mb-2 text-white">
+                    Bienestar de nuestras mascotas en cada visita.
+                </h1>
+
+                <p class="text-white-75 mb-3">
+                    Gestioná turnos, historiales y compras en un hub digital que sostiene la calma y la confianza de cada familia peluda.
+                </p>
+
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                    <!-- BOTÓN CON LÓGICA DE LOGIN -->
+                    <a 
+                        href="{% if user.is_authenticated %}{% url 'dashboard' %}{% else %}{% url 'login' %}{% endif %}" 
+                        class="btn btn-light text-primary fw-semibold px-3 py-2"
+                    >
                         <i class="bi bi-heart-fill me-2"></i>Comenzar ahora
                     </a>
-                    <a href="{% url 'tienda' %}" class="btn btn-outline-light fw-semibold px-4 text-white">
+
+                    <a href="{% url 'tienda' %}" class="btn btn-outline-light fw-semibold px-3 py-2 text-white">
                         <i class="bi bi-bag-heart me-2"></i>Ver tienda
                     </a>
-                    <a href="{% url 'contacto' %}" class="btn btn-outline-light fw-semibold px-4 text-white">
+
+                    <a href="{% url 'contacto' %}" class="btn btn-outline-light fw-semibold px-3 py-2 text-white">
                         <i class="bi bi-chat-dots me-2"></i>Hablar con el equipo
                     </a>
                 </div>
-                <div class="row g-3 text-white-75">
-                    <div class="col-sm-4">
-                        <div class="stats-pill">
-                            <p class="small text-uppercase mb-1 text-white-50">Mascotas activas</p>
-                            <p class="fs-3 fw-bold text-white mb-0">+250</p>
-                        </div>
-                    </div>
-                    <div class="col-sm-4">
-                        <div class="stats-pill">
-                            <p class="small text-uppercase mb-1 text-white-50">Profesionales</p>
-                            <p class="fs-3 fw-bold text-white mb-0">12</p>
-                        </div>
-                    </div>
-                    <div class="col-sm-4">
-                        <div class="stats-pill">
-                            <p class="small text-uppercase mb-1 text-white-50">Agenda digital</p>
-                            <p class="fs-3 fw-bold text-white mb-0">24/7</p>
-                        </div>
-                    </div>
-                </div>
             </div>
-            <div class="col-lg-5">
+
+            <!-- Columna derecha: imagen más chica -->
+            <div class="col-lg-4 offset-lg-1">
                 <div class="hero-media">
-                    <div class="ratio ratio-4x3">
-                        <img src="https://images.unsplash.com/photo-1507146426996-ef05306b995a?auto=format&fit=crop&w=900&q=80" class="w-100 h-100 object-fit-cover" alt="Ovejero aleman en control veterinario">
+                    <div class="ratio ratio-1x1" style="max-width: 250px; margin-left: auto;">
+                        <img 
+                            src="https://images.unsplash.com/photo-1507146426996-ef05306b995a?auto=format&fit=crop&w=900&q=80"
+                            class="w-100 h-100 object-fit-cover rounded-3"
+                            alt="Perro cachorro en control veterinario"
+                        >
                     </div>
                 </div>
             </div>
+    
         </div>
     </section>
+    
+
 
     {% if request.user.is_authenticated %}
     <section class="panel-active px-4 px-lg-5 py-4 shadow-lg">
