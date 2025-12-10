@@ -4158,7 +4158,7 @@ class LoginView(PublicView):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect("dashboard")
+                return redirect("landing")
             messages.error(request, "Usuario o contraseña incorrectos.")
         return render(request, "core/login.html")
 
