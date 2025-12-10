@@ -14,7 +14,7 @@
                 Controlá los accesos de propietarios, veterinarios y operadores para mantener la clínica organizada.
             </p>
         </div>
-        <a href="{% url 'crear_propietario_admin' %}" class="inline-flex items-center gap-2 rounded-lg bg-cyan-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-cyan-700">
+        <a href="{% url 'crear_propietario_admin' %}" class="inline-flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-purple-700">
             <i class="fas fa-user-plus"></i>
             Crear propietario
         </a>
@@ -24,7 +24,7 @@
         <div class="border-b border-gray-200 px-6 py-4 space-y-4">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-100 text-cyan-700">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100 text-purple-700">
                         <i class="fas fa-users"></i>
                     </div>
                     <div>
@@ -32,20 +32,20 @@
                         <p class="text-xs text-gray-500">{{ usuarios|length }} registrados</p>
                     </div>
                 </div>
-                <a href="{% url 'dashboard' %}" class="text-xs font-semibold uppercase tracking-wide text-cyan-700 hover:text-cyan-900">
+                <a href="{% url 'dashboard' %}" class="text-xs font-semibold uppercase tracking-wide text-purple-700 hover:text-purple-900">
                     Volver al panel
                 </a>
             </div>
             <form method="get" class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div class="flex-1">
                     <label for="busqueda" class="text-xs font-semibold uppercase tracking-wide text-gray-500">Buscar por nombre o usuario</label>
-                    <div class="mt-2 flex items-center rounded-xl border border-gray-200 px-3 py-2 shadow-inner focus-within:border-cyan-500 focus-within:ring-2 focus-within:ring-cyan-100">
+                    <div class="mt-2 flex items-center rounded-xl border border-gray-200 px-3 py-2 shadow-inner focus-within:border-purple-500 focus-within:ring-2 focus-within:ring-purple-100">
                         <i class="fas fa-search text-gray-400"></i>
                         <input id="busqueda" type="text" name="q" value="{{ query }}" placeholder="Nombre, apellido o usuario" class="ml-2 w-full border-none bg-transparent text-sm text-gray-800 focus:outline-none">
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-cyan-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-cyan-700">
+                    <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-purple-700">
                         <i class="fas fa-filter"></i>
                         Filtrar
                     </button>
@@ -70,12 +70,12 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100">
                     {% for user in usuarios %}
-                        <tr class="hover:bg-cyan-50/40">
+                        <tr class="hover:bg-purple-50/40">
                             <td class="whitespace-nowrap px-6 py-4 font-semibold text-gray-900">{{ user.username }}</td>
                             <td class="px-6 py-4 text-gray-600">{{ user.get_full_name|default:"—" }}</td>
                             <td class="px-6 py-4 text-gray-600">{{ user.email|default:"Sin correo" }}</td>
                             <td class="px-6 py-4">
-                                <span class="inline-flex items-center gap-2 rounded-full bg-cyan-100 px-3 py-1 text-xs font-semibold text-cyan-700">
+                                <span class="inline-flex items-center gap-2 rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-700">
                                     <i class="fas fa-id-badge"></i>
                                     {{ user.get_rol_display }}
                                 </span>

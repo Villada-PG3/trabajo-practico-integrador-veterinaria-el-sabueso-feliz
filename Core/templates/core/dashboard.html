@@ -85,77 +85,74 @@
             <h3>Busquedas contextuales</h3>
             <p class="section-description">Selecciona el tipo de ficha a revisar mediante tarjetas, evitando menus desplegables.</p>
         </div>
-        <div class="grid gap-6 lg:grid-cols-[1.6fr,1fr]">
-            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6">
+    
+        <div class="grid gap-6">
+            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <h4 class="text-lg font-semibold text-slate-900">Buscador centralizado</h4>
-                <p class="mb-5 text-sm text-slate-600">Define el enfoque desde tarjetas y luego ingresa el criterio deseado.</p>
+                <p class="mb-3 text-sm text-slate-600">
+                    Define el enfoque desde tarjetas y luego ingresa el criterio deseado.
+                </p>
+    
                 {% with scope=request.GET.scope|default:"propietarios" %}
-                <form method="get" action="{% url 'buscar_propietarios' %}" class="space-y-6">
+                <form method="get" action="{% url 'buscar_propietarios' %}" class="space-y-4">
+    
                     <div class="grid gap-3 sm:grid-cols-3">
                         <div class="relative">
-                            <input type="radio" name="scope" id="scope_propietarios" value="propietarios" class="form-option-input" {% if scope == "propietarios" %}checked{% endif %}>
-                            <label for="scope_propietarios" class="form-option-card">
+                            <input type="radio" name="scope" id="scope_propietarios" value="propietarios"
+                                   class="form-option-input" {% if scope == "propietarios" %}checked{% endif %}>
+                            <label for="scope_propietarios" class="form-option-card flex flex-col justify-center">
                                 <p class="form-option-card__title">Propietarios</p>
                                 <p class="form-option-card__desc">Contactos y datos completos.</p>
                             </label>
                         </div>
+                    
                         <div class="relative">
-                            <input type="radio" name="scope" id="scope_pacientes" value="pacientes" class="form-option-input" {% if scope == "pacientes" %}checked{% endif %}>
-                            <label for="scope_pacientes" class="form-option-card">
+                            <input type="radio" name="scope" id="scope_pacientes" value="pacientes"
+                                   class="form-option-input" {% if scope == "pacientes" %}checked{% endif %}>
+                            <label for="scope_pacientes" class="form-option-card flex flex-col justify-center">
                                 <p class="form-option-card__title">Pacientes</p>
                                 <p class="form-option-card__desc">Mascotas vinculadas y fichas.</p>
                             </label>
                         </div>
+                    
                         <div class="relative">
-                            <input type="radio" name="scope" id="scope_citas" value="citas" class="form-option-input" {% if scope == "citas" %}checked{% endif %}>
-                            <label for="scope_citas" class="form-option-card">
+                            <input type="radio" name="scope" id="scope_citas" value="citas"
+                                   class="form-option-input" {% if scope == "citas" %}checked{% endif %}>
+                            <label for="scope_citas" class="form-option-card flex flex-col justify-center">
                                 <p class="form-option-card__title">Citas</p>
                                 <p class="form-option-card__desc">Turnos confirmados o pendientes.</p>
                             </label>
                         </div>
                     </div>
-                    <div class="flex flex-col gap-4 sm:flex-row">
-                        <input type="text" name="q" placeholder="Nombre, telefono o email" value="{{ request.GET.q }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow hover:bg-blue-700">
+                    
+                    <div class="flex flex-col gap-3 sm:flex-row">
+                        <input type="text"
+                               name="q"
+                               placeholder="Nombre, telefono o email"
+                               value="{{ request.GET.q }}"
+                               class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm
+                                      focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500">
+    
+                        <button type="submit"
+                                class="inline-flex items-center justify-center rounded-xl bg-blue-600
+                                       px-5 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700">
                             <i class="fas fa-search mr-2"></i>
                             Buscar registro
                         </button>
                     </div>
+    
                 </form>
                 {% endwith %}
             </div>
-            <div class="rounded-2xl border border-slate-200 bg-white p-6">
-                <h4 class="text-base font-semibold text-slate-900">Guia rapida</h4>
-                <p class="text-sm text-slate-600">Establece una rutina de seguimiento para cada bloque funcional.</p>
-                <ul class="mt-4 space-y-3 text-sm text-slate-600">
-                    <li class="flex items-start gap-2">
-                        <i class="fas fa-check text-emerald-500 mt-1"></i>
-                        <span>Confirma datos de contacto antes de asignar una cita.</span>
-                    </li>
-                    <li class="flex items-start gap-2">
-                        <i class="fas fa-check text-emerald-500 mt-1"></i>
-                        <span>Comparte actualizaciones via WhatsApp o correo segun preferencia.</span>
-                    </li>
-                    <li class="flex items-start gap-2">
-                        <i class="fas fa-check text-emerald-500 mt-1"></i>
-                        <span>Documenta cada entrega de farmacos en el inventario central.</span>
-                    </li>
-                </ul>
-                <div class="mt-5 rounded-xl bg-slate-50 p-4 text-sm text-slate-600">
-                    <p class="font-semibold text-slate-900">Consejo operativo</p>
-                    <p>Bloquea 15 minutos al inicio del dia para revisar tarjetas pendientes y reportes clave.</p>
-                </div>
-            </div>
         </div>
     </section>
+    
 
     
     <section class="section-card">
             <div class="section-header">
                 <p class="section-eyebrow">Modulos funcionales</p>
-                <h3>Gestion profesional sin dropdowns</h3>
-                <p class="section-description">Cada formulario clave vive en una tarjeta independiente para que el equipo sepa donde actuar.</p>
-            </div>
+                <h3>Gestion</h3>
             <div class="functional-grid">
                 <article class="functional-card">
                     <div class="functional-card__icon bg-blue-50 text-blue-600">

@@ -79,9 +79,7 @@
                 </div>
             </div>
             <div class="d-flex flex-column flex-sm-row align-items-center gap-2">
-                <span class="role-pill bg-white text-primary">
-                    <i class="bi bi-bookmark-heart me-1"></i>{{ request.user.get_rol_display|default:"Usuario" }}
-                </span>
+                
                 <a href="{% url 'configuracion_perfil' %}" class="btn btn-primary rounded-pill px-4">
                     <i class="bi bi-gear me-1"></i> Configurar perfil
                 </a>
@@ -93,91 +91,11 @@
     </section>
     {% endif %}
 
-    <!-- Features -->
-    <section class="mb-2">
-        <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
-            <div>
-                <span class="section-label d-block mb-2">Servicios digitales</span>
-                <h2 class="h3 fw-bold mb-1">Gestiona con calma y precision.</h2>
-                <p class="text-muted mb-0">Un panel moderno con recordatorios inteligentes y comunicacion directa con nuestro staff.</p>
-            </div>
-        </div>
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="feature-card p-4">
-                    <div class="d-flex align-items-center mb-3">
-                        <span class="feature-card-icon me-3">
-                            <i class="bi bi-lightning-charge"></i>
-                        </span>
-                        <h5 class="mb-0">Turnos express</h5>
-                    </div>
-                    <p class="text-muted mb-0">Solicitá turno en segundos y recibí confirmaciones claras en tu bandeja o WhatsApp.</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="feature-card p-4">
-                    <div class="d-flex align-items-center mb-3">
-                        <span class="feature-card-icon me-3">
-                            <i class="bi bi-clipboard2-heart"></i>
-                        </span>
-                        <h5 class="mb-0">Historias clínicas vivas</h5>
-                    </div>
-                    <p class="text-muted mb-0">Toda la evolución, vacunas y tratamientos en una línea de tiempo limpia.</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="feature-card p-4">
-                    <div class="d-flex align-items-center mb-3">
-                        <span class="feature-card-icon me-3">
-                            <i class="bi bi-gift"></i>
-                        </span>
-                        <h5 class="mb-0">Recomendaciones curadas</h5>
-                    </div>
-                    <p class="text-muted mb-0">Productos sugeridos junto a nuestro staff para mantener un set alineado a tu mascota.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-
-
-    <section>
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card h-100">
-                    <div class="card-body p-4">
-                        <p class="section-label mb-2">Plataforma</p>
-                        <h4 class="fw-bold mb-3">Cuidado omnicanal</h4>
-                        <p class="text-eva-muted mb-0">Agenda, stock y reportes conviven en una experiencia uniforme para familias y staff.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100">
-                    <div class="card-body p-4">
-                        <p class="section-label mb-2">Indicadores</p>
-                        <h4 class="fw-bold mb-3">Insight clinico</h4>
-                        <p class="text-eva-muted mb-0">Seguimiento de vacunas, farmacos y bienestar con alertas suaves pero oportunas.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100">
-                    <div class="card-body p-4">
-                        <p class="section-label mb-2">Acompanamiento</p>
-                        <h4 class="fw-bold mb-3">Equipo premium</h4>
-                        <p class="text-eva-muted mb-0">Veterinarios con tono humano, protocolos claros y contacto directo para tus dudas.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <section>
         <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-4 mb-4">
             <div>
-                <span class="section-label d-block mb-2">Boutique luminosa</span>
-                <h2 class="h3 fw-bold mb-1">Productos seleccionados</h2>
+                
+                <h2 class="h3 fw-bold mb-1">Tienda</h2>
                 <p class="text-muted mb-0">{{ total_productos }} productos disponibles en la tienda online.</p>
             </div>
             <a href="{% url 'tienda' %}" class="btn btn-outline-primary px-4"><i class="bi bi-arrow-right-circle me-2"></i>Ver tienda completa</a>
@@ -217,14 +135,14 @@
 
     <section>
         <div class="cta-band d-flex flex-column flex-lg-row align-items-center justify-content-between gap-4">
-            <div class="flex-1">
+            <div class="flex-1 text-start">
                 <p class="text-uppercase big mb-3">Equipo profesional</p>
                 <h3 class="fw-bold mb-3">Ya sos parte del staff?</h3>
                 <p class="mb-0 text-white-75">Ingresa al panel profesional para gestionar citas, pacientes, historiales clinicos y stock desde una sola vista.</p>
             </div>
             <div class="d-flex flex-wrap gap-2">
-                <a href="{% url 'login' %}" class="btn btn-light text-primary fw-semibold px-4">
-                    <i class="bi bi-speedometer2 me-2"></i>Ir al panel
+                <a href="{% if user.is_authenticated and user.role != 'OWNER' %}{% url 'dashboard' %} {% else %}{% url 'login' %} {% endif %}" class="btn btn-light text-primary fw-semibold px-4">
+                <i class="bi bi-speedometer2 me-2"></i>Ir al panel
                 </a>
                 <a href="{% url 'contacto' %}" class="btn btn-outline-light px-4 text-white">
                     <i class="bi bi-telephone me-2"></i>Contactar soporte
