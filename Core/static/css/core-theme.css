@@ -1,7 +1,14 @@
-@import url('/static/core-theme.css');
-
 
 :root {
+    --sf-violet: #7a3aff;
+    --sf-pink: #e879f9;
+    --sf-muted: #7a6f94;
+    --sf-white: #ffffff;
+    --sf-line: #e5e0ff;
+    --sf-deep: #1f1b29;
+    --sf-gray: #f1effa;
+    --sf-text: #2d1b3d;
+
     --primary: var(--sf-violet);
     --primary-light: #a78bfa;
     --secondary: var(--sf-pink);
@@ -394,7 +401,7 @@ section.rounded-\[32px\].bg-white {
 
 /* Icono de huella violeta */
 .w-16.h-16.rounded-2xl.bg-\[\#eef0ff\] {
-    background: var(--sf-violet) !important;
+    background: var(--sf-violet) !important;    
     color: white !important;
 }
 
