@@ -38,142 +38,7 @@
                     </a>
                 </div>
             </div>
-            <div class="vet-insight-card">
-                <p class="vet-eyebrow">Pulso del dia</p>
-                <dl>
-                    <div>
-                        <dt>Turnos de hoy</dt>
-                        <dd>{{ citas_proximas|length }}</dd>
-                    </div>
-                    <div>
-                        <dt>Solicitudes por coordinar</dt>
-                        <dd>{{ citas_pendientes|length }}</dd>
-                    </div>
-                    <div>
-                        <dt>Sin veterinario asignado</dt>
-                        <dd>{{ estadisticas_citas.sin_veterinario }}</dd>
-                    </div>
-                </dl>
-            </div>
         </div>
-    </section>
-
-    <section class="vet-section">
-        <div class="vet-section__header">
-            <div>
-                <p class="vet-section__eyebrow">Numeros clave</p>
-                <h2 class="text-2xl font-semibold text-slate-900">Estado general de tu cartera</h2>
-            </div>
-            <span class="vet-pill">{{ estadisticas_citas.total }} registros activos</span>
-        </div>
-        <div class="vet-stat-grid">
-            <article class="vet-stat-card">
-                <div class="vet-stat-icon bg-cyan-50 text-cyan-600">
-                    <i class="fas fa-layer-group"></i>
-                </div>
-                <div>
-                    <p class="vet-stat-label">Total</p>
-                    <p class="vet-stat-value">{{ estadisticas_citas.total }}</p>
-                    <p class="vet-stat-note">Citas registradas</p>
-                </div>
-            </article>
-            <article class="vet-stat-card">
-                <div class="vet-stat-icon bg-emerald-50 text-emerald-600">
-                    <i class="fas fa-calendar-check"></i>
-                </div>
-                <div>
-                    <p class="vet-stat-label">Confirmadas</p>
-                    <p class="vet-stat-value">{{ estadisticas_citas.programadas }}</p>
-                    <p class="vet-stat-note">Turnos con horario</p>
-                </div>
-            </article>
-            <article class="vet-stat-card">
-                <div class="vet-stat-icon bg-amber-50 text-amber-600">
-                    <i class="fas fa-bell"></i>
-                </div>
-                <div>
-                    <p class="vet-stat-label">Pendientes</p>
-                    <p class="vet-stat-value">{{ estadisticas_citas.pendientes }}</p>
-                    <p class="vet-stat-note">Solicitudes por coordinar</p>
-                </div>
-            </article>
-            <article class="vet-stat-card">
-                <div class="vet-stat-icon bg-indigo-50 text-indigo-600">
-                    <i class="fas fa-heartbeat"></i>
-                </div>
-                <div>
-                    <p class="vet-stat-label">Atendidas</p>
-                    <p class="vet-stat-value">{{ estadisticas_citas.atendidas }}</p>
-                    <p class="vet-stat-note">Casos cerrados</p>
-                </div>
-            </article>
-        </div>
-    </section>
-
-    <section class="vet-section" id="filtros">
-        <div class="vet-section__header">
-            <div>
-                <p class="vet-section__eyebrow">Filtros inteligentes</p>
-                <h2 class="text-xl font-semibold text-slate-900">Segmenta tu agenda</h2>
-                <p class="text-sm text-slate-500">Busca por paciente o tutor, delimita por fechas y cambia de estado con tarjetas tactiles.</p>
-            </div>
-            {% if filtros.estado or filtros.q or filtros.desde or filtros.hasta %}
-                <span class="vet-pill bg-cyan-50 text-cyan-700">Vista filtrada</span>
-            {% endif %}
-        </div>
-        <form method="get" class="vet-filter">
-            <div class="vet-filter__row">
-                <label class="flex flex-col gap-2">
-                    <span class="vet-field-label">Buscar</span>
-                    <div class="vet-field-input">
-                        <i class="fas fa-search text-slate-400"></i>
-                        <input id="busqueda" type="text" name="q" value="{{ filtros.q }}" placeholder="Paciente, tutor o nota" />
-                    </div>
-                </label>
-                <label class="flex flex-col gap-2">
-                    <span class="vet-field-label">Desde</span>
-                    <div class="vet-field-input">
-                        <i class="fas fa-calendar text-slate-400"></i>
-                        <input id="desde" type="date" name="desde" value="{{ filtros.desde }}" />
-                    </div>
-                </label>
-                <label class="flex flex-col gap-2">
-                    <span class="vet-field-label">Hasta</span>
-                    <div class="vet-field-input">
-                        <i class="fas fa-calendar-day text-slate-400"></i>
-                        <input id="hasta" type="date" name="hasta" value="{{ filtros.hasta }}" />
-                    </div>
-                </label>
-            </div>
-            <div>
-                <span class="vet-field-label">Estado</span>
-                <div class="vet-chip-grid">
-                    <label class="vet-chip {% if not filtros.estado %}vet-chip--active{% endif %}">
-                        <input type="radio" name="estado" value="" {% if not filtros.estado %}checked{% endif %}>
-                        <span>Todos</span>
-                        <small>Sin filtro</small>
-                    </label>
-                    {% for valor, etiqueta in estados %}
-                        <label class="vet-chip {% if filtros.estado == valor %}vet-chip--active{% endif %}">
-                            <input type="radio" name="estado" value="{{ valor }}" {% if filtros.estado == valor %}checked{% endif %}>
-                            <span>{{ etiqueta }}</span>
-                            <small>{{ valor|title }}</small>
-                        </label>
-                    {% endfor %}
-                </div>
-            </div>
-            <div class="vet-filter__actions">
-                <button type="submit" class="inline-flex items-center gap-2 rounded-full bg-cyan-600 px-5 py-2 text-sm font-semibold text-white shadow hover:bg-cyan-700">
-                    <i class="fas fa-filter"></i>
-                    Aplicar filtros
-                </button>
-                <a href="{% url 'mis_citas' %}" class="inline-flex items-center gap-2 rounded-full border border-slate-200 px-5 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">
-                    <i class="fas fa-rotate-left"></i>
-                    Limpiar
-                </a>
-                <span class="text-xs text-slate-500">{{ citas_proximas|length }} proximas y {{ citas_pendientes|length }} pendientes.</span>
-            </div>
-        </form>
     </section>
 
     <section class="vet-layout">
@@ -341,6 +206,72 @@
                 </div>
             </article>
         </aside>
+    </section>
+
+    <section class="vet-section" id="filtros">
+        <div class="vet-section__header">
+            <div>
+                <p class="vet-section__eyebrow">Filtros inteligentes</p>
+                <h2 class="text-xl font-semibold text-slate-900">Segmenta tu agenda</h2>
+                <p class="text-sm text-slate-500">Busca por paciente o tutor, delimita por fechas y cambia de estado con tarjetas tactiles.</p>
+            </div>
+            {% if filtros.estado or filtros.q or filtros.desde or filtros.hasta %}
+                <span class="vet-pill bg-cyan-50 text-cyan-700">Vista filtrada</span>
+            {% endif %}
+        </div>
+        <form method="get" class="vet-filter">
+            <div class="vet-filter__row">
+                <label class="flex flex-col gap-2">
+                    <span class="vet-field-label">Buscar</span>
+                    <div class="vet-field-input">
+                        <i class="fas fa-search text-slate-400"></i>
+                        <input id="busqueda" type="text" name="q" value="{{ filtros.q }}" placeholder="Paciente, tutor o nota" />
+                    </div>
+                </label>
+                <label class="flex flex-col gap-2">
+                    <span class="vet-field-label">Desde</span>
+                    <div class="vet-field-input">
+                        <i class="fas fa-calendar text-slate-400"></i>
+                        <input id="desde" type="date" name="desde" value="{{ filtros.desde }}" />
+                    </div>
+                </label>
+                <label class="flex flex-col gap-2">
+                    <span class="vet-field-label">Hasta</span>
+                    <div class="vet-field-input">
+                        <i class="fas fa-calendar-day text-slate-400"></i>
+                        <input id="hasta" type="date" name="hasta" value="{{ filtros.hasta }}" />
+                    </div>
+                </label>
+            </div>
+            <div>
+                <span class="vet-field-label">Estado</span>
+                <div class="vet-chip-grid">
+                    <label class="vet-chip {% if not filtros.estado %}vet-chip--active{% endif %}">
+                        <input type="radio" name="estado" value="" {% if not filtros.estado %}checked{% endif %}>
+                        <span>Todos</span>
+                        <small>Sin filtro</small>
+                    </label>
+                    {% for valor, etiqueta in estados %}
+                        <label class="vet-chip {% if filtros.estado == valor %}vet-chip--active{% endif %}">
+                            <input type="radio" name="estado" value="{{ valor }}" {% if filtros.estado == valor %}checked{% endif %}>
+                            <span>{{ etiqueta }}</span>
+                            <small>{{ valor|title }}</small>
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="vet-filter__actions">
+                <button type="submit" class="inline-flex items-center gap-2 rounded-full bg-cyan-600 px-5 py-2 text-sm font-semibold text-white shadow hover:bg-cyan-700">
+                    <i class="fas fa-filter"></i>
+                    Aplicar filtros
+                </button>
+                <a href="{% url 'mis_citas' %}" class="inline-flex items-center gap-2 rounded-full border border-slate-200 px-5 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">
+                    <i class="fas fa-rotate-left"></i>
+                    Limpiar
+                </a>
+                <span class="text-xs text-slate-500">{{ citas_proximas|length }} proximas y {{ citas_pendientes|length }} pendientes.</span>
+            </div>
+        </form>
     </section>
 </div>
 {% else %}

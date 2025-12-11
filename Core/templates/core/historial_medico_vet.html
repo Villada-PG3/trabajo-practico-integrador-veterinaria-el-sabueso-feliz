@@ -5,7 +5,7 @@
 {% block content %}
 <section class="mb-5">
     <div class="position-relative overflow-hidden rounded-4 border-0 shadow-sm text-white p-4 p-xl-5"
-         style="background: linear-gradient(135deg, #312e81 0%, #4338ca 35%, #0f172a 100%);">
+         style="background: linear-gradient(135deg, #4338ca 0%, #6366f1 45%, #a5b4fc 100%);">
         <div class="row align-items-center g-4">
             <div class="col-xl-7">
                 <span class="badge bg-white text-primary fw-semibold text-uppercase small mb-3">Gestion clinica</span>
@@ -14,20 +14,7 @@
                     Explora los informes clinicos generados por el equipo veterinario, detecta tendencias
                     de especies y monitoriza la trazabilidad de cada caso atendido.
                 </p>
-                <div class="d-flex flex-wrap gap-3">
-                    <div class="bg-white bg-opacity-10 rounded-3 px-4 py-3">
-                        <p class="text-uppercase small text-white-50 mb-1">Registros totales</p>
-                        <p class="h3 fw-semibold mb-0">{{ resumen.total }}</p>
-                    </div>
-                    <div class="bg-white bg-opacity-10 rounded-3 px-4 py-3">
-                        <p class="text-uppercase small text-white-50 mb-1">Ultimos 30 dias</p>
-                        <p class="h3 fw-semibold mb-0">{{ resumen.mes }}</p>
-                    </div>
-                    <div class="bg-white bg-opacity-10 rounded-3 px-4 py-3">
-                        <p class="text-uppercase small text-white-50 mb-1">Pacientes unicos</p>
-                        <p class="h3 fw-semibold mb-0">{{ resumen.pacientes }}</p>
-                    </div>
-                </div>
+                
             </div>
             <div class="col-xl-5">
                 <div class="bg-white text-dark rounded-4 p-4 h-100">
@@ -52,143 +39,49 @@
     </div>
 </section>
 
-<section class="mb-4">
+<section class="mb-3">
     <form method="get" class="card border-0 shadow-sm">
-        <div class="card-body">
-            <div class="row g-3 align-items-end">
+        <div class="card-body py-3">
+            <div class="row g-2 align-items-end">
+                
                 <div class="col-lg-5">
-                    <label for="buscar" class="form-label text-muted small text-uppercase">Buscar</label>
-                    <div class="input-group input-group-lg">
-                        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                    <label for="buscar" class="form-label text-muted small text-uppercase mb-1">Buscar</label>
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-white px-2"><i class="bi bi-search"></i></span>
                         <input type="text" id="buscar" name="q" class="form-control"
                                placeholder="Paciente, propietario, diagnostico..." value="{{ query }}">
                     </div>
                 </div>
+
                 <div class="col-sm-3 col-lg-2">
-                    <label for="desde" class="form-label text-muted small text-uppercase">Desde</label>
-                    <input type="date" id="desde" name="desde" class="form-control" value="{{ fecha_desde }}">
+                    <label for="desde" class="form-label text-muted small text-uppercase mb-1">Desde</label>
+                    <input type="date" id="desde" name="desde" class="form-control form-control-sm" value="{{ fecha_desde }}">
                 </div>
+
                 <div class="col-sm-3 col-lg-2">
-                    <label for="hasta" class="form-label text-muted small text-uppercase">Hasta</label>
-                    <input type="date" id="hasta" name="hasta" class="form-control" value="{{ fecha_hasta }}">
+                    <label for="hasta" class="form-label text-muted small text-uppercase mb-1">Hasta</label>
+                    <input type="date" id="hasta" name="hasta" class="form-control form-control-sm" value="{{ fecha_hasta }}">
                 </div>
+
                 <div class="col-sm-3 col-lg-2">
-                    <label class="form-label text-muted small text-uppercase">&nbsp;</label>
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel me-2"></i>Filtrar</button>
+                    <label class="form-label text-muted small text-uppercase mb-1">&nbsp;</label>
+                    <div class="d-flex gap-1">
+                        <button type="submit" class="btn btn-primary btn-sm w-100">
+                            <i class="bi bi-funnel me-1"></i>Filtrar
+                        </button>
                         {% if query or fecha_desde or fecha_hasta %}
-                            <a href="{% url 'historial_medico_vet' %}" class="btn btn-outline-secondary" title="Limpiar filtros">
+                            <a href="{% url 'historial_medico_vet' %}" class="btn btn-outline-secondary btn-sm" title="Limpiar filtros">
                                 <i class="bi bi-x-circle"></i>
                             </a>
                         {% endif %}
                     </div>
                 </div>
+
             </div>
         </div>
     </form>
 </section>
 
-<section class="mb-5">
-    <div class="row g-4">
-        <div class="col-xl-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h2 class="h5 mb-0">Especies mas atendidas</h2>
-                        <span class="badge bg-primary-subtle text-primary">Top 4</span>
-                    </div>
-                    {% if especies_destacadas %}
-                        <ul class="list-group list-group-flush">
-                            {% for especie in especies_destacadas %}
-                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                    <span class="fw-semibold text-capitalize">
-                                        <i class="bi bi-heart-pulse me-2 text-primary"></i>{{ especie.paciente__especie|default:"No especificado" }}
-                                    </span>
-                                    <span class="badge rounded-pill bg-primary">{{ especie.total }}</span>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p class="text-muted mb-0">Aun no hay registros para analizar.</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h2 class="h5 mb-0">Profesionales con mas actividad</h2>
-                        <span class="badge bg-success-subtle text-success">Ultimos 30 dias</span>
-                    </div>
-                    {% if profesionales_destacados %}
-                        <ul class="list-group list-group-flush">
-                            {% for profesional in profesionales_destacados %}
-                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                    <div>
-                                        <span class="fw-semibold">{{ profesional.veterinario__first_name }} {{ profesional.veterinario__last_name }}</span>
-                                        <p class="mb-0 small text-muted">{{ profesional.total }} informes</p>
-                                    </div>
-                                    <span class="badge rounded-pill bg-success">{{ profesional.total }}</span>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p class="text-muted mb-0">Aun no hay profesionales con actividad en el periodo seleccionado.</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="mb-5">
-    <div class="card border-0 shadow-sm">
-        <div class="card-body">
-            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
-                <div>
-                    <h2 class="h5 mb-1">Historial clinico reciente</h2>
-                    <p class="text-muted small mb-0">Los ultimos informes cargados por el equipo.</p>
-                </div>
-                <a href="{% url 'mis_citas' %}#historiales" class="btn btn-outline-primary btn-sm">
-                    <i class="bi bi-clock-history me-2"></i>Ver citas relacionadas
-                </a>
-            </div>
-            {% if ultimos_historiales %}
-                <div class="row g-3">
-                    {% for historial in ultimos_historiales %}
-                        <div class="col-md-6 col-xxl-4">
-                            <div class="border rounded-4 p-3 h-100">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <div>
-                                        <p class="fw-semibold mb-0">{{ historial.paciente.nombre }}</p>
-                                        <span class="badge bg-primary-subtle text-primary text-uppercase small">{{ historial.paciente.especie }}</span>
-                                    </div>
-                                    <span class="text-muted small">{{ historial.fecha|date:"d/m H:i" }}</span>
-                                </div>
-                                <p class="small text-muted mb-2"><i class="bi bi-person-badge me-1 text-primary"></i>{{ historial.veterinario.get_full_name|default:"Sin asignar" }}</p>
-                                <p class="mb-2 small">{{ historial.diagnostico|truncatechars:120 }}</p>
-                                {% if historial.cita and historial.cita.administraciones_farmacos.all %}
-                                    <div class="mb-3">
-                                        <span class="badge bg-light text-primary fw-semibold text-uppercase small">Medicamentos</span>
-                                        <ul class="list-unstyled mb-0 mt-2 text-muted small">
-                                            {% for admin in historial.cita.administraciones_farmacos.all %}
-                                                <li>{{ admin.farmaco.nombre }} - {{ admin.cantidad }} ud.</li>
-                                            {% endfor %}
-                                        </ul>
-                                    </div>
-                                {% endif %}
-                                <a href="{% url 'detalle_historial' historial.id %}" class="btn btn-sm btn-primary rounded-pill">Ver detalle</a>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p class="text-muted mb-0">Todavia no se registraron informes en el periodo seleccionado.</p>
-            {% endif %}
-        </div>
-    </div>
-</section>
 
 <section>
     <div class="card border-0 shadow-sm">
@@ -268,4 +161,59 @@
         </div>
     </div>
 </section>
+
+<section class="mb-5">
+    <div class="row g-4">
+        <div class="col-xl-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="h5 mb-0">Especies mas atendidas</h2>
+                        <span class="badge bg-primary-subtle text-primary">Top 4</span>
+                    </div>
+                    {% if especies_destacadas %}
+                        <ul class="list-group list-group-flush">
+                            {% for especie in especies_destacadas %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    <span class="fw-semibold text-capitalize">
+                                        <i class="bi bi-heart-pulse me-2 text-primary"></i>{{ especie.paciente__especie|default:"No especificado" }}
+                                    </span>
+                                    <span class="badge rounded-pill bg-primary">{{ especie.total }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted mb-0">Aun no hay registros para analizar.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="h5 mb-0">Profesionales con mas actividad</h2>
+                        <span class="badge bg-success-subtle text-success">Ultimos 30 dias</span>
+                    </div>
+                    {% if profesionales_destacados %}
+                        <ul class="list-group list-group-flush">
+                            {% for profesional in profesionales_destacados %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    <div>
+                                        <span class="fw-semibold">{{ profesional.veterinario__first_name }} {{ profesional.veterinario__last_name }}</span>
+                                        <p class="mb-0 small text-muted">{{ profesional.total }} informes</p>
+                                    </div>
+                                    <span class="badge rounded-pill bg-success">{{ profesional.total }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted mb-0">Aun no hay profesionales con actividad en el periodo seleccionado.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 {% endblock %}
