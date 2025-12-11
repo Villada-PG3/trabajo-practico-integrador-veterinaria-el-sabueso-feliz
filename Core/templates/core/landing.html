@@ -25,18 +25,20 @@
                 <div class="d-flex flex-wrap gap-2 mb-2">
                     <!-- BOTÓN CON LÓGICA DE LOGIN -->
                     <a 
-                        href="{% if user.is_authenticated %}{% url 'dashboard' %}{% else %}{% url 'login' %}{% endif %}" 
+                        href="{% if user.is_authenticated %}{% url 'agendar_cita' %}{% else %}{% url 'login' %}{% endif %}" 
                         class="btn btn-light text-primary fw-semibold px-3 py-2"
                     >
-                        <i class="bi bi-heart-fill me-2"></i>Comenzar ahora
+                        <i class= "bi bi-calendar-plus"></i>  Agendar una cita
                     </a>
-
                     <a href="{% url 'tienda' %}" class="btn btn-outline-light fw-semibold px-3 py-2 text-white">
                         <i class="bi bi-bag-heart me-2"></i>Ver tienda
                     </a>
 
                     <a href="{% url 'contacto' %}" class="btn btn-outline-light fw-semibold px-3 py-2 text-white">
                         <i class="bi bi-chat-dots me-2"></i>Hablar con el equipo
+                    </a>
+                    <a href="{% if user.is_authenticated %}{% url 'dashboard' %}{% else %}{% url 'login' %}{% endif %}" class="btn btn-outline-light fw-semibold px-3 py-2 text-white">
+                        <i class="bi bi-heart-fill me-2"></i>Panel Clínico
                     </a>
                 </div>
             </div>

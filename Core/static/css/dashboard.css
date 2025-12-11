@@ -84,7 +84,7 @@
 }
 
 .admin-hero {
-    background: linear-gradient(130deg, #06233c 0%, #0b3f62 50%, #125b92 100%);
+    background: linear-gradient(135deg, #7a3aff 0%, #c084fc 50%, #7a3aff 120%) !important; 
     border: none;
     color: white;
     overflow: hidden;
@@ -95,8 +95,7 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.15), transparent 45%),
-                radial-gradient(circle at 80% 0%, rgba(59, 130, 246, 0.3), transparent 50%);
+    background: linear-gradient(135deg, #7a3aff 0%, #c084fc 50%, #7a3aff 120%) !important;
     opacity: 0.8;
 }
 

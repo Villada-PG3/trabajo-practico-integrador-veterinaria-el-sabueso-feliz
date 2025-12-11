@@ -3,10 +3,11 @@
 {% block title %}Calendario de Vacunas{% endblock %}
 
 {% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-0 mt-0 pt-0">
 <div class="d-flex flex-column gap-4">
     <section class="card border-0 shadow-lg overflow-hidden">
         <div class="row g-0">
-            <div class="col-lg-7 p-5 text-white" style="background: linear-gradient(120deg, #0f172a 0%, #2563eb 55%, #22d3ee 110%);">
+            <div class="col-lg-7 p-5 text-white" style="background: linear-gradient(135deg, #7a3aff 0%, #c084fc 50%, #7a3aff 120%);">
                 <p class="text-uppercase small fw-semibold text-white-50 mb-2">Salud preventiva</p>
                 <h1 class="display-6 fw-bold">Calendario inteligente de vacunas</h1>
                 <p class="lead text-white-75 mb-4">Organiza el esquema segun la especie, registrando cada dosis y agregando observaciones clinicas. Todo queda sincronizado con el historial de tu mascota.</p>
@@ -38,15 +39,15 @@
                     <h2 class="h5 fw-semibold text-uppercase text-muted">Como funciona</h2>
                     <ul class="list-unstyled mb-0 text-secondary small">
                         <li class="d-flex gap-3 mb-3">
-                            <div class="badge rounded-pill text-bg-primary">1</div>
+                            <div class="badge rounded-pill text-bg-primary align-items-center">1</div>
                             Selecciona una mascota y detectamos automaticamente el calendario segun la especie.
                         </li>
                         <li class="d-flex gap-3 mb-3">
-                            <div class="badge rounded-pill text-bg-primary">2</div>
+                            <div class="badge rounded-pill text-bg-primary align-items-center">2</div>
                             Al completar la aplicacion registra fecha y notas para mantener evidencia clinica.
                         </li>
                         <li class="d-flex gap-3">
-                            <div class="badge rounded-pill text-bg-primary">3</div>
+                            <div class="badge rounded-pill text-bg-primary align-items-center">3</div>
                             Consulta los proximos refuerzos y estabiliza recordatorios para los tutores.
                         </li>
                     </ul>
@@ -97,13 +98,16 @@
     {% endif %}
 
     {% if not mascotas %}
-        <section class="card border-0 shadow-sm text-center p-5">
+        <section class="card border-0 shadow-sm text-center p-5 px-15 align-items-center">
             <i class="bi bi-paw display-5 text-primary mb-3"></i>
             <h2 class="h4 fw-bold mb-2">Todavia no registraste mascotas</h2>
             <p class="text-muted mb-4">Crea una ficha para habilitar recordatorios, calendarios personalizados y seguimiento preventivo.</p>
-            <a href="{% url 'registrar_mascota' %}" class="btn btn-primary btn-lg px-4">
+            <a href="{% url 'registrar_mascota' %}" class="btn btn-primary btn-lg" style="width: fit-content; padding: 0.5rem 3rem;">
                 <i class="bi bi-plus-circle me-2"></i>Agregar mascota
             </a>
+            
+            
+            
         </section>
     {% else %}
         <section class="card border-0 shadow-sm">
@@ -276,5 +280,6 @@
             </div>
         {% endif %}
     {% endif %}
+</div>
 </div>
 {% endblock %}

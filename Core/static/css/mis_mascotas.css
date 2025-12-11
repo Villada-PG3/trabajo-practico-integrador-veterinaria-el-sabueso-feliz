@@ -7,12 +7,13 @@
 .pets-hero {
     border-radius: 32px;
     padding: 2.75rem;
-    background: linear-gradient(125deg, #7a3aff 0%, #c084fc 55%, #f8fafc 100%);
+    background: linear-gradient(135deg, #7a3aff 0%, #c084fc 50%, #7a3aff 120%) !important;
     color: #ffffff;
     box-shadow: 0 35px 90px rgba(15, 23, 42, 0.3);
 }
 .pets-hero .pill {
     display: inline-flex;
+    background: linear-gradient(135deg, #7a3aff 0%, #c084fc 50%, #7a3aff 120%) !important;
     align-items: center;
     gap: .45rem;
     padding: .4rem 1.2rem;

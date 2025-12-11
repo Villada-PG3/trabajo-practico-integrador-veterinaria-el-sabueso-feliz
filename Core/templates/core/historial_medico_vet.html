@@ -1,11 +1,14 @@
 {% extends "core/header.html" %}
+{% load static %}
 
 {% block title %}Historial clinico del equipo{% endblock %}
 
+
 {% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-0 mt-0 pt-0">
 <section class="mb-5">
     <div class="position-relative overflow-hidden rounded-4 border-0 shadow-sm text-white p-4 p-xl-5"
-         style="background: linear-gradient(135deg, #4338ca 0%, #6366f1 45%, #a5b4fc 100%);">
+         style="background: linear-gradient(135deg, #7a3aff 0%, #c084fc 50%, #7a3aff 120%);">
         <div class="row align-items-center g-4">
             <div class="col-xl-7">
                 <span class="badge bg-white text-primary fw-semibold text-uppercase small mb-3">Gestion clinica</span>
@@ -83,7 +86,7 @@
 </section>
 
 
-<section>
+<section class="py-4">
     <div class="card border-0 shadow-sm">
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -215,5 +218,5 @@
         </div>
     </div>
 </section>
-
+</div>
 {% endblock %}

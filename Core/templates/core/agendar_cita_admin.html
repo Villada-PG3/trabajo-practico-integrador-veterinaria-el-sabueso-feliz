@@ -3,6 +3,7 @@
 {% block title %}Agendar Cita{% endblock %}
 
 {% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-0 mt-0 pt-0">
 <div class="container mt-4">
     <h2>Agendar cita</h2>
     <form method="post">{% csrf_token %}
@@ -63,5 +64,6 @@
         <button type="submit" class="btn btn-success">Agendar cita</button>
         <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancelar</a>
     </form>
+</div>
 </div>
 {% endblock %}
