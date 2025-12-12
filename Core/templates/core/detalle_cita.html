@@ -7,33 +7,46 @@
 {% block content %}
 <div class="max-w-5xl mx-auto space-y-10">
     <!-- Hero -->
-    <section class="rounded-[36px] bg-gradient-to-br from-[#0f172a] via-[#1d4ed8] to-[#38bdf8] text-white shadow-2xl p-8">
-        <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-                <p class="text-xs uppercase tracking-[0.35em] text-white/70">Cita clnica</p>
-                <h1 class="text-4xl font-semibold">{{ cita.paciente.nombre }}</h1>
-                <p class="text-white/80 text-sm">
-                    {{ cita.paciente.especie }}{% if cita.paciente.raza %}  {{ cita.paciente.raza }}{% endif %}  Sexo {{ cita.paciente.sexo|default:"-" }}
+<!-- Hero violeta -->
+<section class="rounded-[36px] text-white shadow-2xl p-8 
+                bg-gradient-to-br from-[#4338ca] via-[#6d28d9] to-[#a78bfa]">
+    <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+
+        <!-- Datos -->
+        <div>
+            <p class="text-xs uppercase tracking-[0.35em] text-white/70">Cita clínica</p>
+            <h1 class="text-4xl font-semibold">{{ cita.paciente.nombre }}</h1>
+            <p class="text-white/80 text-sm">
+                {{ cita.paciente.especie }}
+                {% if cita.paciente.raza %}  {{ cita.paciente.raza }}{% endif %}
+                Sexo {{ cita.paciente.sexo|default:"-" }}
+            </p>
+        </div>
+
+        <!-- Tarjetas pequeñas -->
+        <div class="grid grid-cols-2 gap-4 text-center">
+
+            <div class="rounded-2xl bg-white/20 px-4 py-3 backdrop-blur-sm">
+                <p class="text-xs uppercase text-white/70">Fecha</p>
+                <p class="text-lg font-semibold">
+                    {% if cita.fecha_hora %}
+                        {{ cita.fecha_hora|date:"d/m/Y H:i" }}
+                    {% else %}
+                        {{ cita.fecha_solicitada|date:"d/m/Y" }} (sin horario)
+                    {% endif %}
                 </p>
             </div>
-            <div class="grid grid-cols-2 gap-4 text-center">
-                <div class="rounded-2xl bg-white/15 px-4 py-3">
-                    <p class="text-xs uppercase text-white/70">Fecha</p>
-                    <p class="text-lg font-semibold">
-                        {% if cita.fecha_hora %}
-                            {{ cita.fecha_hora|date:"d/m/Y H:i" }}
-                        {% else %}
-                            {{ cita.fecha_solicitada|date:"d/m/Y" }} (sin horario)
-                        {% endif %}
-                    </p>
-                </div>
-                <div class="rounded-2xl bg-white/15 px-4 py-3">
-                    <p class="text-xs uppercase text-white/70">Estado</p>
-                    <p class="text-lg font-semibold">{{ cita.get_estado_display }}</p>
-                </div>
+
+            <div class="rounded-2xl bg-white/20 px-4 py-3 backdrop-blur-sm">
+                <p class="text-xs uppercase text-white/70">Estado</p>
+                <p class="text-lg font-semibold">{{ cita.get_estado_display }}</p>
             </div>
+
         </div>
-    </section>
+
+    </div>
+</section>
+
 
     <!-- Propietario/Veterinario -->
     <section class="grid gap-6 md:grid-cols-2">
