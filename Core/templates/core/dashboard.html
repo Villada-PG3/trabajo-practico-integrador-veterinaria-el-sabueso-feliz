@@ -78,12 +78,91 @@
             </div>
         </div>
     </section>
-    
+    <section class="section-card">
+            <div class="section-header">
+                <h3>Gestion</h3>
+                <p class="section-description">Rapido acceso a todas las tareas.</p>
+            <div class="functional-grid pt-4">
+                <article class="functional-card">
+                    <div class="functional-card__icon bg-blue-50 text-blue-600">
+                        <i class="fas fa-id-card"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold text-slate-900">Clientes y pacientes</h4>
+                        <p class="text-sm text-slate-600">Crea o edita informacion de los usuarios.</p>
+                    </div>
+                    <div class="functional-card__actions">
+                        <a href="{% url 'crear_propietario_admin' %}">
+                            <i class="fas fa-user-plus"></i>
+                            Nuevo propietario
+                        </a>
+                        <a href="{% url 'crear_mascota_admin' %}">
+                            <i class="fas fa-paw"></i>
+                            Nueva mascota
+                        </a>
+                        <a href="{% url 'buscar_propietarios' %}">
+                            <i class="fas fa-search"></i>
+                            Buscar fichas
+                        </a>
+                    </div>
+                </article>
+                <article class="functional-card">
+                    <div class="functional-card__icon bg-purple-50 text-purple-600">
+                        <i class="fas fa-calendar-plus"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold text-slate-900">Agenda y equipo medico</h4>
+                        <p class="text-sm text-slate-600">Administra turnos y asignaciones.</p>
+                    </div>
+                    <div class="functional-card__actions">
+                        <a href="{% url 'agendar_cita_admin' %}">
+                            <i class="fas fa-calendar-check"></i>
+                            Agendar cita
+                        </a>
+                        <a href="{% url 'asignar_veterinario_citas' %}">
+                            <i class="fas fa-user-md"></i>
+                            Asignar veterinarios
+                        </a>
+                        <a href="{% url 'gestionar_veterinarios' %}">
+                            <i class="fas fa-user-clock"></i>
+                            Nuevos veterinarios
+                        </a>
+                        <a href="{% url 'dashboard_veterinarios' %}">
+                            <i class="fas fa-chart-bar"></i>
+                            Stats veterinarios
+                        </a>
+                    </div>
+                </article>
+                <article class="functional-card">
+                    <div class="functional-card__icon bg-emerald-50 text-emerald-600">
+                        <i class="fas fa-boxes"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold text-slate-900">Inventario y negocio</h4>
+                        <p class="text-sm text-slate-600">Controla recursos, reportes y tienda oficial.</p>
+                    </div>
+                    <div class="functional-card__actions">
+                        <a href="{% url 'inventario_farmacos_admin' %}">
+                            <i class="fas fa-prescription-bottle-medical"></i>
+                            Farmacos
+                        </a>
+                        <a href="{% url 'dashboard_admin_analisis' %}">
+                            <i class="fas fa-chart-line"></i>
+                            Analitica
+                        </a>
+                        <a href="{% url 'admin_productos_list' %}">
+                            <i class="fas fa-store"></i>
+                            Gestionar tienda
+                        </a>
+                    </div>
+                </article>
+            </div>
+        </section>
     <section class="section-card">
         <div class="section-header">
-            <p class="section-eyebrow">Formularios en tarjetas</p>
+            
             <h3>Busquedas contextuales</h3>
-            <p class="section-description">Selecciona el tipo de ficha a revisar mediante tarjetas, evitando menus desplegables.</p>
+            <p class="section-description">Selecciona los filtros de busqueda.</p>
         </div>
     
         <div class="grid gap-6">
@@ -149,86 +228,7 @@
     
 
     
-    <section class="section-card">
-            <div class="section-header">
-                <p class="section-eyebrow">Modulos funcionales</p>
-                <h3>Gestion</h3>
-            <div class="functional-grid">
-                <article class="functional-card">
-                    <div class="functional-card__icon bg-blue-50 text-blue-600">
-                        <i class="fas fa-id-card"></i>
-                    </div>
-                    <div>
-                        <h4 class="text-lg font-semibold text-slate-900">Clientes y pacientes</h4>
-                        <p class="text-sm text-slate-600">Crea o edita informacion base directamente desde estas tarjetas dedicadas.</p>
-                    </div>
-                    <div class="functional-card__actions">
-                        <a href="{% url 'crear_propietario_admin' %}">
-                            <i class="fas fa-user-plus"></i>
-                            Nuevo propietario
-                        </a>
-                        <a href="{% url 'crear_mascota_admin' %}">
-                            <i class="fas fa-paw"></i>
-                            Nueva mascota
-                        </a>
-                        <a href="{% url 'buscar_propietarios' %}">
-                            <i class="fas fa-search"></i>
-                            Buscar fichas
-                        </a>
-                    </div>
-                </article>
-                <article class="functional-card">
-                    <div class="functional-card__icon bg-purple-50 text-purple-600">
-                        <i class="fas fa-calendar-plus"></i>
-                    </div>
-                    <div>
-                        <h4 class="text-lg font-semibold text-slate-900">Agenda y equipo medico</h4>
-                        <p class="text-sm text-slate-600">Administra turnos y asignaciones desde acciones separadas e intuitivas.</p>
-                    </div>
-                    <div class="functional-card__actions">
-                        <a href="{% url 'agendar_cita_admin' %}">
-                            <i class="fas fa-calendar-check"></i>
-                            Agendar cita
-                        </a>
-                        <a href="{% url 'asignar_veterinario_citas' %}">
-                            <i class="fas fa-user-md"></i>
-                            Asignar veterinarios
-                        </a>
-                        <a href="{% url 'gestionar_veterinarios' %}">
-                            <i class="fas fa-user-clock"></i>
-                            Nuevos veterinarios
-                        </a>
-                        <a href="{% url 'dashboard_veterinarios' %}">
-                            <i class="fas fa-chart-bar"></i>
-                            Stats veterinarios
-                        </a>
-                    </div>
-                </article>
-                <article class="functional-card">
-                    <div class="functional-card__icon bg-emerald-50 text-emerald-600">
-                        <i class="fas fa-boxes"></i>
-                    </div>
-                    <div>
-                        <h4 class="text-lg font-semibold text-slate-900">Inventario y negocio</h4>
-                        <p class="text-sm text-slate-600">Controla recursos, reportes y tienda oficial sin perder contexto.</p>
-                    </div>
-                    <div class="functional-card__actions">
-                        <a href="{% url 'inventario_farmacos_admin' %}">
-                            <i class="fas fa-prescription-bottle-medical"></i>
-                            Farmacos
-                        </a>
-                        <a href="{% url 'dashboard_admin_analisis' %}">
-                            <i class="fas fa-chart-line"></i>
-                            Analitica
-                        </a>
-                        <a href="{% url 'admin_productos_list' %}">
-                            <i class="fas fa-store"></i>
-                            Gestionar tienda
-                        </a>
-                    </div>
-                </article>
-            </div>
-        </section>
+    
 
 
         {% if productos_recientes %}

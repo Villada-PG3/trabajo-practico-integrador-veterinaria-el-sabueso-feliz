@@ -6,16 +6,16 @@
     <div class="row justify-content-center">
         <div class="col-xl-10">
             <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
-                <div class="card-header bg-gradient text-white py-4"
-                     style="background: linear-gradient(135deg, #0f172a 0%, #2563eb 50%, #38bdf8 100%);">
+                <div class="card-header bg-gradient text-black py-4"
+                     style="background: linear-gradient(135deg, #7a3aff 0%, #c084fc 50%, #7a3aff 120%);">
                     <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
                         <div>
-                            <p class="text-uppercase small mb-1 text-white-50 fw-semibold">Atención clínica</p>
+                            <p class="text-uppercase small mb-1 text-black-50 fw-semibold ">Atención clínica</p>
                             <h1 class="h4 mb-0">Informe de {{ cita.paciente.nombre }}</h1>
                             <p class="mb-0 text-white-50 small">{{ cita.fecha_hora|date:"d/m/Y H:i"|default:cita.fecha_solicitada|date:"d/m/Y" }}</p>
                         </div>
                         <div class="text-end">
-                            <span class="badge bg-white text-dark fw-semibold">{{ cita.paciente.propietario.user.get_full_name|default:cita.paciente.propietario.user.username }}</span>
+                            <span class="badge bg-white text-dark fw-semibold">Cliente: {{ cita.paciente.propietario.user.get_full_name|default:cita.paciente.propietario.user.username }}</span>
                         </div>
                     </div>
                 </div>
