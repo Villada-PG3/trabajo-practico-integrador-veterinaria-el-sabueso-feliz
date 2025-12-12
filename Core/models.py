@@ -29,7 +29,7 @@ class User(AbstractUser):
     ROLES = (
         ("ADMIN", "Administrador"),
         ("VET", "Veterinario"),
-        ("ADMIN_OP", "Administrativo"),
+        ("REP", "Recepcionista"),
         ("OWNER", "Propietario"),
     )
     rol = models.CharField(max_length=20, choices=ROLES)
