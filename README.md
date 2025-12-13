@@ -133,6 +133,18 @@ como parte del Proyecto Integrador 2025.
 ```bash
  python manage.py createsuperuser
 ```
+
+7. (Opcional) Cargar datos de ejemplo:
+```bash
+python script.py
+```
+   - Credenciales creadas:  
+     - Admin: `admin` / `admin123`  
+     - Operaciones: `operaciones` / `oper123`  
+     - Veterinario: `drperro` / `vet123`  
+     - Propietarios: `propietario` / `owner123` y `propietario2` / `owner123`
+   - El script elimina previamente todos los datos (incluye usuarios existentes) y carga información de demo: sucursales, usuarios, propietarios, mascotas, citas, historiales, fármacos, vacunas y productos.
+
 7. Iniciar Servidor:
 ```bash
    python manage.py runserver
@@ -162,8 +174,6 @@ Proyecto de uso educativo y académico.
 <p align="center">
   <img src="https://i.imgur.com/zDTIHyR.png" width="100%" alt="Banner Proyecto Integrador 2025">
 </p>
-
-
 
 
 
