@@ -252,9 +252,6 @@ class AuthenticatedView(LoginRequiredMixin, View):
 
 class LandingView(PublicView):
     def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
         productos_destacados = Producto.objects.none()
         total_productos = 0
         productos_disponibles = _producto_table_available()
@@ -305,9 +302,6 @@ class LandingView(PublicView):
 
 class ContactoView(PublicView):
     def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
         """Página de contacto institucional de la veterinaria."""
 
         sucursales = Sucursal.objects.all()
@@ -364,9 +358,6 @@ class ContactoView(PublicView):
 
 class TiendaView(PublicView):
     def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
         categoria = request.GET.get("categoria")
         busqueda = request.GET.get("q", "").strip()
 
@@ -398,10 +389,7 @@ class TiendaView(PublicView):
 
 
 class DetalleProductoView(PublicView):
-    def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request, producto_id):
+    def get(self, request, producto_id, *args, **kwargs):
         if not _producto_table_available():
             messages.error(
                 request,
@@ -427,9 +415,6 @@ class DetalleProductoView(PublicView):
 
 class DashboardView(AuthenticatedView):
     def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
         user = request.user
         context = {}
 
@@ -614,9 +599,6 @@ class DashboardView(AuthenticatedView):
 
 class DashboardAdminAnalisisView(AuthenticatedView):
     def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
         usuario = request.user
         if not (usuario.is_superuser or usuario.rol == "ADMIN"):
             messages.error(
@@ -898,9 +880,6 @@ class DashboardAdminAnalisisView(AuthenticatedView):
 
 class ExportarInventarioExcelView(AuthenticatedView):
     def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
         usuario = request.user
         if not (usuario.is_superuser or usuario.rol == "ADMIN"):
             messages.error(
@@ -1110,10 +1089,7 @@ class ExportarInventarioExcelView(AuthenticatedView):
 
 
 class ExportarPropietarioExcelView(AuthenticatedView):
-    def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request, propietario_id):
+    def get(self, request, propietario_id, *args, **kwargs):
         usuario = request.user
         if not (usuario.is_superuser or usuario.rol == "ADMIN"):
             messages.error(
@@ -1358,12 +1334,6 @@ class ExportarPropietarioExcelView(AuthenticatedView):
 
 class CalendarioVacunasView(AuthenticatedView):
     def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
         if request.user.rol != "OWNER":
             messages.error(request, "Acceso exclusivo para propietarios.")
             return redirect("dashboard")
@@ -1375,7 +1345,7 @@ class CalendarioVacunasView(AuthenticatedView):
 
         vacunas_disponibles = _vacunas_tables_available()
         mascota_seleccionada = None
-        mascota_id = request.POST.get("paciente_id") or request.GET.get("paciente")
+        mascota_id = request.GET.get("paciente")
 
         if mascotas:
             try:
@@ -1389,113 +1359,6 @@ class CalendarioVacunasView(AuthenticatedView):
                     break
             if mascota_seleccionada is None:
                 mascota_seleccionada = mascotas[0]
-                mascota_id_int = mascota_seleccionada.id
-        else:
-            mascota_id_int = None
-
-        if request.method == "POST":
-            if not mascotas:
-                messages.error(
-                    request,
-                    "Registra una mascota para comenzar a gestionar su calendario de vacunas.",
-                )
-                return redirect("registrar_mascota")
-
-            if not vacunas_disponibles:
-                messages.error(
-                    request,
-                    "El módulo de vacunas todavía no está disponible. Ejecuta las migraciones pendientes para activarlo.",
-                )
-                return redirect("calendario_vacunas")
-
-            form = VacunaRegistroForm(request.POST)
-            accion = request.POST.get("accion")
-            redirect_base = reverse("calendario_vacunas")
-            redirect_actual = (
-                f"{redirect_base}?paciente={mascota_seleccionada.id}"
-                if mascota_seleccionada
-                else redirect_base
-            )
-
-            if form.is_valid():
-                paciente_id = form.cleaned_data["paciente_id"]
-                vacuna_id = form.cleaned_data["vacuna_id"]
-                fecha = form.cleaned_data.get("fecha_aplicacion") or timezone.localdate()
-                notas = form.cleaned_data.get("notas", "").strip()
-
-                paciente_obj = next(
-                    (m for m in mascotas if m.id == paciente_id),
-                    None,
-                )
-                if paciente_obj is None:
-                    messages.error(request, "La mascota seleccionada no es válida.")
-                    return redirect(redirect_actual)
-
-                redirect_url = f"{redirect_base}?paciente={paciente_obj.id}"
-
-                vacuna_obj = VacunaRecomendada.objects.filter(id=vacuna_id).first()
-                if vacuna_obj is None:
-                    messages.error(request, "La vacuna indicada no existe.")
-                    return redirect(redirect_url)
-
-                especie_paciente = _normalizar_especie_mascota(paciente_obj.especie)
-                if not especie_paciente:
-                    messages.error(
-                        request,
-                        "La especie de la mascota no cuenta con un calendario configurado.",
-                    )
-                    return redirect(redirect_url)
-
-                if vacuna_obj.especie != especie_paciente:
-                    messages.error(
-                        request,
-                        "La vacuna seleccionada no corresponde a la especie de la mascota.",
-                    )
-                    return redirect(redirect_url)
-
-                if accion == "marcar":
-                    registro, creado = VacunaRegistro.objects.update_or_create(
-                        paciente=paciente_obj,
-                        vacuna=vacuna_obj,
-                        defaults={
-                            "fecha_aplicacion": fecha,
-                            "notas": notas,
-                        },
-                    )
-                    if creado:
-                        messages.success(
-                            request,
-                            f"Se registró la aplicación de {vacuna_obj.nombre} para {paciente_obj.nombre}.",
-                        )
-                    else:
-                        messages.success(
-                            request,
-                            f"Se actualizó la aplicación de {vacuna_obj.nombre} para {paciente_obj.nombre}.",
-                        )
-                elif accion == "desmarcar":
-                    eliminados, _ = VacunaRegistro.objects.filter(
-                        paciente=paciente_obj, vacuna=vacuna_obj
-                    ).delete()
-                    if eliminados:
-                        messages.info(
-                            request,
-                            f"Se eliminó el registro de {vacuna_obj.nombre} para {paciente_obj.nombre}.",
-                        )
-                    else:
-                        messages.warning(
-                            request,
-                            "No se encontró un registro previo para eliminar.",
-                        )
-                else:
-                    messages.error(request, "Acción no reconocida.")
-                return redirect(redirect_url)
-
-            errors = ", ".join(
-                [str(error) for error_list in form.errors.values() for error in error_list]
-            )
-            if errors:
-                messages.error(request, errors)
-            return redirect(redirect_actual)
 
         especie_normalizada = (
             _normalizar_especie_mascota(mascota_seleccionada.especie)
@@ -1549,12 +1412,137 @@ class CalendarioVacunasView(AuthenticatedView):
             },
         )
 
+    def post(self, request, *args, **kwargs):
+        if request.user.rol != "OWNER":
+            messages.error(request, "Acceso exclusivo para propietarios.")
+            return redirect("dashboard")
 
+        propietario = get_object_or_404(Propietario, user=request.user)
+        mascotas = list(
+            Paciente.objects.filter(propietario=propietario).order_by("nombre")
+        )
+
+        vacunas_disponibles = _vacunas_tables_available()
+        mascota_seleccionada = None
+        mascota_id = request.POST.get("paciente_id") or request.GET.get("paciente")
+
+        if mascotas:
+            try:
+                mascota_id_int = int(mascota_id) if mascota_id else None
+            except (TypeError, ValueError):
+                mascota_id_int = None
+
+            for mascota in mascotas:
+                if mascota_id_int is not None and mascota.id == mascota_id_int:
+                    mascota_seleccionada = mascota
+                    break
+            if mascota_seleccionada is None:
+                mascota_seleccionada = mascotas[0]
+
+        if not mascotas:
+            messages.error(
+                request,
+                "Registra una mascota para comenzar a gestionar su calendario de vacunas.",
+            )
+            return redirect("registrar_mascota")
+
+        if not vacunas_disponibles:
+            messages.error(
+                request,
+                "El módulo de vacunas todavía no está disponible. Ejecuta las migraciones pendientes para activarlo.",
+            )
+            return redirect("calendario_vacunas")
+
+        form = VacunaRegistroForm(request.POST)
+        accion = request.POST.get("accion")
+        redirect_base = reverse("calendario_vacunas")
+        redirect_actual = (
+            f"{redirect_base}?paciente={mascota_seleccionada.id}"
+            if mascota_seleccionada
+            else redirect_base
+        )
+
+        if form.is_valid():
+            paciente_id = form.cleaned_data["paciente_id"]
+            vacuna_id = form.cleaned_data["vacuna_id"]
+            fecha = form.cleaned_data.get("fecha_aplicacion") or timezone.localdate()
+            notas = form.cleaned_data.get("notas", "").strip()
+
+            paciente_obj = next(
+                (m for m in mascotas if m.id == paciente_id),
+                None,
+            )
+            if paciente_obj is None:
+                messages.error(request, "La mascota seleccionada no es válida.")
+                return redirect(redirect_actual)
+
+            redirect_url = f"{redirect_base}?paciente={paciente_obj.id}"
+
+            vacuna_obj = VacunaRecomendada.objects.filter(id=vacuna_id).first()
+            if vacuna_obj is None:
+                messages.error(request, "La vacuna indicada no existe.")
+                return redirect(redirect_url)
+
+            especie_paciente = _normalizar_especie_mascota(paciente_obj.especie)
+            if not especie_paciente:
+                messages.error(
+                    request,
+                    "La especie de la mascota no cuenta con un calendario configurado.",
+                )
+                return redirect(redirect_url)
+
+            if vacuna_obj.especie != especie_paciente:
+                messages.error(
+                    request,
+                    "La vacuna seleccionada no corresponde a la especie de la mascota.",
+                )
+                return redirect(redirect_url)
+
+            if accion == "marcar":
+                registro, creado = VacunaRegistro.objects.update_or_create(
+                    paciente=paciente_obj,
+                    vacuna=vacuna_obj,
+                    defaults={
+                        "fecha_aplicacion": fecha,
+                        "notas": notas,
+                    },
+                )
+                if creado:
+                    messages.success(
+                        request,
+                        f"Se registró la aplicación de {vacuna_obj.nombre} para {paciente_obj.nombre}.",
+                    )
+                else:
+                    messages.success(
+                        request,
+                        f"Se actualizó la aplicación de {vacuna_obj.nombre} para {paciente_obj.nombre}.",
+                    )
+            elif accion == "desmarcar":
+                eliminados, _ = VacunaRegistro.objects.filter(
+                    paciente=paciente_obj, vacuna=vacuna_obj
+                ).delete()
+                if eliminados:
+                    messages.info(
+                        request,
+                        f"Se eliminó el registro de {vacuna_obj.nombre} para {paciente_obj.nombre}.",
+                    )
+                else:
+                    messages.warning(
+                        request,
+                        "No se encontró un registro previo para eliminar.",
+                    )
+            else:
+                messages.error(request, "Acción no reconocida.")
+            return redirect(redirect_url)
+
+        errors = ", ".join(
+            [str(error) for error_list in form.errors.values() for error in error_list]
+        )
+        if errors:
+            messages.error(request, errors)
+        return redirect(redirect_actual)
 class MisMascotasView(AuthenticatedView):
     def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
         propietario = get_object_or_404(Propietario, user=request.user)
         mascotas = Paciente.objects.filter(propietario=propietario)
         return render(request, "core/mis_mascotas.html", {"mascotas": mascotas})
@@ -1564,9 +1552,7 @@ class ActualizarFotoMascotaView(AuthenticatedView):
     permisos_permitidos = {"OWNER", "ADMIN", "ADMIN_OP"}
 
     def post(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request, mascota_id):
+        mascota_id = kwargs.get("mascota_id")
         paciente = get_object_or_404(Paciente, id=mascota_id)
 
         if request.user.rol not in self.permisos_permitidos:
@@ -1594,12 +1580,6 @@ class ActualizarFotoMascotaView(AuthenticatedView):
 
 class TransferirMascotaView(AuthenticatedView):
     def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
         if getattr(request.user, "rol", "") != "OWNER":
             messages.error(request, "Solo los propietarios pueden transferir mascotas.")
             return redirect("dashboard")
@@ -1616,41 +1596,70 @@ class TransferirMascotaView(AuthenticatedView):
         destino_confirmado = None
         form_data = None
 
-        if request.method == "POST":
-            form = TransferirMascotaForm(
-                request.POST,
-                propietario=propietario,
-                propietarios_destino=propietarios_destino,
-                user=request.user,
-            )
-            if form.is_valid():
-                mascota = form.cleaned_data["mascota"]
-                destino = form.cleaned_data["nuevo_propietario"]
-                confirmar = request.POST.get("confirmado") == "1"
-                if not confirmar:
-                    confirmacion_activa = True
-                    mascota_confirmada = mascota
-                    destino_confirmado = destino
-                    form_data = {
-                        "password1": form.cleaned_data.get("password1"),
-                        "password2": form.cleaned_data.get("password2"),
-                    }
-                else:
-                    with transaction.atomic():
-                        mascota.propietario = destino
-                        mascota.save(update_fields=["propietario"])
-                    messages.success(
-                        request,
-                        f"Transferiste a {mascota.nombre} al perfil de "
-                        f"{destino.user.get_full_name() or destino.user.username}.",
-                    )
-                    return redirect("mis_mascotas")
-        else:
-            form = TransferirMascotaForm(
-                propietario=propietario,
-                propietarios_destino=propietarios_destino,
-                user=request.user,
-            )
+        form = TransferirMascotaForm(
+            propietario=propietario,
+            propietarios_destino=propietarios_destino,
+            user=request.user,
+        )
+
+        return render(
+            request,
+            "core/transferir_mascota.html",
+            {
+                "form": form,
+                "propietario": propietario,
+                "confirmacion_activa": confirmacion_activa,
+                "mascota_confirmada": mascota_confirmada,
+                "destino_confirmado": destino_confirmado,
+                "form_data": form_data,
+            },
+        )
+
+    def post(self, request, *args, **kwargs):
+        if getattr(request.user, "rol", "") != "OWNER":
+            messages.error(request, "Solo los propietarios pueden transferir mascotas.")
+            return redirect("dashboard")
+
+        propietario = get_object_or_404(Propietario, user=request.user)
+        propietarios_destino = (
+            Propietario.objects.select_related("user")
+            .exclude(pk=propietario.pk)
+            .order_by("user__first_name", "user__last_name", "user__username")
+        )
+
+        confirmacion_activa = False
+        mascota_confirmada = None
+        destino_confirmado = None
+        form_data = None
+
+        form = TransferirMascotaForm(
+            request.POST,
+            propietario=propietario,
+            propietarios_destino=propietarios_destino,
+            user=request.user,
+        )
+        if form.is_valid():
+            mascota = form.cleaned_data["mascota"]
+            destino = form.cleaned_data["nuevo_propietario"]
+            confirmar = request.POST.get("confirmado") == "1"
+            if not confirmar:
+                confirmacion_activa = True
+                mascota_confirmada = mascota
+                destino_confirmado = destino
+                form_data = {
+                    "password1": form.cleaned_data.get("password1"),
+                    "password2": form.cleaned_data.get("password2"),
+                }
+            else:
+                with transaction.atomic():
+                    mascota.propietario = destino
+                    mascota.save(update_fields=["propietario"])
+                messages.success(
+                    request,
+                    f"Transferiste a {mascota.nombre} al perfil de "
+                    f"{destino.user.get_full_name() or destino.user.username}.",
+                )
+                return redirect("mis_mascotas")
 
         return render(
             request,
@@ -1667,10 +1676,7 @@ class TransferirMascotaView(AuthenticatedView):
 
 
 class DetalleMascotaView(AuthenticatedView):
-    def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request, paciente_id):
+    def get(self, request, paciente_id, *args, **kwargs):
         paciente = get_object_or_404(Paciente, id=paciente_id)
 
         if request.user.rol == "OWNER" and paciente.propietario.user != request.user:
@@ -1747,10 +1753,7 @@ class DetalleMascotaView(AuthenticatedView):
 
 
 class CitasInformesMascotaView(AuthenticatedView):
-    def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request, paciente_id):
+    def get(self, request, paciente_id, *args, **kwargs):
         paciente = get_object_or_404(Paciente, id=paciente_id)
 
         if request.user.rol == "OWNER" and paciente.propietario.user != request.user:
@@ -1774,17 +1777,38 @@ class CitasInformesMascotaView(AuthenticatedView):
 
 
 class RegistrarHistorialView(AuthenticatedView):
-    def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request, paciente_id):
+    def get(self, request, paciente_id, *args, **kwargs):
         paciente = get_object_or_404(Paciente, id=paciente_id)
 
         if request.user.rol != "VET":
-            messages.error(request, "No tienes permiso para registrar historial médico.")
+            messages.error(request, "No tienes permiso para registrar historial mAcdico.")
+            return redirect("dashboard")
+
+        cita_asociada = None
+        cita_id_param = request.GET.get("cita")
+        if cita_id_param:
+            try:
+                cita_asociada = Cita.objects.select_related("paciente").get(
+                    id=cita_id_param, paciente=paciente
+                )
+            except Cita.DoesNotExist:
+                cita_asociada = None
+                messages.warning(
+                    request,
+                    "La cita seleccionada no pertenece a este paciente o ya no estA? disponible.",
+                )
+
+        return render(
+            request,
+            "core/registrar_historial.html",
+            {"paciente": paciente, "cita_asociada": cita_asociada},
+        )
+
+    def post(self, request, paciente_id, *args, **kwargs):
+        paciente = get_object_or_404(Paciente, id=paciente_id)
+
+        if request.user.rol != "VET":
+            messages.error(request, "No tienes permiso para registrar historial mAcdico.")
             return redirect("dashboard")
 
         cita_asociada = None
@@ -1798,66 +1822,54 @@ class RegistrarHistorialView(AuthenticatedView):
                 cita_asociada = None
                 messages.warning(
                     request,
-                    "La cita seleccionada no pertenece a este paciente o ya no está disponible.",
+                    "La cita seleccionada no pertenece a este paciente o ya no estA? disponible.",
                 )
 
-        if request.method == "POST":
-            diagnostico = request.POST.get("diagnostico")
-            tratamiento = request.POST.get("tratamiento")
-            notas = request.POST.get("notas")
-            peso = request.POST.get("peso") or None
-            temperatura = request.POST.get("temperatura") or None
-            examenes = request.POST.get("examenes")
-            proximo_control = request.POST.get("proximo_control") or None
-            sin_proximo_control = bool(request.POST.get("sin_proximo_control"))
-            adjuntar_estudios = bool(request.POST.get("adjuntar_estudios"))
+        diagnostico = request.POST.get("diagnostico")
+        tratamiento = request.POST.get("tratamiento")
+        notas = request.POST.get("notas")
+        peso = request.POST.get("peso") or None
+        temperatura = request.POST.get("temperatura") or None
+        examenes = request.POST.get("examenes")
+        proximo_control = request.POST.get("proximo_control") or None
+        sin_proximo_control = bool(request.POST.get("sin_proximo_control"))
+        adjuntar_estudios = bool(request.POST.get("adjuntar_estudios"))
 
-            if sin_proximo_control:
-                proximo_control = None
+        if sin_proximo_control:
+            proximo_control = None
 
-            historial_defaults = {
-                "paciente": paciente,
-                "veterinario": request.user,
-                "diagnostico": diagnostico,
-                "tratamiento": tratamiento,
-                "notas": notas,
-                "peso": peso,
-                "temperatura": temperatura,
-                "examenes": examenes,
-                "proximo_control": proximo_control,
-                "sin_proximo_control": sin_proximo_control,
-            }
+        historial_defaults = {
+            "paciente": paciente,
+            "veterinario": request.user,
+            "diagnostico": diagnostico,
+            "tratamiento": tratamiento,
+            "notas": notas,
+            "peso": peso,
+            "temperatura": temperatura,
+            "examenes": examenes,
+            "proximo_control": proximo_control,
+            "sin_proximo_control": sin_proximo_control,
+        }
 
-            if adjuntar_estudios and "estudio_imagen" in request.FILES:
-                historial_defaults["imagenes"] = request.FILES["estudio_imagen"]
+        if adjuntar_estudios and "estudio_imagen" in request.FILES:
+            historial_defaults["imagenes"] = request.FILES["estudio_imagen"]
 
-            if cita_asociada:
-                HistorialMedico.objects.update_or_create(
-                    cita=cita_asociada, defaults=historial_defaults
-                )
-                if cita_asociada.estado != "atendida":
-                    cita_asociada.estado = "atendida"
-                    cita_asociada.save(update_fields=["estado"])
-            else:
-                HistorialMedico.objects.create(**historial_defaults)
+        if cita_asociada:
+            HistorialMedico.objects.update_or_create(
+                cita=cita_asociada, defaults=historial_defaults
+            )
+            if cita_asociada.estado != "atendida":
+                cita_asociada.estado = "atendida"
+                cita_asociada.save(update_fields=["estado"])
+        else:
+            HistorialMedico.objects.create(**historial_defaults)
 
-            messages.success(request, "Historial médico registrado correctamente ✅")
-            return redirect("detalle_mascota", paciente_id=paciente.id)
-
-        return render(
-            request,
-            "core/registrar_historial.html",
-            {"paciente": paciente, "cita_asociada": cita_asociada},
-        )
-
-
+        messages.success(request, "Historial mAcdico registrado correctamente ?o.")
+        return redirect("detalle_mascota", paciente_id=paciente.id)
 class ListarUsuariosView(AuthenticatedView):
     def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
         if request.user.rol != "ADMIN":
-            messages.error(request, "No tienes permiso para ver esta página.")
+            messages.error(request, "No tienes permiso para ver esta pA?gina.")
             return redirect("dashboard")
 
         usuarios = User.objects.all()
@@ -1870,15 +1882,10 @@ class ListarUsuariosView(AuthenticatedView):
             )
         usuarios = usuarios.order_by("username")
         return render(request, "core/usuarios.html", {"usuarios": usuarios, "query": query})
-
-
 class ListarPacientesView(AuthenticatedView):
     def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
         if request.user.rol not in {"ADMIN", "ADMIN_OP"}:
-            messages.error(request, "No tienes permiso para ver esta página.")
+            messages.error(request, "No tienes permiso para ver esta pA?gina.")
             return redirect("dashboard")
 
         pacientes = Paciente.objects.select_related("propietario__user")
@@ -1892,58 +1899,15 @@ class ListarPacientesView(AuthenticatedView):
             )
         pacientes = pacientes.order_by("nombre")
         return render(request, "core/pacientes.html", {"pacientes": pacientes, "query": query})
-
-
 class RegistrarMascotaView(AuthenticatedView):
     def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
         if request.user.rol != "OWNER":
             messages.error(request, "No tienes permiso para registrar mascotas.")
             return redirect("dashboard")
 
         propietario = get_object_or_404(Propietario, user=request.user)
-        form_data = request.POST if request.method == "POST" else {}
+        form_data = {}
         foto_subida = None
-
-        if request.method == "POST":
-            has_error = False
-            nombre = request.POST.get("nombre")
-            especie = request.POST.get("especie")
-            raza = request.POST.get("raza")
-            sexo = request.POST.get("sexo")
-            fecha_nacimiento = request.POST.get("fecha_nacimiento")
-            foto_subida = request.FILES.get("foto")
-
-            fecha_obj = None
-            if fecha_nacimiento:
-                try:
-                    fecha_obj = datetime.strptime(fecha_nacimiento, "%Y-%m-%d").date()
-                except ValueError:
-                    messages.error(request, "La fecha de nacimiento no es válida.")
-                    has_error = True
-            else:
-                messages.error(request, "Debes indicar la fecha de nacimiento.")
-                has_error = True
-
-            if not has_error:
-                Paciente.objects.create(
-                    nombre=nombre,
-                    especie=especie,
-                    raza=raza,
-                    sexo=sexo,
-                    fecha_nacimiento=fecha_obj,
-                    propietario=propietario,
-                    foto=foto_subida,
-                )
-                messages.success(
-                    request, f"Mascota {nombre} registrada correctamente ✅"
-                )
-                return redirect("mis_mascotas")
 
         return render(
             request,
@@ -1951,12 +1915,56 @@ class RegistrarMascotaView(AuthenticatedView):
             {"form_data": form_data, "foto_subida": foto_subida},
         )
 
+    def post(self, request, *args, **kwargs):
+        if request.user.rol != "OWNER":
+            messages.error(request, "No tienes permiso para registrar mascotas.")
+            return redirect("dashboard")
 
+        propietario = get_object_or_404(Propietario, user=request.user)
+        form_data = request.POST
+        foto_subida = None
+
+        has_error = False
+        nombre = request.POST.get("nombre")
+        especie = request.POST.get("especie")
+        raza = request.POST.get("raza")
+        sexo = request.POST.get("sexo")
+        fecha_nacimiento = request.POST.get("fecha_nacimiento")
+        foto_subida = request.FILES.get("foto")
+
+        fecha_obj = None
+        if fecha_nacimiento:
+            try:
+                fecha_obj = datetime.strptime(fecha_nacimiento, "%Y-%m-%d").date()
+            except ValueError:
+                messages.error(request, "La fecha de nacimiento no es vA?lida.")
+                has_error = True
+        else:
+            messages.error(request, "Debes indicar la fecha de nacimiento.")
+            has_error = True
+
+        if not has_error:
+            Paciente.objects.create(
+                nombre=nombre,
+                especie=especie,
+                raza=raza,
+                sexo=sexo,
+                fecha_nacimiento=fecha_obj,
+                propietario=propietario,
+                foto=foto_subida,
+            )
+            messages.success(
+                request, f"Mascota {nombre} registrada correctamente ?o."
+            )
+            return redirect("mis_mascotas")
+
+        return render(
+            request,
+            "core/registrar_mascota.html",
+            {"form_data": form_data, "foto_subida": foto_subida},
+        )
 class MisCitasView(AuthenticatedView):
     def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
         user = request.user
         filtros_estado = request.GET.get("estado", "").strip()
         filtro_busqueda = request.GET.get("q", "").strip()
@@ -2089,13 +2097,7 @@ class MisCitasView(AuthenticatedView):
 
 
 class AgendarCitaView(AuthenticatedView):
-    def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request, paciente_id=None):
+    def get(self, request, paciente_id=None, *args, **kwargs):
         if request.user.rol != "OWNER":
             messages.error(request, "No tienes permiso para agendar citas.")
             return redirect("dashboard")
@@ -2105,60 +2107,6 @@ class AgendarCitaView(AuthenticatedView):
         paciente_seleccionado = None
         sucursales = Sucursal.objects.all().order_by("nombre")
         sucursal_seleccionada = None
-
-        if request.method == "POST":
-            paciente_id_form = request.POST.get("paciente")
-            fecha_solicitada_raw = request.POST.get("fecha_solicitada")
-            notas = request.POST.get("notas", "").strip()
-            sucursal_id = request.POST.get("sucursal")
-
-            paciente = get_object_or_404(
-                Paciente, id=paciente_id_form, propietario=propietario
-            )
-            paciente_seleccionado = paciente
-
-            try:
-                sucursal = Sucursal.objects.get(id=sucursal_id)
-            except Sucursal.DoesNotExist:
-                messages.error(request, "Selecciona una sucursal válida para la cita.")
-                sucursal = None
-            else:
-                sucursal_seleccionada = sucursal
-
-            if not fecha_solicitada_raw:
-                messages.error(
-                    request, "Debes seleccionar un día válido para la cita."
-                )
-            elif sucursal:
-                try:
-                    fecha_solicitada = datetime.strptime(
-                        fecha_solicitada_raw, "%Y-%m-%d"
-                    ).date()
-                except ValueError:
-                    messages.error(request, "El formato de la fecha no es válido.")
-                else:
-                    hoy = timezone.localdate()
-                    if fecha_solicitada < hoy:
-                        messages.error(
-                            request,
-                            "El día seleccionado ya pasó. Elige una fecha futura.",
-                        )
-                    else:
-                        Cita.objects.create(
-                            paciente=paciente,
-                            fecha_solicitada=fecha_solicitada,
-                            notas=notas,
-                            sucursal=sucursal,
-                            estado="pendiente",
-                        )
-                        messages.success(
-                            request,
-                            (
-                                "Solicitud registrada para {nombre}. Nuestro equipo te contactará "
-                                "por WhatsApp para coordinar el horario."
-                            ).format(nombre=paciente.nombre),
-                        )
-                        return redirect("mis_citas")
 
         if paciente_id and paciente_seleccionado is None:
             paciente_seleccionado = get_object_or_404(
@@ -2176,15 +2124,82 @@ class AgendarCitaView(AuthenticatedView):
             },
         )
 
+    def post(self, request, paciente_id=None, *args, **kwargs):
+        if request.user.rol != "OWNER":
+            messages.error(request, "No tienes permiso para agendar citas.")
+            return redirect("dashboard")
 
+        propietario = get_object_or_404(Propietario, user=request.user)
+        mascotas = Paciente.objects.filter(propietario=propietario)
+        paciente_seleccionado = None
+        sucursales = Sucursal.objects.all().order_by("nombre")
+        sucursal_seleccionada = None
+
+        paciente_id_form = request.POST.get("paciente")
+        fecha_solicitada_raw = request.POST.get("fecha_solicitada")
+        notas = request.POST.get("notas", "").strip()
+        sucursal_id = request.POST.get("sucursal")
+
+        paciente = get_object_or_404(
+            Paciente, id=paciente_id_form, propietario=propietario
+        )
+        paciente_seleccionado = paciente
+
+        try:
+            sucursal = Sucursal.objects.get(id=sucursal_id)
+        except Sucursal.DoesNotExist:
+            messages.error(request, "Selecciona una sucursal vA?lida para la cita.")
+            sucursal = None
+        else:
+            sucursal_seleccionada = sucursal
+
+        if not fecha_solicitada_raw:
+            messages.error(
+                request, "Debes seleccionar un dA-a vA?lido para la cita."
+            )
+        elif sucursal:
+            try:
+                fecha_solicitada = datetime.strptime(
+                    fecha_solicitada_raw, "%Y-%m-%d"
+                ).date()
+            except ValueError:
+                messages.error(request, "El formato de la fecha no es vA?lido.")
+            else:
+                hoy = timezone.localdate()
+                if fecha_solicitada < hoy:
+                    messages.error(
+                        request,
+                        "El dA-a seleccionado ya pasA3. Elige una fecha futura.",
+                    )
+                else:
+                    Cita.objects.create(
+                        paciente=paciente,
+                        fecha_solicitada=fecha_solicitada,
+                        notas=notas,
+                        sucursal=sucursal,
+                        estado="pendiente",
+                    )
+                    messages.success(
+                        request,
+                        (
+                            "Solicitud registrada para {nombre}. Nuestro equipo te contactarA? "
+                            "por WhatsApp para coordinar el horario."
+                        ).format(nombre=paciente.nombre),
+                    )
+                    return redirect("mis_citas")
+
+        return render(
+            request,
+            "core/agendar_cita.html",
+            {
+                "mascotas": mascotas,
+                "paciente_seleccionado": paciente_seleccionado,
+                "sucursales": sucursales,
+                "sucursal_seleccionada": sucursal_seleccionada,
+            },
+        )
 class AsignarVeterinarioCitaView(AuthenticatedView):
-    def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request, cita_id):
+    def get(self, request, cita_id, *args, **kwargs):
         if request.user.rol not in {"ADMIN", "ADMIN_OP"}:
             messages.error(request, "No tienes permiso para asignar veterinarios a las citas.")
             return redirect("dashboard")
@@ -2195,87 +2210,95 @@ class AsignarVeterinarioCitaView(AuthenticatedView):
         )
         veterinarios = _veterinarios_activos(cita.sucursal)
 
-        if request.method == "POST":
-            vet_id = request.POST.get("veterinario")
-            fecha_raw = request.POST.get("fecha")
-            hora_raw = request.POST.get("hora")
-
-            if not vet_id:
-                messages.error(
-                    request, "Debes seleccionar un veterinario para asignar la cita."
-                )
-            elif not fecha_raw or not hora_raw:
-                messages.error(
-                    request, "Completa la fecha y el horario confirmados para la cita."
-                )
-            else:
-                try:
-                    fecha_confirmada = datetime.strptime(fecha_raw, "%Y-%m-%d").date()
-                    hora_confirmada = datetime.strptime(hora_raw, "%H:%M").time()
-                except ValueError:
-                    messages.error(request, "El formato de fecha u hora no es válido.")
-                else:
-                    fecha_hora = datetime.combine(fecha_confirmada, hora_confirmada)
-                    if timezone.is_naive(fecha_hora):
-                        fecha_hora = timezone.make_aware(
-                            fecha_hora, timezone.get_current_timezone()
-                        )
-
-                    if fecha_hora < timezone.now():
-                        messages.error(
-                            request,
-                            "El horario confirmado no puede estar en el pasado.",
-                        )
-                    else:
-                        veterinario = get_object_or_404(
-                            User,
-                            id=vet_id,
-                            rol="VET",
-                            sucursal=cita.sucursal,
-                            activo=True,
-                            is_active=True,
-                        )
-                        cita.veterinario = veterinario
-                        cita.fecha_hora = fecha_hora
-                        cita.fecha_solicitada = fecha_confirmada
-                        cita.estado = "programada"
-                        cita.save(
-                            update_fields=[
-                                "veterinario",
-                                "fecha_hora",
-                                "fecha_solicitada",
-                                "estado",
-                            ]
-                        )
-                        nombre_vet = veterinario.get_full_name() or veterinario.username
-                        messages.success(
-                            request,
-                            (
-                                "Cita programada con {vet}. Horario confirmado para el {fecha}."
-                            ).format(
-                                vet=nombre_vet,
-                                fecha=fecha_hora.strftime("%d/%m/%Y %H:%M"),
-                            ),
-                        )
-                        return redirect("listar_citas_admin")
-
         return render(
             request,
             "core/asignar_veterinario.html",
             {"cita": cita, "veterinarios": veterinarios},
         )
 
+    def post(self, request, cita_id, *args, **kwargs):
+        if request.user.rol not in {"ADMIN", "ADMIN_OP"}:
+            messages.error(request, "No tienes permiso para asignar veterinarios a las citas.")
+            return redirect("dashboard")
 
+        cita = get_object_or_404(
+            _filtrar_por_sucursal(Cita.objects.all(), request.user),
+            id=cita_id,
+        )
+        veterinarios = _veterinarios_activos(cita.sucursal)
+
+        vet_id = request.POST.get("veterinario")
+        fecha_raw = request.POST.get("fecha")
+        hora_raw = request.POST.get("hora")
+
+        if not vet_id:
+            messages.error(
+                request, "Debes seleccionar un veterinario para asignar la cita."
+            )
+        elif not fecha_raw or not hora_raw:
+            messages.error(
+                request, "Completa la fecha y el horario confirmados para la cita."
+            )
+        else:
+            try:
+                fecha_confirmada = datetime.strptime(fecha_raw, "%Y-%m-%d").date()
+                hora_confirmada = datetime.strptime(hora_raw, "%H:%M").time()
+            except ValueError:
+                messages.error(request, "El formato de fecha u hora no es vA?lido.")
+            else:
+                fecha_hora = datetime.combine(fecha_confirmada, hora_confirmada)
+                if timezone.is_naive(fecha_hora):
+                    fecha_hora = timezone.make_aware(
+                        fecha_hora, timezone.get_current_timezone()
+                    )
+
+                if fecha_hora < timezone.now():
+                    messages.error(
+                        request,
+                        "El horario confirmado no puede estar en el pasado.",
+                    )
+                else:
+                    veterinario = get_object_or_404(
+                        User,
+                        id=vet_id,
+                        rol="VET",
+                        sucursal=cita.sucursal,
+                        activo=True,
+                        is_active=True,
+                    )
+                    cita.veterinario = veterinario
+                    cita.fecha_hora = fecha_hora
+                    cita.fecha_solicitada = fecha_confirmada
+                    cita.estado = "programada"
+                    cita.save(
+                        update_fields=[
+                            "veterinario",
+                            "fecha_hora",
+                            "fecha_solicitada",
+                            "estado",
+                        ]
+                    )
+                    nombre_vet = veterinario.get_full_name() or veterinario.username
+                    messages.success(
+                        request,
+                        (
+                            "Cita programada con {vet}. Horario confirmado para el {fecha}."
+                        ).format(
+                            vet=nombre_vet,
+                            fecha=fecha_hora.strftime("%d/%m/%Y %H:%M"),
+                        ),
+                    )
+                    return redirect("listar_citas_admin")
+
+        return render(
+            request,
+            "core/asignar_veterinario.html",
+            {"cita": cita, "veterinarios": veterinarios},
+        )
 class ListarCitasAdminView(AuthenticatedView):
     def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
         if request.user.rol not in {"ADMIN", "ADMIN_OP"}:
-            messages.error(request, "No tienes permiso para ver esta página.")
+            messages.error(request, "No tienes permiso para ver esta pA?gina.")
             return redirect("dashboard")
 
         if not request.user.is_superuser and not getattr(request.user, "sucursal_id", None):
@@ -2283,58 +2306,6 @@ class ListarCitasAdminView(AuthenticatedView):
                 request,
                 "Asigna una sucursal a tu perfil para administrar las citas.",
             )
-
-        if request.method == "POST":
-            action = request.POST.get("action", "").strip()
-            cita_id = request.POST.get("cita_id")
-            redirect_url = request.POST.get("redirect") or reverse("listar_citas_admin")
-
-            if not cita_id:
-                messages.error(request, "Selecciona una cita para aplicar la acción.")
-                return redirect(redirect_url)
-
-            cita = get_object_or_404(
-                _filtrar_por_sucursal(Cita.objects.all(), request.user),
-                id=cita_id,
-            )
-
-            if action == "cancelar":
-                if cita.estado == "cancelada":
-                    messages.info(request, "La cita ya se encuentra cancelada.")
-                else:
-                    cita.estado = "cancelada"
-                    cita.save(update_fields=["estado"])
-                    messages.success(
-                        request,
-                        f"Cita de {cita.paciente.nombre} cancelada correctamente.",
-                    )
-            elif action == "marcar_atendida":
-                if cita.estado == "atendida":
-                    messages.info(request, "La cita ya estaba marcada como atendida.")
-                else:
-                    cita.estado = "atendida"
-                    if not cita.fecha_hora:
-                        cita.fecha_hora = timezone.now()
-                        cita.save(update_fields=["estado", "fecha_hora"])
-                    else:
-                        cita.save(update_fields=["estado"])
-                    messages.success(
-                        request,
-                        f"Cita de {cita.paciente.nombre} marcada como atendida.",
-                    )
-            elif action == "reactivar":
-                cita.estado = "pendiente"
-                cita.fecha_hora = None
-                cita.veterinario = None
-                cita.save(update_fields=["estado", "fecha_hora", "veterinario"])
-                messages.success(
-                    request,
-                    f"Cita de {cita.paciente.nombre} reabierta para reasignar horario.",
-                )
-            else:
-                messages.error(request, "Acción no reconocida.")
-
-            return redirect(redirect_url)
 
         filtro_estado = request.GET.get("estado", "").strip()
         filtro_veterinario_raw = request.GET.get("veterinario", "").strip()
@@ -2388,7 +2359,7 @@ class ListarCitasAdminView(AuthenticatedView):
             try:
                 fecha_desde = datetime.strptime(filtro_desde, "%Y-%m-%d").date()
             except ValueError:
-                messages.warning(request, "La fecha desde ingresada no es válida.")
+                messages.warning(request, "La fecha desde ingresada no es vA?lida.")
             else:
                 queryset = queryset.filter(fecha_solicitada__gte=fecha_desde)
 
@@ -2396,7 +2367,7 @@ class ListarCitasAdminView(AuthenticatedView):
             try:
                 fecha_hasta = datetime.strptime(filtro_hasta, "%Y-%m-%d").date()
             except ValueError:
-                messages.warning(request, "La fecha hasta ingresada no es válida.")
+                messages.warning(request, "La fecha hasta ingresada no es vA?lida.")
             else:
                 queryset = queryset.filter(fecha_solicitada__lte=fecha_hasta)
 
@@ -2469,15 +2440,69 @@ class ListarCitasAdminView(AuthenticatedView):
 
         return render(request, "core/citas_admin.html", context)
 
+    def post(self, request, *args, **kwargs):
+        if request.user.rol not in {"ADMIN", "ADMIN_OP"}:
+            messages.error(request, "No tienes permiso para ver esta pA?gina.")
+            return redirect("dashboard")
 
+        if not request.user.is_superuser and not getattr(request.user, "sucursal_id", None):
+            messages.warning(
+                request,
+                "Asigna una sucursal a tu perfil para administrar las citas.",
+            )
+
+        action = request.POST.get("action", "").strip()
+        cita_id = request.POST.get("cita_id")
+        redirect_url = request.POST.get("redirect") or reverse("listar_citas_admin")
+
+        if not cita_id:
+            messages.error(request, "Selecciona una cita para aplicar la acciA3n.")
+            return redirect(redirect_url)
+
+        cita = get_object_or_404(
+            _filtrar_por_sucursal(Cita.objects.all(), request.user),
+            id=cita_id,
+        )
+
+        if action == "cancelar":
+            if cita.estado == "cancelada":
+                messages.info(request, "La cita ya se encuentra cancelada.")
+            else:
+                cita.estado = "cancelada"
+                cita.save(update_fields=["estado"])
+                messages.success(
+                    request,
+                    f"Cita de {cita.paciente.nombre} cancelada correctamente.",
+                )
+        elif action == "marcar_atendida":
+            if cita.estado == "atendida":
+                messages.info(request, "La cita ya estaba marcada como atendida.")
+            else:
+                cita.estado = "atendida"
+                if not cita.fecha_hora:
+                    cita.fecha_hora = timezone.now()
+                    cita.save(update_fields=["estado", "fecha_hora"])
+                else:
+                    cita.save(update_fields=["estado"])
+                messages.success(
+                    request,
+                    f"Cita de {cita.paciente.nombre} marcada como atendida.",
+                )
+        elif action == "reactivar":
+            cita.estado = "pendiente"
+            cita.fecha_hora = None
+            cita.veterinario = None
+            cita.save(update_fields=["estado", "fecha_hora", "veterinario"])
+            messages.success(
+                request,
+                f"Cita de {cita.paciente.nombre} reabierta para reasignar horario.",
+            )
+        else:
+            messages.error(request, "AcciA3n no reconocida.")
+
+        return redirect(redirect_url)
 class AsignarVeterinarioCitasView(AuthenticatedView):
     def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
         if request.user.rol not in {"ADMIN", "ADMIN_OP"}:
             messages.error(request, "No tienes permiso para gestionar estas citas.")
             return redirect("dashboard")
@@ -2513,75 +2538,6 @@ class AsignarVeterinarioCitasView(AuthenticatedView):
                 cita.sucursal_id, []
             )
 
-        if request.method == "POST":
-            cita_id = request.POST.get("cita")
-            vet_id = request.POST.get("veterinario")
-            fecha_raw = request.POST.get("fecha")
-            hora_raw = request.POST.get("hora")
-
-            if not cita_id or not vet_id:
-                messages.error(request, "Selecciona una cita y un veterinario válidos.")
-            elif not fecha_raw or not hora_raw:
-                messages.error(request, "Debes ingresar la fecha y hora confirmadas.")
-            else:
-                cita = get_object_or_404(
-                    _filtrar_por_sucursal(
-                        Cita.objects.filter(estado__in=["pendiente", "programada"]),
-                        request.user,
-                    ),
-                    id=cita_id,
-                )
-                try:
-                    fecha_confirmada = datetime.strptime(fecha_raw, "%Y-%m-%d").date()
-                    hora_confirmada = datetime.strptime(hora_raw, "%H:%M").time()
-                except ValueError:
-                    messages.error(request, "Formato de fecha u hora inválido.")
-                else:
-                    fecha_hora = datetime.combine(fecha_confirmada, hora_confirmada)
-                    if timezone.is_naive(fecha_hora):
-                        fecha_hora = timezone.make_aware(
-                            fecha_hora, timezone.get_current_timezone()
-                        )
-
-                    if fecha_hora < timezone.now():
-                        messages.error(
-                            request,
-                            "El horario confirmado no puede estar en el pasado.",
-                        )
-                    else:
-                        veterinario = get_object_or_404(
-                            User,
-                            id=vet_id,
-                            rol="VET",
-                            sucursal=cita.sucursal,
-                            activo=True,
-                            is_active=True,
-                        )
-                        cita.veterinario = veterinario
-                        cita.fecha_hora = fecha_hora
-                        cita.fecha_solicitada = fecha_confirmada
-                        cita.estado = "programada"
-                        cita.save(
-                            update_fields=[
-                                "veterinario",
-                                "fecha_hora",
-                                "fecha_solicitada",
-                                "estado",
-                            ]
-                        )
-                        nombre_vet = veterinario.get_full_name() or veterinario.username
-                        messages.success(
-                            request,
-                            (
-                                "Veterinario {vet} asignado a {paciente}. Cita confirmada para {fecha}."
-                            ).format(
-                                vet=nombre_vet,
-                                paciente=cita.paciente.nombre,
-                                fecha=fecha_hora.strftime("%d/%m/%Y %H:%M"),
-                            ),
-                        )
-                        return redirect("asignar_veterinario_citas")
-
         return render(
             request,
             "core/asignar_veterinario_citas.html",
@@ -2590,15 +2546,119 @@ class AsignarVeterinarioCitasView(AuthenticatedView):
             },
         )
 
-
-class AtenderCitaView(AuthenticatedView):
-    def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
     def post(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
+        if request.user.rol not in {"ADMIN", "ADMIN_OP"}:
+            messages.error(request, "No tienes permiso para gestionar estas citas.")
+            return redirect("dashboard")
 
-    def _handle(self, request, cita_id):
+        if not request.user.is_superuser and not getattr(request.user, "sucursal_id", None):
+            messages.warning(
+                request,
+                "Asigna una sucursal a tu perfil para coordinar turnos pendientes.",
+            )
+
+        veterinarios_queryset = _filtrar_por_sucursal(
+            _veterinarios_activos().select_related("sucursal"),
+            request.user,
+        )
+        veterinarios_por_sucursal = defaultdict(list)
+        for veterinario in veterinarios_queryset:
+            veterinarios_por_sucursal[veterinario.sucursal_id].append(veterinario)
+
+        citas_pendientes = list(
+            _filtrar_por_sucursal(
+                Cita.objects.select_related(
+                    "paciente",
+                    "paciente__propietario__user",
+                    "sucursal",
+                )
+                .filter(estado="pendiente")
+                .order_by("fecha_solicitada", "fecha_hora"),
+                request.user,
+            )
+        )
+        for cita in citas_pendientes:
+            cita.veterinarios_disponibles = veterinarios_por_sucursal.get(
+                cita.sucursal_id, []
+            )
+
+        cita_id = request.POST.get("cita")
+        vet_id = request.POST.get("veterinario")
+        fecha_raw = request.POST.get("fecha")
+        hora_raw = request.POST.get("hora")
+
+        if not cita_id or not vet_id:
+            messages.error(request, "Selecciona una cita y un veterinario vA?lidos.")
+        elif not fecha_raw or not hora_raw:
+            messages.error(request, "Debes ingresar la fecha y hora confirmadas.")
+        else:
+            cita = get_object_or_404(
+                _filtrar_por_sucursal(
+                    Cita.objects.filter(estado__in=["pendiente", "programada"]),
+                    request.user,
+                ),
+                id=cita_id,
+            )
+            try:
+                fecha_confirmada = datetime.strptime(fecha_raw, "%Y-%m-%d").date()
+                hora_confirmada = datetime.strptime(hora_raw, "%H:%M").time()
+            except ValueError:
+                messages.error(request, "Formato de fecha u hora invA?lido.")
+            else:
+                fecha_hora = datetime.combine(fecha_confirmada, hora_confirmada)
+                if timezone.is_naive(fecha_hora):
+                    fecha_hora = timezone.make_aware(
+                        fecha_hora, timezone.get_current_timezone()
+                    )
+
+                if fecha_hora < timezone.now():
+                    messages.error(
+                        request,
+                        "El horario confirmado no puede estar en el pasado.",
+                    )
+                else:
+                    veterinario = get_object_or_404(
+                        User,
+                        id=vet_id,
+                        rol="VET",
+                        sucursal=cita.sucursal,
+                        activo=True,
+                        is_active=True,
+                    )
+                    cita.veterinario = veterinario
+                    cita.fecha_hora = fecha_hora
+                    cita.fecha_solicitada = fecha_confirmada
+                    cita.estado = "programada"
+                    cita.save(
+                        update_fields=[
+                            "veterinario",
+                            "fecha_hora",
+                            "fecha_solicitada",
+                            "estado",
+                        ]
+                    )
+                    nombre_vet = veterinario.get_full_name() or veterinario.username
+                    messages.success(
+                        request,
+                        (
+                            "Veterinario {vet} asignado a {paciente}. Cita confirmada para {fecha}."
+                        ).format(
+                            vet=nombre_vet,
+                            paciente=cita.paciente.nombre,
+                            fecha=fecha_hora.strftime("%d/%m/%Y %H:%M"),
+                        ),
+                    )
+                    return redirect("asignar_veterinario_citas")
+
+        return render(
+            request,
+            "core/asignar_veterinario_citas.html",
+            {
+                "citas_pendientes": citas_pendientes,
+            },
+        )
+class AtenderCitaView(AuthenticatedView):
+    def get(self, request, cita_id, *args, **kwargs):
         cita = get_object_or_404(
             Cita.objects.select_related("paciente", "paciente__propietario__user")
             .prefetch_related("farmacos_utilizados", "administraciones_farmacos__farmaco"),
@@ -2619,7 +2679,7 @@ class AtenderCitaView(AuthenticatedView):
         if cita.veterinario_id and cita.veterinario_id != request.user.id:
             messages.error(
                 request,
-                "Esta cita está asignada a otro profesional.",
+                "Esta cita estA? asignada a otro profesional.",
             )
             return redirect("dashboard")
 
@@ -2683,196 +2743,6 @@ class AtenderCitaView(AuthenticatedView):
         utilizo_farmacos = bool(seleccion_detalle)
         form_values = {}
 
-        if request.method == "POST":
-            diagnostico = request.POST.get("diagnostico")
-            tratamiento = request.POST.get("tratamiento")
-            notas = request.POST.get("notas")
-            peso = request.POST.get("peso") or None
-            temperatura = request.POST.get("temperatura") or None
-            examenes = request.POST.get("examenes")
-            proximo_control = request.POST.get("proximo_control") or None
-            sin_proximo_control = bool(request.POST.get("sin_proximo_control"))
-            adjuntar_estudios = bool(request.POST.get("adjuntar_estudios"))
-            utilizo_farmacos = bool(request.POST.get("utilizo_farmacos"))
-            entradas_farmacos = request.POST.getlist("farmacos_utilizados")
-
-            if sin_proximo_control:
-                proximo_control = None
-
-            form_values = {
-                "diagnostico": diagnostico,
-                "tratamiento": tratamiento,
-                "notas": notas,
-                "peso": peso or "",
-                "temperatura": temperatura or "",
-                "examenes": examenes,
-                "proximo_control": proximo_control or "",
-                "sin_proximo_control": sin_proximo_control,
-                "adjuntar_estudios": adjuntar_estudios,
-            }
-
-            seleccion_post = []
-            mensajes_error = []
-            for entrada in entradas_farmacos:
-                try:
-                    farmaco_id_raw, cantidad_raw = entrada.split("::", 1)
-                    farmaco_id = int(farmaco_id_raw)
-                    cantidad = int(cantidad_raw)
-                except (TypeError, ValueError):
-                    mensajes_error.append(
-                        "No se pudo interpretar la selección de fármacos enviada. Intentalo nuevamente."
-                    )
-                    continue
-
-                if cantidad <= 0:
-                    mensajes_error.append(
-                        "Ingresá una cantidad válida (mayor que cero) para cada fármaco utilizado."
-                    )
-                    continue
-
-                seleccion_post.append((farmaco_id, cantidad))
-
-            if utilizo_farmacos and not seleccion_post:
-                mensajes_error.append(
-                    "Seleccioná al menos un fármaco del inventario e indicá la cantidad administrada."
-                )
-
-            if mensajes_error:
-                for mensaje in mensajes_error:
-                    messages.error(request, mensaje)
-
-            if not mensajes_error:
-                try:
-                    with transaction.atomic():
-                        historial_defaults = {
-                            "paciente": cita.paciente,
-                            "veterinario": request.user,
-                            "diagnostico": diagnostico,
-                            "tratamiento": tratamiento,
-                            "notas": notas,
-                            "peso": peso,
-                            "temperatura": temperatura,
-                            "examenes": examenes,
-                            "proximo_control": proximo_control,
-                            "sin_proximo_control": sin_proximo_control,
-                        }
-
-                        if adjuntar_estudios and "estudio_imagen" in request.FILES:
-                            historial_defaults["imagenes"] = request.FILES["estudio_imagen"]
-
-                        HistorialMedico.objects.update_or_create(
-                            cita=cita,
-                            defaults=historial_defaults,
-                        )
-
-                        cita.estado = "atendida"
-                        cita.save(update_fields=["estado"])
-
-                        if utilizo_farmacos:
-                            existentes = {
-                                admin.farmaco_id: admin
-                                for admin in CitaFarmaco.objects.select_for_update().filter(
-                                    cita=cita
-                                )
-                            }
-                            nuevos_map = {fid: cantidad for fid, cantidad in seleccion_post}
-                            ids_para_bloquear = set(existentes.keys()) | set(nuevos_map.keys())
-
-                            if ids_para_bloquear:
-                                farmacos_map = {
-                                    farmaco.id: farmaco
-                                    for farmaco in Farmaco.objects.select_for_update()
-                                    .filter(sucursal=cita.sucursal, id__in=ids_para_bloquear)
-                                }
-
-                                faltantes = ids_para_bloquear - set(farmacos_map.keys())
-                                if faltantes:
-                                    raise ValueError(
-                                        "Uno de los fármacos seleccionados ya no pertenece al inventario de la sucursal."
-                                    )
-
-                                for fid in ids_para_bloquear:
-                                    anterior = existentes.get(fid)
-                                    anterior_cantidad = anterior.cantidad if anterior else 0
-                                    nueva_cantidad = nuevos_map.get(fid, 0)
-                                    delta = nueva_cantidad - anterior_cantidad
-                                    if delta > 0 and farmacos_map[fid].stock < delta:
-                                        raise ValueError(
-                                            (
-                                                "Stock insuficiente para {nombre}. Disponible: {disponible}."
-                                            ).format(
-                                                nombre=farmacos_map[fid].nombre,
-                                                disponible=farmacos_map[fid].stock,
-                                            )
-                                        )
-
-                                for fid in ids_para_bloquear:
-                                    anterior = existentes.get(fid)
-                                    anterior_cantidad = anterior.cantidad if anterior else 0
-                                    nueva_cantidad = nuevos_map.get(fid, 0)
-                                    delta = nueva_cantidad - anterior_cantidad
-                                    if delta:
-                                        Farmaco.objects.filter(
-                                            id=fid, sucursal=cita.sucursal
-                                        ).update(stock=F("stock") - delta)
-
-                                for fid, cantidad in nuevos_map.items():
-                                    registro = existentes.get(fid)
-                                    if registro:
-                                        if registro.cantidad != cantidad:
-                                            registro.cantidad = cantidad
-                                            registro.save(update_fields=["cantidad"])
-                                    else:
-                                        CitaFarmaco.objects.create(
-                                            cita=cita,
-                                            farmaco_id=fid,
-                                            cantidad=cantidad,
-                                        )
-
-                                for fid, registro in existentes.items():
-                                    if fid not in nuevos_map:
-                                        registro.delete()
-                        else:
-                            registros_previos = list(
-                                CitaFarmaco.objects.select_for_update().filter(cita=cita)
-                            )
-                            if registros_previos:
-                                for registro in registros_previos:
-                                    Farmaco.objects.filter(
-                                        id=registro.farmaco_id, sucursal=cita.sucursal
-                                    ).update(stock=F("stock") + registro.cantidad)
-                                    registro.delete()
-
-                except ValueError as error:
-                    messages.error(request, str(error))
-                else:
-                    messages.success(
-                        request,
-                        f"Cita de {cita.paciente.nombre} atendida correctamente ✅",
-                    )
-                    return redirect("detalle_cita", cita_id=cita.id)
-
-            if seleccion_post:
-                seleccion_detalle = []
-                for fid, cantidad in seleccion_post:
-                    farmaco = inventario_por_id.get(fid)
-                    if not farmaco:
-                        registro_previo = administraciones_por_id.get(fid)
-                        farmaco = registro_previo.farmaco if registro_previo else None
-                    if not farmaco:
-                        continue
-                    seleccion_detalle.append(
-                        {
-                            "id": fid,
-                            "cantidad": cantidad,
-                            "nombre": farmaco.nombre,
-                            "categoria": farmaco.categoria,
-                            "categoria_nombre": farmaco.get_categoria_display(),
-                            "descripcion": farmaco.descripcion,
-                            "stock": farmaco.stock,
-                        }
-                    )
-
         if "sin_proximo_control" not in form_values:
             form_values["sin_proximo_control"] = bool(
                 getattr(historial_existente, "sin_proximo_control", False)
@@ -2907,27 +2777,325 @@ class AtenderCitaView(AuthenticatedView):
 
         return render(request, "core/atender_cita.html", contexto)
 
+    def post(self, request, cita_id, *args, **kwargs):
+        cita = get_object_or_404(
+            Cita.objects.select_related("paciente", "paciente__propietario__user")
+            .prefetch_related("farmacos_utilizados", "administraciones_farmacos__farmaco"),
+            id=cita_id,
+        )
 
+        if request.user.rol != "VET":
+            messages.error(request, "No tienes permiso para atender esta cita.")
+            return redirect("dashboard")
+
+        if not _usuario_puede_gestionar_sucursal(request.user, cita.sucursal_id):
+            messages.error(
+                request,
+                "No tienes permiso para operar sobre citas de otra sucursal.",
+            )
+            return redirect("dashboard")
+
+        if cita.veterinario_id and cita.veterinario_id != request.user.id:
+            messages.error(
+                request,
+                "Esta cita estA? asignada a otro profesional.",
+            )
+            return redirect("dashboard")
+
+        historial_existente = getattr(cita, "historial_medico", None)
+        administraciones_actuales = list(
+            cita.administraciones_farmacos.select_related("farmaco").order_by(
+                "farmaco__nombre"
+            )
+        )
+        administraciones_por_id = {
+            admin.farmaco_id: admin for admin in administraciones_actuales
+        }
+
+        farmacos_qs = list(
+            Farmaco.objects.filter(sucursal=cita.sucursal)
+            .order_by("categoria", "nombre")
+            .select_related("sucursal")
+        )
+        inventario_por_id = {farmaco.id: farmaco for farmaco in farmacos_qs}
+
+        farmacos_catalogo = []
+        catalogo_por_codigo = {}
+        for farmaco in farmacos_qs:
+            catalogo_por_codigo.setdefault(farmaco.categoria, []).append(farmaco)
+        for codigo, etiqueta in Farmaco.Categoria.choices:
+            items = catalogo_por_codigo.get(codigo, [])
+            if items:
+                farmacos_catalogo.append(
+                    {
+                        "codigo": codigo,
+                        "nombre": etiqueta,
+                        "items": items,
+                    }
+                )
+
+        farmacos_serializados = [
+            {
+                "id": farmaco.id,
+                "nombre": farmaco.nombre,
+                "categoria": farmaco.categoria,
+                "categoria_nombre": farmaco.get_categoria_display(),
+                "descripcion": farmaco.descripcion,
+                "stock": farmaco.stock,
+            }
+            for farmaco in farmacos_qs
+        ]
+
+        seleccion_detalle = [
+            {
+                "id": admin.farmaco_id,
+                "nombre": admin.farmaco.nombre,
+                "categoria": admin.farmaco.categoria,
+                "categoria_nombre": admin.farmaco.get_categoria_display(),
+                "descripcion": admin.farmaco.descripcion,
+                "stock": admin.farmaco.stock,
+                "cantidad": admin.cantidad,
+            }
+            for admin in administraciones_actuales
+        ]
+
+        utilizo_farmacos = bool(seleccion_detalle)
+        form_values = {}
+
+        diagnostico = request.POST.get("diagnostico")
+        tratamiento = request.POST.get("tratamiento")
+        notas = request.POST.get("notas")
+        peso = request.POST.get("peso") or None
+        temperatura = request.POST.get("temperatura") or None
+        examenes = request.POST.get("examenes")
+        proximo_control = request.POST.get("proximo_control") or None
+        sin_proximo_control = bool(request.POST.get("sin_proximo_control"))
+        adjuntar_estudios = bool(request.POST.get("adjuntar_estudios"))
+        utilizo_farmacos = bool(request.POST.get("utilizo_farmacos"))
+        entradas_farmacos = request.POST.getlist("farmacos_utilizados")
+
+        if sin_proximo_control:
+            proximo_control = None
+
+        form_values = {
+            "diagnostico": diagnostico,
+            "tratamiento": tratamiento,
+            "notas": notas,
+            "peso": peso or "",
+            "temperatura": temperatura or "",
+            "examenes": examenes,
+            "proximo_control": proximo_control or "",
+            "sin_proximo_control": sin_proximo_control,
+            "adjuntar_estudios": adjuntar_estudios,
+        }
+
+        seleccion_post = []
+        mensajes_error = []
+        for entrada in entradas_farmacos:
+            try:
+                farmaco_id_raw, cantidad_raw = entrada.split("::", 1)
+                farmaco_id = int(farmaco_id_raw)
+                cantidad = int(cantidad_raw)
+            except (TypeError, ValueError):
+                mensajes_error.append(
+                    "No se pudo interpretar la selecciA3n de fA?rmacos enviada. Intentalo nuevamente."
+                )
+                continue
+
+            if cantidad <= 0:
+                mensajes_error.append(
+                    "IngresA? una cantidad vA?lida (mayor que cero) para cada fA?rmaco utilizado."
+                )
+                continue
+
+            seleccion_post.append((farmaco_id, cantidad))
+
+        if utilizo_farmacos and not seleccion_post:
+            mensajes_error.append(
+                "SeleccionA? al menos un fA?rmaco del inventario e indicA? la cantidad administrada."
+            )
+
+        if mensajes_error:
+            for mensaje in mensajes_error:
+                messages.error(request, mensaje)
+
+        if not mensajes_error:
+            try:
+                with transaction.atomic():
+                    historial_defaults = {
+                        "paciente": cita.paciente,
+                        "veterinario": request.user,
+                        "diagnostico": diagnostico,
+                        "tratamiento": tratamiento,
+                        "notas": notas,
+                        "peso": peso,
+                        "temperatura": temperatura,
+                        "examenes": examenes,
+                        "proximo_control": proximo_control,
+                        "sin_proximo_control": sin_proximo_control,
+                    }
+
+                    if adjuntar_estudios and "estudio_imagen" in request.FILES:
+                        historial_defaults["imagenes"] = request.FILES["estudio_imagen"]
+
+                    HistorialMedico.objects.update_or_create(
+                        cita=cita,
+                        defaults=historial_defaults,
+                    )
+
+                    cita.estado = "atendida"
+                    cita.save(update_fields=["estado"])
+
+                    if utilizo_farmacos:
+                        existentes = {
+                            admin.farmaco_id: admin
+                            for admin in CitaFarmaco.objects.select_for_update().filter(
+                                cita=cita
+                            )
+                        }
+                        nuevos_map = {fid: cantidad for fid, cantidad in seleccion_post}
+                        ids_para_bloquear = set(existentes.keys()) | set(nuevos_map.keys())
+
+                        if ids_para_bloquear:
+                            farmacos_map = {
+                                farmaco.id: farmaco
+                                for farmaco in Farmaco.objects.select_for_update()
+                                .filter(sucursal=cita.sucursal, id__in=ids_para_bloquear)
+                            }
+
+                            faltantes = ids_para_bloquear - set(farmacos_map.keys())
+                            if faltantes:
+                                raise ValueError(
+                                    "Uno de los fA?rmacos seleccionados ya no pertenece al inventario de la sucursal."
+                                )
+
+                            for fid in ids_para_bloquear:
+                                anterior = existentes.get(fid)
+                                anterior_cantidad = anterior.cantidad if anterior else 0
+                                nueva_cantidad = nuevos_map.get(fid, 0)
+                                delta = nueva_cantidad - anterior_cantidad
+                                if delta > 0 and farmacos_map[fid].stock < delta:
+                                    raise ValueError(
+                                        (
+                                            "Stock insuficiente para {nombre}. Disponible: {disponible}."
+                                        ).format(
+                                            nombre=farmacos_map[fid].nombre,
+                                            disponible=farmacos_map[fid].stock,
+                                        )
+                                    )
+
+                            for fid in ids_para_bloquear:
+                                anterior = existentes.get(fid)
+                                anterior_cantidad = anterior.cantidad if anterior else 0
+                                nueva_cantidad = nuevos_map.get(fid, 0)
+                                delta = nueva_cantidad - anterior_cantidad
+                                if delta:
+                                    Farmaco.objects.filter(
+                                        id=fid, sucursal=cita.sucursal
+                                    ).update(stock=F("stock") - delta)
+
+                            for fid, cantidad in nuevos_map.items():
+                                registro = existentes.get(fid)
+                                if registro:
+                                    if registro.cantidad != cantidad:
+                                        registro.cantidad = cantidad
+                                        registro.save(update_fields=["cantidad"])
+                                else:
+                                    CitaFarmaco.objects.create(
+                                        cita=cita,
+                                        farmaco_id=fid,
+                                        cantidad=cantidad,
+                                    )
+
+                            for fid, registro in existentes.items():
+                                if fid not in nuevos_map:
+                                    registro.delete()
+                    else:
+                        registros_previos = list(
+                            CitaFarmaco.objects.select_for_update().filter(cita=cita)
+                        )
+                        if registros_previos:
+                            for registro in registros_previos:
+                                Farmaco.objects.filter(
+                                    id=registro.farmaco_id, sucursal=cita.sucursal
+                                ).update(stock=F("stock") + registro.cantidad)
+                                registro.delete()
+
+            except ValueError as error:
+                messages.error(request, str(error))
+            else:
+                messages.success(
+                    request,
+                    f"Cita de {cita.paciente.nombre} atendida correctamente ?.",
+                )
+                return redirect("detalle_cita", cita_id=cita.id)
+
+        if seleccion_post:
+            seleccion_detalle = []
+            for fid, cantidad in seleccion_post:
+                farmaco = inventario_por_id.get(fid)
+                if not farmaco:
+                    registro_previo = administraciones_por_id.get(fid)
+                    farmaco = registro_previo.farmaco if registro_previo else None
+                if not farmaco:
+                    continue
+                seleccion_detalle.append(
+                    {
+                        "id": fid,
+                        "cantidad": cantidad,
+                        "nombre": farmaco.nombre,
+                        "categoria": farmaco.categoria,
+                        "categoria_nombre": farmaco.get_categoria_display(),
+                        "descripcion": farmaco.descripcion,
+                        "stock": farmaco.stock,
+                    }
+                )
+
+        if "sin_proximo_control" not in form_values:
+            form_values["sin_proximo_control"] = bool(
+                getattr(historial_existente, "sin_proximo_control", False)
+            )
+        if "proximo_control" not in form_values and getattr(
+            historial_existente, "proximo_control", None
+        ):
+            form_values["proximo_control"] = (
+                historial_existente.proximo_control.strftime("%Y-%m-%d")
+            )
+        if "peso" not in form_values and getattr(historial_existente, "peso", None) is not None:
+            form_values["peso"] = str(historial_existente.peso)
+        if "temperatura" not in form_values and getattr(
+            historial_existente, "temperatura", None
+        ) is not None:
+            form_values["temperatura"] = str(historial_existente.temperatura)
+        if "adjuntar_estudios" not in form_values:
+            form_values["adjuntar_estudios"] = False
+        for campo in ("diagnostico", "tratamiento", "notas", "examenes"):
+            if campo not in form_values and historial_existente:
+                form_values[campo] = getattr(historial_existente, campo, "") or ""
+
+        contexto = {
+            "cita": cita,
+            "historial_existente": historial_existente,
+            "farmacos_catalogo": farmacos_catalogo,
+            "farmacos_disponibles_json": farmacos_serializados,
+            "farmacos_seleccionados": seleccion_detalle,
+            "utilizo_farmacos": utilizo_farmacos,
+            "form_values": form_values,
+        }
+
+        return render(request, "core/atender_cita.html", contexto)
 class MisHistorialesView(AuthenticatedView):
     def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
         if request.user.rol != "VET":
-            messages.error(request, "No tienes permiso para ver esta página.")
+            messages.error(request, "No tienes permiso para ver esta pA?gina.")
             return redirect("dashboard")
 
         historiales = HistorialMedico.objects.filter(veterinario=request.user).order_by(
             "-fecha"
         )
         return render(request, "core/mis_historiales.html", {"historiales": historiales})
-
-
 class DetalleCitaView(AuthenticatedView):
-    def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request, cita_id):
+    def get(self, request, cita_id, *args, **kwargs):
         base_queryset = (
             Cita.objects.select_related(
                 "paciente",
@@ -2984,16 +3152,8 @@ class DetalleCitaView(AuthenticatedView):
             "core/detalle_cita.html",
             {"cita": cita, "historial": historial, "informe_directo": informe_directo},
         )
-
-
 class AgendarCitaAdminView(AuthenticatedView):
     def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
         if request.user.rol != "ADMIN":
             messages.error(request, "No tienes permiso para agendar citas.")
             return redirect("dashboard")
@@ -3018,76 +3178,6 @@ class AgendarCitaAdminView(AuthenticatedView):
         )
         paciente_seleccionado = None
 
-        if request.method == "POST":
-            paciente_id = request.POST.get("paciente")
-            veterinario_id = request.POST.get("veterinario")
-            fecha_hora_raw = request.POST.get("fecha_hora")
-            notas = request.POST.get("notas", "").strip()
-            sucursal_id = request.POST.get("sucursal")
-
-            paciente = get_object_or_404(Paciente, id=paciente_id)
-
-            if request.user.is_superuser:
-                sucursal = get_object_or_404(Sucursal, id=sucursal_id)
-            else:
-                sucursal = getattr(request.user, "sucursal", None)
-                if sucursal is None or (
-                    sucursal_id and str(sucursal.id) != str(sucursal_id)
-                ):
-                    messages.error(
-                        request,
-                        "No tienes permiso para asignar citas en esa sucursal.",
-                    )
-                    sucursal = None
-
-            if sucursal is None:
-                veterinario = None
-            else:
-                sucursal_seleccionada = sucursal
-                veterinarios = _veterinarios_activos(sucursal)
-                veterinario = get_object_or_404(
-                    veterinarios,
-                    id=veterinario_id,
-                )
-
-            try:
-                fecha_hora_dt = datetime.fromisoformat(fecha_hora_raw)
-            except (TypeError, ValueError):
-                messages.error(request, "Selecciona una fecha y hora válidas.")
-            else:
-                if sucursal is None:
-                    pass
-                elif timezone.is_naive(fecha_hora_dt):
-                    fecha_hora_dt = timezone.make_aware(
-                        fecha_hora_dt, timezone.get_current_timezone()
-                    )
-
-                if sucursal is None:
-                    messages.error(
-                        request,
-                        "Debes seleccionar una sucursal válida para la cita.",
-                    )
-                elif fecha_hora_dt < timezone.now():
-                    messages.error(request, "No puedes programar una cita en el pasado.")
-                else:
-                    Cita.objects.create(
-                        paciente=paciente,
-                        veterinario=veterinario,
-                        fecha_solicitada=fecha_hora_dt.date(),
-                        fecha_hora=fecha_hora_dt,
-                        notas=notas,
-                        sucursal=sucursal,
-                        estado="programada",
-                    )
-                    nombre_vet = veterinario.get_full_name() or veterinario.username
-                    messages.success(
-                        request,
-                        f"Cita para {paciente.nombre} asignada a {nombre_vet} ✅",
-                    )
-                    return redirect("dashboard")
-
-            paciente_seleccionado = paciente
-
         return render(
             request,
             "core/agendar_cita_admin.html",
@@ -3101,58 +3191,119 @@ class AgendarCitaAdminView(AuthenticatedView):
             },
         )
 
-
-class CrearPropietarioAdminView(AuthenticatedView):
-    def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
     def post(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
         if request.user.rol != "ADMIN":
-            messages.error(request, "No tienes permiso para esta acción.")
+            messages.error(request, "No tienes permiso para agendar citas.")
             return redirect("dashboard")
 
-        form_data = request.POST if request.method == "POST" else {}
-
-        if request.method == "POST":
-            username = request.POST.get("username")
-            email = request.POST.get("email")
-            first_name = request.POST.get("first_name")
-            last_name = request.POST.get("last_name")
-            telefono = request.POST.get("telefono")
-            direccion = request.POST.get("direccion")
-            password = request.POST.get("password")
-
-            if User.objects.filter(username=username).exists():
-                messages.error(request, "El usuario ya existe.")
-            else:
-                user = User.objects.create_user(
-                    username=username,
-                    email=email,
-                    first_name=first_name,
-                    last_name=last_name,
-                    password=password,
-                    rol="OWNER",
+        mascotas = Paciente.objects.all().order_by("nombre")
+        sucursales_disponibles = list(_sucursales_para_usuario(request.user))
+        sucursal_seleccionada = None
+        if not request.user.is_superuser:
+            sucursal_seleccionada = getattr(request.user, "sucursal", None)
+            if sucursal_seleccionada is None:
+                messages.warning(
+                    request,
+                    "Asigna una sucursal a tu perfil para poder programar citas.",
                 )
-                user.telefono = telefono or ""
-                user.direccion = direccion or ""
-                user.save(update_fields=["telefono", "direccion"])
+        elif sucursales_disponibles:
+            sucursal_seleccionada = sucursales_disponibles[0]
 
-                propietario, _ = Propietario.objects.get_or_create(user=user)
-                campos_actualizados = []
-                if telefono is not None:
-                    propietario.telefono = telefono
-                    campos_actualizados.append("telefono")
-                if direccion is not None:
-                    propietario.direccion = direccion
-                    campos_actualizados.append("direccion")
-                if campos_actualizados:
-                    propietario.save(update_fields=campos_actualizados)
+        veterinarios = (
+            _veterinarios_activos(sucursal_seleccionada)
+            if sucursal_seleccionada is not None
+            else _veterinarios_activos()
+        )
+        paciente_seleccionado = None
 
-                messages.success(request, "Propietario creado correctamente ✅")
+        paciente_id = request.POST.get("paciente")
+        veterinario_id = request.POST.get("veterinario")
+        fecha_hora_raw = request.POST.get("fecha_hora")
+        notas = request.POST.get("notas", "").strip()
+        sucursal_id = request.POST.get("sucursal")
+
+        paciente = get_object_or_404(Paciente, id=paciente_id)
+
+        if request.user.is_superuser:
+            sucursal = get_object_or_404(Sucursal, id=sucursal_id)
+        else:
+            sucursal = getattr(request.user, "sucursal", None)
+            if sucursal is None or (
+                sucursal_id and str(sucursal.id) != str(sucursal_id)
+            ):
+                messages.error(
+                    request,
+                    "No tienes permiso para asignar citas en esa sucursal.",
+                )
+                sucursal = None
+
+        if sucursal is None:
+            veterinario = None
+        else:
+            sucursal_seleccionada = sucursal
+            veterinarios = _veterinarios_activos(sucursal)
+            veterinario = get_object_or_404(
+                veterinarios,
+                id=veterinario_id,
+            )
+
+        try:
+            fecha_hora_dt = datetime.fromisoformat(fecha_hora_raw)
+        except (TypeError, ValueError):
+            messages.error(request, "Selecciona una fecha y hora vA?lidas.")
+        else:
+            if sucursal is None:
+                pass
+            elif timezone.is_naive(fecha_hora_dt):
+                fecha_hora_dt = timezone.make_aware(
+                    fecha_hora_dt, timezone.get_current_timezone()
+                )
+
+            if sucursal is None:
+                messages.error(
+                    request,
+                    "Debes seleccionar una sucursal vA?lida para la cita.",
+                )
+            elif fecha_hora_dt < timezone.now():
+                messages.error(request, "No puedes programar una cita en el pasado.")
+            else:
+                Cita.objects.create(
+                    paciente=paciente,
+                    veterinario=veterinario,
+                    fecha_solicitada=fecha_hora_dt.date(),
+                    fecha_hora=fecha_hora_dt,
+                    notas=notas,
+                    sucursal=sucursal,
+                    estado="programada",
+                )
+                nombre_vet = veterinario.get_full_name() or veterinario.username
+                messages.success(
+                    request,
+                    f"Cita para {paciente.nombre} asignada a {nombre_vet} ?o.",
+                )
                 return redirect("dashboard")
+
+        paciente_seleccionado = paciente
+
+        return render(
+            request,
+            "core/agendar_cita_admin.html",
+            {
+                "mascotas": mascotas,
+                "veterinarios": veterinarios,
+                "paciente_seleccionado": paciente_seleccionado,
+                "sucursales": sucursales_disponibles,
+                "sucursal_seleccionada": sucursal_seleccionada,
+                "es_superadmin": request.user.is_superuser,
+            },
+        )
+class CrearPropietarioAdminView(AuthenticatedView):
+    def get(self, request, *args, **kwargs):
+        if request.user.rol != "ADMIN":
+            messages.error(request, "No tienes permiso para esta acciA3n.")
+            return redirect("dashboard")
+
+        form_data = {}
 
         return render(
             request,
@@ -3160,65 +3311,65 @@ class CrearPropietarioAdminView(AuthenticatedView):
             {"form_data": form_data},
         )
 
+    def post(self, request, *args, **kwargs):
+        if request.user.rol != "ADMIN":
+            messages.error(request, "No tienes permiso para esta acciA3n.")
+            return redirect("dashboard")
 
+        form_data = request.POST
+
+        username = request.POST.get("username")
+        email = request.POST.get("email")
+        first_name = request.POST.get("first_name")
+        last_name = request.POST.get("last_name")
+        telefono = request.POST.get("telefono")
+        direccion = request.POST.get("direccion")
+        password = request.POST.get("password")
+
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "El usuario ya existe.")
+        else:
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                first_name=first_name,
+                last_name=last_name,
+                password=password,
+                rol="OWNER",
+            )
+            user.telefono = telefono or ""
+            user.direccion = direccion or ""
+            user.save(update_fields=["telefono", "direccion"])
+
+            propietario, _ = Propietario.objects.get_or_create(user=user)
+            campos_actualizados = []
+            if telefono is not None:
+                propietario.telefono = telefono
+                campos_actualizados.append("telefono")
+            if direccion is not None:
+                propietario.direccion = direccion
+                campos_actualizados.append("direccion")
+            if campos_actualizados:
+                propietario.save(update_fields=campos_actualizados)
+
+            messages.success(request, "Propietario creado correctamente ?o.")
+            return redirect("dashboard")
+
+        return render(
+            request,
+            "core/crear_propietario_admin.html",
+            {"form_data": form_data},
+        )
 class CrearMascotaAdminView(AuthenticatedView):
     def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
         if request.user.rol != "ADMIN":
-            messages.error(request, "No tienes permiso para esta acción.")
+            messages.error(request, "No tienes permiso para esta acciA3n.")
             return redirect("dashboard")
 
         propietarios = Propietario.objects.all()
-        form_data = request.POST if request.method == "POST" else {}
+        form_data = {}
 
         foto_subida = None
-
-        if request.method == "POST":
-            has_error = False
-            nombre = request.POST.get("nombre")
-            especie = request.POST.get("especie")
-            raza = request.POST.get("raza")
-            sexo = request.POST.get("sexo")
-            fecha_nacimiento = request.POST.get("fecha_nacimiento")
-            propietario_id = request.POST.get("propietario")
-            foto_subida = request.FILES.get("foto")
-
-            propietario = None
-            if propietario_id:
-                propietario = Propietario.objects.filter(id=propietario_id).first()
-
-            if propietario is None:
-                messages.error(request, "Debes seleccionar un propietario válido.")
-                has_error = True
-
-            fecha_obj = None
-            if fecha_nacimiento:
-                try:
-                    fecha_obj = datetime.strptime(fecha_nacimiento, "%Y-%m-%d").date()
-                except ValueError:
-                    messages.error(request, "La fecha de nacimiento no es válida.")
-                    has_error = True
-            else:
-                messages.error(request, "Debes indicar la fecha de nacimiento.")
-                has_error = True
-
-            if not has_error:
-                Paciente.objects.create(
-                    nombre=nombre,
-                    especie=especie,
-                    raza=raza,
-                    sexo=sexo,
-                    fecha_nacimiento=fecha_obj,
-                    propietario=propietario,
-                    foto=foto_subida,
-                )
-                messages.success(request, "Mascota creada correctamente ✅")
-                return redirect("dashboard")
 
         return render(
             request,
@@ -3233,11 +3384,8 @@ class CrearMascotaAdminView(AuthenticatedView):
 
 class BuscarPropietariosView(AuthenticatedView):
     def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
         if request.user.rol not in {"ADMIN", "ADMIN_OP"}:
-            messages.error(request, "No tienes permiso para esta acción.")
+            messages.error(request, "No tienes permiso para esta acciA3n.")
             return redirect("dashboard")
 
         q = request.GET.get("q", "")
@@ -3272,12 +3420,9 @@ class BuscarPropietariosView(AuthenticatedView):
 
 
 class DetallePropietarioView(AuthenticatedView):
-    def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request, propietario_id):
+    def get(self, request, propietario_id, *args, **kwargs):
         if request.user.rol not in {"ADMIN", "ADMIN_OP"}:
-            messages.error(request, "No tienes permiso para esta acción.")
+            messages.error(request, "No tienes permiso para esta acciA3n.")
             return redirect("dashboard")
 
         propietario = get_object_or_404(Propietario, id=propietario_id)
@@ -3285,7 +3430,9 @@ class DetallePropietarioView(AuthenticatedView):
         citas = Cita.objects.filter(paciente__in=mascotas)
         if not request.user.is_superuser:
             citas = citas.filter(sucursal_id=getattr(request.user, "sucursal_id", None))
-            mascotas = mascotas.filter(cita__sucursal_id=getattr(request.user, "sucursal_id", None)).distinct()
+            mascotas = mascotas.filter(
+                cita__sucursal_id=getattr(request.user, "sucursal_id", None)
+            ).distinct()
         citas = citas.order_by("-fecha_solicitada", "-fecha_hora")
         citas_pendientes = citas.filter(estado="pendiente").order_by(
             "fecha_solicitada", "fecha_hora"
@@ -3308,15 +3455,68 @@ class DetallePropietarioView(AuthenticatedView):
             },
         )
 
+    def post(self, request, *args, **kwargs):
+        if request.user.rol != "ADMIN":
+            messages.error(request, "No tienes permiso para esta acciA3n.")
+            return redirect("dashboard")
 
+        propietarios = Propietario.objects.all()
+        form_data = request.POST
+
+        foto_subida = None
+
+        has_error = False
+        nombre = request.POST.get("nombre")
+        especie = request.POST.get("especie")
+        raza = request.POST.get("raza")
+        sexo = request.POST.get("sexo")
+        fecha_nacimiento = request.POST.get("fecha_nacimiento")
+        propietario_id = request.POST.get("propietario")
+        foto_subida = request.FILES.get("foto")
+
+        propietario = None
+        if propietario_id:
+            propietario = Propietario.objects.filter(id=propietario_id).first()
+
+        if propietario is None:
+            messages.error(request, "Debes seleccionar un propietario vA?lido.")
+            has_error = True
+
+        fecha_obj = None
+        if fecha_nacimiento:
+            try:
+                fecha_obj = datetime.strptime(fecha_nacimiento, "%Y-%m-%d").date()
+            except ValueError:
+                messages.error(request, "La fecha de nacimiento no es vA?lida.")
+                has_error = True
+        else:
+            messages.error(request, "Debes indicar la fecha de nacimiento.")
+            has_error = True
+
+        if not has_error:
+            Paciente.objects.create(
+                nombre=nombre,
+                especie=especie,
+                raza=raza,
+                sexo=sexo,
+                fecha_nacimiento=fecha_obj,
+                propietario=propietario,
+                foto=foto_subida,
+            )
+            messages.success(request, "Mascota creada correctamente ?o.")
+            return redirect("dashboard")
+
+        return render(
+            request,
+            "core/crear_mascota_admin.html",
+            {
+                "propietarios": propietarios,
+                "form_data": form_data,
+                "foto_subida": foto_subida,
+            },
+        )
 class GestionarVeterinariosView(AuthenticatedView):
     def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
         if request.user.rol != "ADMIN":
             messages.error(request, "No tienes permiso para gestionar veterinarios.")
             return redirect("dashboard")
@@ -3337,48 +3537,62 @@ class GestionarVeterinariosView(AuthenticatedView):
 
         sucursales = list(_sucursales_para_usuario(request.user))
 
-        if request.method == "POST":
-            user_id = request.POST.get("usuario")
-            sucursal_id = request.POST.get("sucursal")
-            usuario = get_object_or_404(User, id=user_id)
-
-            if request.user.is_superuser:
-                sucursal = get_object_or_404(Sucursal, id=sucursal_id)
-            else:
-                sucursal = getattr(request.user, "sucursal", None)
-                if sucursal is None or (
-                    sucursal_id and str(sucursal.id) != str(sucursal_id)
-                ):
-                    messages.error(
-                        request,
-                        "No tienes permiso para asignar usuarios a esa sucursal.",
-                    )
-                    return redirect("gestionar_veterinarios")
-
-            usuario.rol = "VET"
-            usuario.sucursal = sucursal
-            usuario.save(update_fields=["rol", "sucursal"])
-            messages.success(
-                request,
-                f"{usuario.get_full_name() or usuario.username} ahora es Veterinario en {sucursal.nombre} ✅",
-            )
-            return redirect("gestionar_veterinarios")
-
         return render(
             request,
             "core/asignar_veterinario_admin.html",
             {"usuarios": usuarios_no_vet, "sucursales": sucursales, "es_superadmin": request.user.is_superuser},
         )
 
+    def post(self, request, *args, **kwargs):
+        if request.user.rol != "ADMIN":
+            messages.error(request, "No tienes permiso para gestionar veterinarios.")
+            return redirect("dashboard")
 
+        usuarios_no_vet = User.objects.exclude(rol="VET")
+        if not request.user.is_superuser:
+            sucursal_admin = getattr(request.user, "sucursal", None)
+            if sucursal_admin is None:
+                messages.warning(
+                    request,
+                    "Asigna una sucursal a tu perfil para administrar veterinarios.",
+                )
+                usuarios_no_vet = usuarios_no_vet.none()
+            else:
+                usuarios_no_vet = usuarios_no_vet.filter(
+                    Q(sucursal=sucursal_admin) | Q(sucursal__isnull=True)
+                )
+        else:
+            sucursal_admin = None
+
+        sucursales = list(_sucursales_para_usuario(request.user))
+
+        user_id = request.POST.get("usuario")
+        sucursal_id = request.POST.get("sucursal")
+        usuario = get_object_or_404(User, id=user_id)
+
+        if request.user.is_superuser:
+            sucursal = get_object_or_404(Sucursal, id=sucursal_id)
+        else:
+            sucursal = getattr(request.user, "sucursal", None)
+            if sucursal is None or (
+                sucursal_id and str(sucursal.id) != str(sucursal_id)
+            ):
+                messages.error(
+                    request,
+                    "No tienes permiso para asignar usuarios a esa sucursal.",
+                )
+                return redirect("gestionar_veterinarios")
+
+        usuario.rol = "VET"
+        usuario.sucursal = sucursal
+        usuario.save(update_fields=["rol", "sucursal"])
+        messages.success(
+            request,
+            f"{usuario.get_full_name() or usuario.username} ahora es Veterinario en {sucursal.nombre} ?o.",
+        )
+        return redirect("gestionar_veterinarios")
 class InventarioFarmacosAdminView(AuthenticatedView):
     def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
         usuario = request.user
         if usuario.rol != "ADMIN" and not usuario.is_superuser:
             messages.error(request, "Acceso exclusivo para administradores.")
@@ -3418,88 +3632,8 @@ class InventarioFarmacosAdminView(AuthenticatedView):
             initial={"sucursal": sucursal_seleccionada} if sucursal_seleccionada else {},
         )
 
-        if request.method == "POST":
-            action = request.POST.get("action")
-
-            if action == "crear":
-                form = FarmacoForm(request.POST, sucursales=sucursales_para_formulario)
-                if form.is_valid():
-                    farmaco = form.save()
-                    messages.success(
-                        request,
-                        "Fármaco registrado en el inventario de {}.".format(
-                            farmaco.sucursal.nombre
-                        ),
-                    )
-                    return redirect(
-                        f"{reverse('inventario_farmacos_admin')}?sucursal={farmaco.sucursal_id}"
-                    )
-                crear_form = form
-                sucursal_data = form.cleaned_data.get("sucursal") if form.is_valid() else None
-                if not sucursal_data:
-                    sucursal_id = form.data.get("sucursal")
-                    sucursal_data = (
-                        Sucursal.objects.filter(id=sucursal_id).first()
-                        if sucursal_id
-                        else None
-                    )
-                if sucursal_data:
-                    sucursal_seleccionada = sucursal_data
-
-            elif action == "actualizar":
-                farmaco_id = request.POST.get("farmaco_id")
-                farmaco = get_object_or_404(Farmaco, id=farmaco_id)
-                if not _usuario_puede_gestionar_sucursal(usuario, farmaco.sucursal_id):
-                    messages.error(
-                        request,
-                        "No tienes permisos para modificar este inventario.",
-                    )
-                    return redirect("inventario_farmacos_admin")
-
-                form = FarmacoForm(
-                    request.POST,
-                    instance=farmaco,
-                    sucursales=sucursales_para_formulario,
-                )
-                if form.is_valid():
-                    farmaco_actualizado = form.save()
-                    messages.success(
-                        request,
-                        "Inventario actualizado correctamente para {}.".format(
-                            farmaco_actualizado.nombre
-                        ),
-                    )
-                    return redirect(
-                        f"{reverse('inventario_farmacos_admin')}?sucursal={farmaco_actualizado.sucursal_id}"
-                    )
-                farmaco_en_edicion = farmaco
-                editar_form = form
-                sucursal_seleccionada = farmaco.sucursal
-
-            elif action == "eliminar":
-                farmaco_id = request.POST.get("farmaco_id")
-                farmaco = get_object_or_404(Farmaco, id=farmaco_id)
-                if not _usuario_puede_gestionar_sucursal(usuario, farmaco.sucursal_id):
-                    messages.error(
-                        request,
-                        "No tienes permisos para eliminar este fármaco.",
-                    )
-                else:
-                    sucursal_id = farmaco.sucursal_id
-                    nombre = farmaco.nombre
-                    farmaco.delete()
-                    messages.success(
-                        request,
-                        f"{nombre} eliminado del inventario.",
-                    )
-                    return redirect(
-                        f"{reverse('inventario_farmacos_admin')}?sucursal={sucursal_id}"
-                    )
-            else:
-                messages.error(request, "Acción no reconocida para el inventario.")
-
         editar_param = request.GET.get("editar")
-        if request.method == "GET" and editar_param and editar_form is None:
+        if editar_param and editar_form is None:
             farmaco_en_edicion = get_object_or_404(Farmaco, id=editar_param)
             if not _usuario_puede_gestionar_sucursal(
                 usuario, farmaco_en_edicion.sucursal_id
@@ -3535,12 +3669,146 @@ class InventarioFarmacosAdminView(AuthenticatedView):
 
         return render(request, "core/inventario_farmacos_admin.html", contexto)
 
+    def post(self, request, *args, **kwargs):
+        usuario = request.user
+        if usuario.rol != "ADMIN" and not usuario.is_superuser:
+            messages.error(request, "Acceso exclusivo para administradores.")
+            return redirect("dashboard")
 
+        sucursales_queryset = _sucursales_para_usuario(usuario)
+        sucursales_disponibles = list(sucursales_queryset)
+        if usuario.is_superuser:
+            sucursales_para_formulario = Sucursal.objects.all()
+        else:
+            sucursales_para_formulario = Sucursal.objects.filter(
+                id__in=[s.id for s in sucursales_disponibles]
+            )
+        sucursales_para_formulario = sucursales_para_formulario.order_by("nombre")
+
+        sucursal_seleccionada = None
+        sucursal_param = request.GET.get("sucursal")
+        if sucursal_param:
+            sucursal_seleccionada = Sucursal.objects.filter(id=sucursal_param).first()
+            if sucursal_seleccionada and not _usuario_puede_gestionar_sucursal(
+                usuario, sucursal_seleccionada.id
+            ):
+                messages.error(
+                    request,
+                    "No tienes permisos para administrar el inventario de esa sucursal.",
+                )
+                return redirect("inventario_farmacos_admin")
+        elif getattr(usuario, "sucursal_id", None):
+            sucursal_seleccionada = Sucursal.objects.filter(id=usuario.sucursal_id).first()
+        elif sucursales_disponibles:
+            sucursal_seleccionada = sucursales_disponibles[0]
+
+        farmaco_en_edicion = None
+        editar_form = None
+        crear_form = FarmacoForm(
+            sucursales=sucursales_para_formulario,
+            initial={"sucursal": sucursal_seleccionada} if sucursal_seleccionada else {},
+        )
+
+        action = request.POST.get("action")
+
+        if action == "crear":
+            form = FarmacoForm(request.POST, sucursales=sucursales_para_formulario)
+            if form.is_valid():
+                farmaco = form.save()
+                messages.success(
+                    request,
+                    "F?rmaco registrado en el inventario de {}.".format(
+                        farmaco.sucursal.nombre
+                    ),
+                )
+                return redirect(
+                    f"{reverse('inventario_farmacos_admin')}?sucursal={farmaco.sucursal_id}"
+                )
+            crear_form = form
+            sucursal_data = form.cleaned_data.get("sucursal") if form.is_valid() else None
+            if not sucursal_data:
+                sucursal_id = form.data.get("sucursal")
+                sucursal_data = (
+                    Sucursal.objects.filter(id=sucursal_id).first()
+                    if sucursal_id
+                    else None
+                )
+            if sucursal_data:
+                sucursal_seleccionada = sucursal_data
+
+        elif action == "actualizar":
+            farmaco_id = request.POST.get("farmaco_id")
+            farmaco = get_object_or_404(Farmaco, id=farmaco_id)
+            if not _usuario_puede_gestionar_sucursal(usuario, farmaco.sucursal_id):
+                messages.error(
+                    request,
+                    "No tienes permisos para modificar este inventario.",
+                )
+                return redirect("inventario_farmacos_admin")
+
+            form = FarmacoForm(
+                request.POST,
+                instance=farmaco,
+                sucursales=sucursales_para_formulario,
+            )
+            if form.is_valid():
+                farmaco_actualizado = form.save()
+                messages.success(
+                    request,
+                    "Inventario actualizado correctamente para {}.".format(
+                        farmaco_actualizado.nombre
+                    ),
+                )
+                return redirect(
+                    f"{reverse('inventario_farmacos_admin')}?sucursal={farmaco_actualizado.sucursal_id}"
+                )
+            farmaco_en_edicion = farmaco
+            editar_form = form
+            sucursal_seleccionada = farmaco.sucursal
+
+        elif action == "eliminar":
+            farmaco_id = request.POST.get("farmaco_id")
+            farmaco = get_object_or_404(Farmaco, id=farmaco_id)
+            if not _usuario_puede_gestionar_sucursal(usuario, farmaco.sucursal_id):
+                messages.error(
+                    request,
+                    "No tienes permisos para eliminar este fA?rmaco.",
+                )
+            else:
+                sucursal_id = farmaco.sucursal_id
+                nombre = farmaco.nombre
+                farmaco.delete()
+                messages.success(
+                    request,
+                    f"{nombre} eliminado del inventario.",
+                )
+                return redirect(
+                    f"{reverse('inventario_farmacos_admin')}?sucursal={sucursal_id}"
+                )
+        else:
+            messages.error(request, "AcciA3n no reconocida para el inventario.")
+
+        if sucursal_seleccionada:
+            inventario = _inventario_por_sucursal(sucursal_seleccionada)
+            farmacos = inventario["farmacos"]
+            resumen_inventario = inventario["resumen"]
+        else:
+            farmacos = []
+            resumen_inventario = None
+
+        contexto = {
+            "sucursales": sucursales_para_formulario,
+            "sucursal_seleccionada": sucursal_seleccionada,
+            "farmacos": farmacos,
+            "crear_form": crear_form,
+            "farmaco_en_edicion": farmaco_en_edicion,
+            "editar_form": editar_form,
+            "resumen_inventario": resumen_inventario,
+        }
+
+        return render(request, "core/inventario_farmacos_admin.html", contexto)
 class DashboardVeterinariosView(AuthenticatedView):
     def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
         if request.user.rol != "ADMIN":
             return redirect("dashboard")
 
@@ -3705,13 +3973,8 @@ class DashboardVeterinariosView(AuthenticatedView):
                 "solicitudes_recientes": solicitudes_recientes,
             },
         )
-
-
 class InventarioFarmacosVeterinarioView(AuthenticatedView):
     def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
         if request.user.rol != "VET":
             messages.error(request, "Acceso exclusivo para el equipo veterinario.")
             return redirect("dashboard")
@@ -3720,7 +3983,7 @@ class InventarioFarmacosVeterinarioView(AuthenticatedView):
         if sucursal is None:
             messages.warning(
                 request,
-                "Tu perfil no tiene una sucursal asociada. Solicita al equipo administrativo que actualice tu información para consultar el inventario farmacológico.",
+                "Tu perfil no tiene una sucursal asociada. Solicita al equipo administrativo que actualice tu informaciA3n para consultar el inventario farmacolA3gico.",
             )
             contexto = {
                 "sucursal": None,
@@ -3785,15 +4048,10 @@ class InventarioFarmacosVeterinarioView(AuthenticatedView):
         }
 
         return render(request, "core/inventario_farmacos_vet.html", contexto)
-
-
 class DashboardVeterinariosIndicadoresView(AuthenticatedView):
     def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
         if request.user.rol not in {"ADMIN", "ADMIN_OP", "VET"}:
-            messages.error(request, "No tienes permiso para acceder a los indicadores estratégicos.")
+            messages.error(request, "No tienes permiso para acceder a los indicadores estratAcgicos.")
             return redirect("dashboard")
 
         ahora = timezone.now()
@@ -3941,15 +4199,10 @@ class DashboardVeterinariosIndicadoresView(AuthenticatedView):
             "core/dashboard_veterinarios_indicadores.html",
             contexto,
         )
-
-
 class HistorialMedicoVetView(AuthenticatedView):
     def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
         if request.user.rol not in {"ADMIN", "VET"}:
-            messages.error(request, "No tienes permiso para acceder a esta sección.")
+            messages.error(request, "No tienes permiso para acceder a esta secciA3n.")
             return redirect("dashboard")
 
         query = request.GET.get("q", "")
@@ -4037,22 +4290,12 @@ class HistorialMedicoVetView(AuthenticatedView):
         }
 
         return render(request, "core/historial_medico_vet.html", contexto)
-
-
 class DetalleHistorialView(AuthenticatedView):
-    def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request, historial_id):
+    def get(self, request, historial_id, *args, **kwargs):
         historial = get_object_or_404(HistorialMedico, id=historial_id)
         return render(request, "core/detalle_historial.html", {"historial": historial})
-
-
 class AdminProductosListView(AuthenticatedView):
     def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
         if request.user.rol != "ADMIN":
             messages.error(request, "No tienes permiso para gestionar la tienda.")
             return redirect("dashboard")
@@ -4060,22 +4303,14 @@ class AdminProductosListView(AuthenticatedView):
         if not _producto_table_available():
             messages.warning(
                 request,
-                "La tienda aún no está lista. Ejecuta las migraciones para crear la tabla de productos.",
+                "La tienda aA?n no estA? lista. Ejecuta las migraciones para crear la tabla de productos.",
             )
             productos = Producto.objects.none()
         else:
             productos = Producto.objects.all().order_by("-actualizado")
         return render(request, "core/admin_productos_list.html", {"productos": productos})
-
-
 class AdminProductoCrearView(AuthenticatedView):
     def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
         if request.user.rol != "ADMIN":
             messages.error(request, "No tienes permiso para gestionar la tienda.")
             return redirect("dashboard")
@@ -4087,16 +4322,33 @@ class AdminProductoCrearView(AuthenticatedView):
             )
             return redirect("admin_productos_list")
 
-        if request.method == "POST":
-            form = ProductoForm(request.POST, request.FILES)
-            if form.is_valid():
-                producto = form.save()
-                messages.success(
-                    request, f"Producto {producto.nombre} creado correctamente ✅"
-                )
-                return redirect("admin_productos_list")
-        else:
-            form = ProductoForm()
+        form = ProductoForm()
+
+        return render(
+            request,
+            "core/admin_producto_form.html",
+            {"form": form, "titulo": "Nuevo producto"},
+        )
+
+    def post(self, request, *args, **kwargs):
+        if request.user.rol != "ADMIN":
+            messages.error(request, "No tienes permiso para gestionar la tienda.")
+            return redirect("dashboard")
+
+        if not _producto_table_available():
+            messages.error(
+                request,
+                "Debes ejecutar las migraciones antes de crear productos en la tienda.",
+            )
+            return redirect("admin_productos_list")
+
+        form = ProductoForm(request.POST, request.FILES)
+        if form.is_valid():
+            producto = form.save()
+            messages.success(
+                request, f"Producto {producto.nombre} creado correctamente ?o."
+            )
+            return redirect("admin_productos_list")
 
         return render(
             request,
@@ -4106,13 +4358,28 @@ class AdminProductoCrearView(AuthenticatedView):
 
 
 class AdminProductoEditarView(AuthenticatedView):
-    def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
+    def get(self, request, producto_id, *args, **kwargs):
+        if request.user.rol != "ADMIN":
+            messages.error(request, "No tienes permiso para gestionar la tienda.")
+            return redirect("dashboard")
 
-    def post(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
+        if not _producto_table_available():
+            messages.error(
+                request,
+                "Debes ejecutar las migraciones antes de editar productos en la tienda.",
+            )
+            return redirect("admin_productos_list")
 
-    def _handle(self, request, producto_id):
+        producto = get_object_or_404(Producto, id=producto_id)
+        form = ProductoForm(instance=producto)
+
+        return render(
+            request,
+            "core/admin_producto_form.html",
+            {"form": form, "titulo": f"Editar {producto.nombre}", "producto": producto},
+        )
+
+    def post(self, request, producto_id, *args, **kwargs):
         if request.user.rol != "ADMIN":
             messages.error(request, "No tienes permiso para gestionar la tienda.")
             return redirect("dashboard")
@@ -4126,142 +4393,143 @@ class AdminProductoEditarView(AuthenticatedView):
 
         producto = get_object_or_404(Producto, id=producto_id)
 
-        if request.method == "POST":
-            form = ProductoForm(request.POST, request.FILES, instance=producto)
-            if form.is_valid():
-                form.save()
-                messages.success(
-                    request, f"Producto {producto.nombre} actualizado correctamente ✅"
-                )
-                return redirect("admin_productos_list")
-        else:
-            form = ProductoForm(instance=producto)
+        form = ProductoForm(request.POST, request.FILES, instance=producto)
+        if form.is_valid():
+            form.save()
+            messages.success(
+                request, f"Producto {producto.nombre} actualizado correctamente ?o."
+            )
+            return redirect("admin_productos_list")
 
         return render(
             request,
             "core/admin_producto_form.html",
             {"form": form, "titulo": f"Editar {producto.nombre}", "producto": producto},
         )
-
-
 class LoginView(PublicView):
     def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
+        return render(request, "core/login.html")
 
     def post(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
-        if request.method == "POST":
-            username = request.POST.get("username")
-            password = request.POST.get("password")
-            user = authenticate(request, username=username, password=password)
-            if user is not None:
-                login(request, user)
-                return redirect("landing")
-            messages.error(request, "Usuario o contraseña incorrectos.")
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect("landing")
+        messages.error(request, "Usuario o contraseA?a incorrectos.")
         return render(request, "core/login.html")
 
 
 class LogoutView(AuthenticatedView):
     def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
         logout(request)
         return redirect("login")
-
-
 class RegistroPropietarioView(PublicView):
     def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
-        if request.method == "POST":
-            username = request.POST.get("username")
-            email = request.POST.get("email")
-            first_name = request.POST.get("first_name")
-            last_name = request.POST.get("last_name")
-            telefono = request.POST.get("telefono")
-            direccion = request.POST.get("direccion")
-            password1 = request.POST.get("password1")
-            password2 = request.POST.get("password2")
-
-            errores = []
-            telefono_normalizado = _solo_digitos_telefono(telefono)
-
-            def telefono_duplicado(queryset):
-                if not telefono:
-                    return False
-                filtros = Q(telefono__iexact=telefono)
-                if telefono_normalizado and telefono_normalizado != telefono:
-                    filtros |= Q(telefono=telefono_normalizado)
-                return queryset.filter(filtros).exists()
-
-            if password1 != password2:
-                errores.append("Las contrasenas no coinciden.")
-            if username and User.objects.filter(username=username).exists():
-                errores.append("El usuario ya existe.")
-            if email and User.objects.filter(email__iexact=email).exists():
-                errores.append("El email ya esta registrado.")
-            if telefono and (
-                telefono_duplicado(User.objects.all())
-                or telefono_duplicado(Propietario.objects.all())
-            ):
-                errores.append("El telefono ya esta asociado a otra cuenta.")
-
-            if errores:
-                for error in errores:
-                    messages.error(request, error)
-            else:
-                try:
-                    with transaction.atomic():
-                        user = User.objects.create_user(
-                            username=username,
-                            email=email,
-                            first_name=first_name,
-                            last_name=last_name,
-                            password=password1,
-                            rol="OWNER",
-                            telefono=telefono,
-                            direccion=direccion,
-                        )
-                        Propietario.objects.update_or_create(
-                            user=user,
-                            defaults={
-                                "telefono": telefono,
-                                "direccion": direccion,
-                            },
-                        )
-                except IntegrityError:
-                    if "user" in locals() and user.pk:
-                        user.delete()
-                    messages.error(
-                        request,
-                        "No pudimos completar el registro en este momento. Intentalo nuevamente.",
-                    )
-                else:
-                    login(request, user)
-                    messages.success(
-                        request,
-                        "Registro exitoso. Ya puedes gestionar tus mascotas desde el panel.",
-                    )
-                    return redirect("dashboard")
-
         return render(request, "core/registro_propietario.html")
 
+    def post(self, request, *args, **kwargs):
+        username = request.POST.get("username")
+        email = request.POST.get("email")
+        first_name = request.POST.get("first_name")
+        last_name = request.POST.get("last_name")
+        telefono = request.POST.get("telefono")
+        direccion = request.POST.get("direccion")
+        password1 = request.POST.get("password1")
+        password2 = request.POST.get("password2")
 
+        errores = []
+        telefono_normalizado = _solo_digitos_telefono(telefono)
+
+        def telefono_duplicado(queryset):
+            if not telefono:
+                return False
+            filtros = Q(telefono__iexact=telefono)
+            if telefono_normalizado and telefono_normalizado != telefono:
+                filtros |= Q(telefono=telefono_normalizado)
+            return queryset.filter(filtros).exists()
+
+        if password1 != password2:
+            errores.append("Las contrasenas no coinciden.")
+        if username and User.objects.filter(username=username).exists():
+            errores.append("El usuario ya existe.")
+        if email and User.objects.filter(email__iexact=email).exists():
+            errores.append("El email ya esta registrado.")
+        if telefono and (
+            telefono_duplicado(User.objects.all())
+            or telefono_duplicado(Propietario.objects.all())
+        ):
+            errores.append("El telefono ya esta asociado a otra cuenta.")
+
+        if errores:
+            for error in errores:
+                messages.error(request, error)
+        else:
+            try:
+                with transaction.atomic():
+                    user = User.objects.create_user(
+                        username=username,
+                        email=email,
+                        first_name=first_name,
+                        last_name=last_name,
+                        password=password1,
+                        rol="OWNER",
+                        telefono=telefono,
+                        direccion=direccion,
+                    )
+                    Propietario.objects.update_or_create(
+                        user=user,
+                        defaults={
+                            "telefono": telefono,
+                            "direccion": direccion,
+                        },
+                    )
+            except IntegrityError:
+                if "user" in locals() and user.pk:
+                    user.delete()
+                messages.error(
+                    request,
+                    "No pudimos completar el registro en este momento. Intentalo nuevamente.",
+                )
+            else:
+                login(request, user)
+                messages.success(
+                    request,
+                    "Registro exitoso. Ya puedes gestionar tus mascotas desde el panel.",
+                )
+                return redirect("dashboard")
+
+        return render(request, "core/registro_propietario.html")
 class ConfiguracionPerfilView(AuthenticatedView):
     def get(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
+        user = request.user
+        propietario = Propietario.objects.filter(user=user).first()
+        initial = {
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "email": user.email,
+            "telefono": propietario.telefono if propietario else user.telefono,
+            "direccion": propietario.direccion if propietario else user.direccion,
+        }
+
+        form = PerfilPropietarioForm(
+            None,
+            None,
+            initial=initial,
+            user=user,
+        )
+
+        return render(
+            request,
+            "core/configuracion_perfil.html",
+            {
+                "form": form,
+                "propietario": propietario,
+            },
+        )
 
     def post(self, request, *args, **kwargs):
-        return self._handle(request, **kwargs)
-
-    def _handle(self, request):
         user = request.user
         propietario = Propietario.objects.filter(user=user).first()
         initial = {
@@ -4279,7 +4547,7 @@ class ConfiguracionPerfilView(AuthenticatedView):
             user=user,
         )
 
-        if request.method == "POST" and form.is_valid():
+        if form.is_valid():
             datos = form.cleaned_data
             conflictos = False
 
@@ -4363,4 +4631,3 @@ class ConfiguracionPerfilView(AuthenticatedView):
                 "propietario": propietario,
             },
         )
-
