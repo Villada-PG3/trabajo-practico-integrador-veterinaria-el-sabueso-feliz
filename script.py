@@ -74,13 +74,6 @@ def run():
             rol="ADMIN",
             sucursal=central,
         )
-        admin_op = User.objects.create_user(
-            username="operaciones",
-            email="operaciones@sabueso.test",
-            password="oper123",
-            rol="ADMIN_OP",
-            sucursal=central,
-        )
         vet = User.objects.create_user(
             username="drperro",
             email="vet@sabueso.test",
@@ -112,11 +105,21 @@ def run():
             direccion="Av. Mascotas 321",
         )
 
-        propietario = Propietario.objects.create(
-            user=owner, telefono=owner.telefono, direccion=owner.direccion, ciudad="Cordoba"
+        propietario, _ = Propietario.objects.update_or_create(
+            user=owner,
+            defaults={
+                "telefono": owner.telefono,
+                "direccion": owner.direccion,
+                "ciudad": "Cordoba",
+            },
         )
-        propietario2 = Propietario.objects.create(
-            user=owner2, telefono=owner2.telefono, direccion=owner2.direccion, ciudad="Cordoba"
+        propietario2, _ = Propietario.objects.update_or_create(
+            user=owner2,
+            defaults={
+                "telefono": owner2.telefono,
+                "direccion": owner2.direccion,
+                "ciudad": "Cordoba",
+            },
         )
 
         # Mascotas
@@ -127,16 +130,16 @@ def run():
             sexo="Macho",
             fecha_nacimiento=date(2021, 5, 20),
             propietario=propietario,
-            vacunas="Antirrábica",
+            vacunas="Antirrabica",
         )
-        michi = Paciente.objects.create(
-            nombre="Michi",
-            especie="Gato",
-            raza="Siames",
+        luna = Paciente.objects.create(
+            nombre="Luna",
+            especie="Perro",
+            raza="Golden Retriever",
             sexo="Hembra",
-            fecha_nacimiento=date(2020, 11, 2),
+            fecha_nacimiento=date(2022, 3, 14),
             propietario=propietario2,
-            alergias="Penicilina",
+            vacunas="Refuerzo triple canina",
         )
 
         # Farmacos
@@ -216,35 +219,54 @@ def run():
             estado="programada",
             notas="Control de rutina y refuerzo de vacunas.",
         )
-        cita_past = Cita.objects.create(
-            paciente=michi,
+        cita_revision = Cita.objects.create(
+            paciente=firulais,
             veterinario=vet,
             sucursal=central,
-            fecha_solicitada=timezone.localdate() - timedelta(days=10),
-            fecha_hora=timezone.now() - timedelta(days=9, hours=2),
+            fecha_solicitada=timezone.localdate() - timedelta(days=8),
+            fecha_hora=timezone.now() - timedelta(days=7, hours=3),
+            tipo="consulta",
+            estado="atendida",
+            notas="Revisar avance de tratamiento y limpieza de oidos.",
+        )
+        cita_luna = Cita.objects.create(
+            paciente=luna,
+            veterinario=vet,
+            sucursal=central,
+            fecha_solicitada=timezone.localdate() - timedelta(days=4),
+            fecha_hora=timezone.now() - timedelta(days=3, hours=1),
             tipo="vacunacion",
             estado="atendida",
-            notas="Consulta por alergia.",
+            notas="Aplicacion de refuerzo de vacunas y control general.",
         )
 
         HistorialMedico.objects.create(
-            paciente=michi,
+            paciente=firulais,
             veterinario=vet,
-            cita=cita_past,
-            diagnostico="Dermatitis leve",
-            tratamiento="Antihistamínico tópico",
-            notas="Control en 2 semanas",
-            peso=4.2,
-            temperatura=38.2,
+            cita=cita_revision,
+            diagnostico="Otitis externa leve",
+            tratamiento="Limpieza auricular y gotas antibioticas por 7 dias",
+            notas="Se recomienda evitar banos hasta la proxima consulta.",
+            peso=28.4,
+            temperatura=38.5,
+        )
+        HistorialMedico.objects.create(
+            paciente=luna,
+            veterinario=vet,
+            cita=cita_luna,
+            diagnostico="Chequeo general y refuerzo de vacunacion",
+            tratamiento="Vacuna triple canina y antiparasitario topico",
+            notas="Sin reacciones adversas. Control en 1 mes.",
+            peso=18.9,
+            temperatura=38.1,
         )
 
-        CitaFarmaco.objects.create(cita=cita_past, farmaco=antiparasitario, cantidad=1)
-        CitaFarmaco.objects.create(cita=cita_past, farmaco=analgesico, cantidad=1)
+        CitaFarmaco.objects.create(cita=cita_revision, farmaco=analgesico, cantidad=1)
+        CitaFarmaco.objects.create(cita=cita_luna, farmaco=antiparasitario, cantidad=1)
 
     print("Datos de ejemplo cargados.")
     print("Usuarios de prueba:")
     print("  superadmin -> user: admin / pass: admin123")
-    print("  operador   -> user: operaciones / pass: oper123")
     print("  veterinario-> user: drperro / pass: vet123")
     print("  propietario-> user: propietario / pass: owner123")
 
